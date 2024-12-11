@@ -9,7 +9,7 @@ This is a simple MVC-based PHP CRUD application.
 1. **Download the Code:**
    - Download the repository and place it inside your Laragon `www` directory as follows:
      ```
-     C:\laragon\www\mvc
+     C:\laragon\www\mvc hjhjhjhjhjh
      ```
 
 2. **Set Up the Database:**
