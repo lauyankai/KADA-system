@@ -62,7 +62,7 @@ This is a simple MVC-based PHP CRUD application.
 ---
 
 ## Notes
-
+hjhjh
 - Use the provided `Model`, `View`, and `Controller` structure to extend the functionality.
 - Ensure code quality and readability. Follow proper naming conventions and file organization.
 - This project serves as a foundational exercise in PHP MVC development. Feel free to explore and expand upon it.
