@@ -1,37 +1,100 @@
 <?php
-// Start session
 session_start();
 
-// Autoload classes 
-require_once '../vendor/autoload.php'; 
+// Core
+require_once '../app/core/Controller.php';
+require_once '../app/core/Model.php';
+require_once '../app/core/Database.php';
 
-// Include the Router class
-require_once '../app/core/Router.php';
+// Controllers
+require_once '../app/controllers/UserController.php';
+require_once '../app/controllers/AuthController.php';
 
-// Instantiate the Router
-$router = new App\Core\Router();
+// Models
+require_once '../app/models/User.php';
+require_once '../app/models/AuthUser.php';
 
-// Define the routes
-$router->addRoute('GET', '/', 'HomeController', 'index'); 
-$router->addRoute('GET', '/home', 'HomeController', 'index');
-$router->addRoute('GET', '/home/index', 'HomeController', 'index');  // Home page
+// Autoloader
+require_once '../app/core/Autoload.php';
 
-// User routes
-$router->addRoute('GET', '/user', 'UserController', 'index'); // User list page
-$router->addRoute('GET', '/user/register', 'UserController', 'register'); // Registration form page
-$router->addRoute('POST', '/user/store', 'UserController', 'store'); // Handle form submission
-$router->addRoute('GET', '/user/login', 'UserController', 'login');
-$router->addRoute('POST', '/user/authenticate', 'UserController', 'authenticate');
-$router->addRoute('GET', '/user/logout', 'UserController', 'logout');
+// Get the URI and method
+$uri = trim($_SERVER['REQUEST_URI'], '/');
+$method = $_SERVER['REQUEST_METHOD'];
 
-// Student routes
-$router->addRoute('GET', '/student', 'StudentController', 'index'); // Student index page
-$router->addRoute('GET', '/student/index', 'StudentController', 'index');
-$router->addRoute('GET', '/student/add', 'StudentController', 'add');  // Student add form
-$router->addRoute('POST', '/student/store', 'StudentController', 'store'); // Process student add form submission
-$router->addRoute('GET', '/students/edit/{id}', 'StudentController', 'edit');
-$router->addRoute('POST', '/students/update/{id}', 'StudentController', 'update');
-$router->addRoute('GET', '/student/delete/{id}', 'StudentController', 'delete');
+// Initialize controllers
+$userController = new App\Controllers\UserController();
+$authController = new App\Controllers\AuthController();
 
-// Handle the incoming request
-$router->dispatch();
+// Define public routes
+$publicRoutes = ['login', 'register', 'auth/login', 'auth/register'];
+
+// Router
+if ($uri === '') {
+    // Redirect to login if not authenticated, otherwise show dashboard
+    if (!isset($_SESSION['admin_id'])) {
+        header('Location: /login');
+        exit;
+    }
+    $userController->index();
+}
+// Handle public routes
+else if (in_array($uri, $publicRoutes)) {
+    switch ($uri) {
+        case 'login':
+            if (isset($_SESSION['admin_id'])) {
+                header('Location: /');
+                exit;
+            }
+            $authController->showLogin();
+            break;
+        case 'register':
+            if (isset($_SESSION['admin_id'])) {
+                header('Location: /');
+                exit;
+            }
+            $authController->showRegister();
+            break;
+        case 'auth/login':
+            $authController->login();
+            break;
+        case 'auth/register':
+            $authController->register();
+            break;
+    }
+}
+// Handle protected routes
+else {
+    // Check authentication for protected routes
+    if (!isset($_SESSION['admin_id'])) {
+        header('Location: /login');
+        exit;
+    }
+
+    switch ($uri) {
+        case 'logout':
+            $authController->logout();
+            break;
+        case 'create':
+            $userController->create();
+            break;
+        case 'store':
+            if ($method === 'POST') {
+                $userController->store();
+            }
+            break;
+        default:
+            if (preg_match('/edit\/(\d+)/', $uri, $matches)) {
+                $userController->edit($matches[1]);
+            }
+            else if (preg_match('/update\/(\d+)/', $uri, $matches) && $method === 'POST') {
+                $userController->update($matches[1]);
+            }
+            else if (preg_match('/delete\/(\d+)/', $uri, $matches) && $method === 'POST') {
+                $userController->delete($matches[1]);
+            }
+            else {
+                http_response_code(404);
+                echo "Page not found.";
+            }
+    }
+}
