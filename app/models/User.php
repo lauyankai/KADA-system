@@ -7,7 +7,7 @@ class User extends Model
 {
     public function all() 
     {
-        $stmt = $this->getConnection()->query("SELECT * FROM users"); // Use query() for SELECT statements
+        $stmt = $this->getConnection()->query("SELECT * FROM admins"); // Use query() for SELECT statements
         return $stmt->fetchAll(); // Use fetchAll() to get all records
     }
 
