@@ -52,7 +52,7 @@
                         <a class="nav-link" href="/"><i class="bi bi-people me-2"></i>Users</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/create"><i class="bi bi-person-plus me-2"></i>Add User</a>
+                        <a class="nav-link" href="/create"><i class="bi bi-person-plus me-2"></i>Register as Member</a>
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">

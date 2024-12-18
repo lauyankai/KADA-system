@@ -29,8 +29,71 @@ class UserController extends Controller
 
     public function store()
     {
-        $this->user->create($_POST);
-        header('Location: /');
+        try {
+            // Validate required fields
+            $requiredFields = [
+                'name', 'ic_no', 'gender', 'religion', 'race', 'marital_status',
+                'member_no', 'pf_no', 'position', 'grade', 'monthly_salary',
+                'home_address', 'home_postcode', 'home_state',
+                'office_address', 'office_postcode',
+                'office_phone', 'home_phone'
+            ];
+
+            foreach ($requiredFields as $field) {
+                if (empty($_POST[$field])) {
+                    throw new \Exception("Field {$field} is required");
+                }
+            }
+
+            $success = $this->user->create($_POST);
+
+            // Handle AJAX request
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                
+                header('Content-Type: application/json');
+                if ($success) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Member application submitted successfully!'
+                    ]);
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Failed to save data'
+                    ]);
+                }
+                exit;
+            }
+
+            // Handle regular form submission
+            if ($success) {
+                $_SESSION['success'] = 'Member application submitted successfully!';
+                header('Location: /');
+            } else {
+                $_SESSION['error'] = 'Failed to submit application. Please try again.';
+                header('Location: /create');
+            }
+            exit;
+
+        } catch (\Exception $e) {
+            // Handle AJAX request errors
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+                exit;
+            }
+
+            // Handle regular form submission errors
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /create');
+            exit;
+        }
     }
 
     public function edit($id)

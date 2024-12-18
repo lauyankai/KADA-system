@@ -264,10 +264,90 @@
                             </a>
                         </div>
                     </form>
+                    <!-- Success Modal -->
+                    <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header border-0">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center p-4">
+                                    <i id="modalIcon" class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                                    <h3 class="mt-3" id="modalTitle">Success!</h3>
+                                    <p class="mb-4" id="modalMessage">Your application has been submitted successfully.</p>
+                                    <button type="button" class="btn btn-gradient px-4" data-bs-dismiss="modal">OK</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Debug log
+            console.log('Submitting form...');
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+            
+            fetch('/store', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+                const icon = document.getElementById('modalIcon');
+                const title = document.getElementById('modalTitle');
+                const message = document.getElementById('modalMessage');
+                
+                if (data.success) {
+                    icon.className = 'bi bi-check-circle-fill text-success';
+                    title.textContent = 'Success!';
+                    message.textContent = data.message;
+                    
+                    // Add event listener for modal close
+                    document.getElementById('resultModal').addEventListener('hidden.bs.modal', function () {
+                        window.location.href = '/';
+                    });
+                } else {
+                    icon.className = 'bi bi-x-circle-fill text-danger';
+                    title.textContent = 'Error!';
+                    message.textContent = data.message || 'An error occurred. Please try again.';
+                }
+                
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+                const icon = document.getElementById('modalIcon');
+                const title = document.getElementById('modalTitle');
+                const message = document.getElementById('modalMessage');
+                
+                icon.className = 'bi bi-x-circle-fill text-danger';
+                title.textContent = 'Error!';
+                message.textContent = 'An error occurred. Please try again.';
+                
+                modal.show();
+            });
+        });
+    });
+    </script>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
