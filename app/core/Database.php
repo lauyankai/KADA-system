@@ -7,7 +7,7 @@ use PDOException;
 class Database
 {
     private $host = 'localhost';
-    private $dbname = 'pdo_crud';
+    private $dbname = 'kada_mvc';
     private $user = 'root';
     private $pass = ''; // Leave empty for no password
     private $pdo;
