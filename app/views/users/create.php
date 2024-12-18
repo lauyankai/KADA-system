@@ -348,28 +348,5 @@
         });
     });
     </script>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const container = document.querySelector('.family-member-container');
-        const addButton = document.querySelector('.add-family-member');
-
-        addButton.addEventListener('click', function() {
-            const template = container.querySelector('.family-member').cloneNode(true);
-            template.querySelector('[name="family_relationship[]"]').value = '';
-            template.querySelector('[name="family_name[]"]').value = '';
-            template.querySelector('[name="family_ic[]"]').value = '';
-            template.querySelector('.remove-family').style.display = 'block';
-            container.appendChild(template);
-
-            // Add event listener to remove button
-            template.querySelector('.remove-family').addEventListener('click', function() {
-                template.remove();
-            });
-        });
-    });
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

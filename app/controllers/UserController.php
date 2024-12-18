@@ -77,7 +77,6 @@ class UserController extends Controller
             exit;
 
         } catch (\Exception $e) {
-            // Handle AJAX request errors
             if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
                 
@@ -88,11 +87,6 @@ class UserController extends Controller
                 ]);
                 exit;
             }
-
-            // Handle regular form submission errors
-            $_SESSION['error'] = $e->getMessage();
-            header('Location: /create');
-            exit;
         }
     }
 
