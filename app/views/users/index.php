@@ -1,41 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users List</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        .card {
-            border-radius: 15px;
-            border: none;
-        }
-        .btn-gradient {
-            background: linear-gradient(45deg, #198754, #20c997);
-            border: none;
-            color: white;
-            transition: all 0.3s ease;
-        }
-        .btn-gradient:hover {
-            background: linear-gradient(45deg, #20c997, #198754);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-        .action-buttons form {
-            display: inline-block;
-        }
-        .table-hover tbody tr:hover {
-            background-color: rgba(25, 135, 84, 0.05);
-        }
-    </style>
-</head>
+<?php 
+    $title = 'Users List';
+    require_once '../app/views/templates/header.php';
+?>
 
-<body style="background-color: #fff8e8;">
     <div class="container mt-4">
         <!-- Main Content -->
         <div class="card shadow-lg mb-4">
@@ -77,17 +44,6 @@
                     </table>
                 </div>
             </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="text-center">
-            <a href="/create" class="btn btn-gradient btn-lg mb-3">
-                <i class="bi bi-plus-circle me-2"></i>Add New User
-            </a>
-            <br>
-            <a href="/logout" class="btn btn-outline-secondary">
-                <i class="bi bi-box-arrow-right me-2"></i>Logout
-            </a>
         </div>
     </div>
 

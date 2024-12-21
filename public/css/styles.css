@@ -1,0 +1,46 @@
+/* Common styles */
+.card {
+    border-radius: 15px;
+    border: none;
+}
+
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+}
+
+.btn-gradient {
+    background: linear-gradient(45deg, #198754, #20c997);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(45deg, #20c997, #198754);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Table styles */
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.action-buttons form {
+    display: inline-block;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(25, 135, 84, 0.05);
+}
+
+/* Custom background */
+body {
+    background-color: #fff8e8;
+} 
