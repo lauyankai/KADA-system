@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update step indicators
         steps.forEach((s, index) => {
             s.classList.remove('active');
-            // Mark previous steps as completed
-            if (index + 1 < currentStep) {
+            // Mark all steps up to maxStepReached as completed, except current step
+            if (index + 1 <= maxStepReached && index + 1 !== step) {
                 s.classList.add('completed');
             } else {
                 s.classList.remove('completed');
@@ -30,6 +30,18 @@ document.addEventListener('DOMContentLoaded', function() {
         nextBtn.style.display = step === steps.length ? 'none' : 'block';
         submitBtn.style.display = step === steps.length ? 'block' : 'none';
     }
+
+    // Add click event listeners to steps
+    steps.forEach((step, index) => {
+        step.addEventListener('click', () => {
+            const stepNumber = index + 1;
+            // Only allow clicking on completed steps or the next available step
+            if (stepNumber <= maxStepReached) {
+                currentStep = stepNumber;
+                updateStep(currentStep);
+            }
+        });
+    });
 
     nextBtn.addEventListener('click', () => {
         if (currentStep < steps.length) {
