@@ -12,9 +12,11 @@ class Model
     {
         try {
             $this->db = new PDO(
-                "mysql:host=localhost;dbname=pdo_crud;charset=utf8", // Update this with your actual DB credentials
-                "root", // Your database username
-                "",     // Your database password
+                "mysql:host=" . $_ENV['DB_HOST'] . 
+                ";dbname=" . $_ENV['DB_NAME'] . 
+                ";charset=" . $_ENV['DB_CHARSET'],
+                $_ENV['DB_USER'],
+                $_ENV['DB_PASS'],
                 [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
