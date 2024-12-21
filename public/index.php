@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+// Load Composer autoloader and environment variables
+require_once __DIR__ . '/../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
+
 // Core
 require_once '../app/core/Controller.php';
 require_once '../app/core/Model.php';
@@ -98,3 +103,6 @@ else {
             }
     }
 }
+
+var_dump(__DIR__ . '/../.env'); // This will show the exact path being checked
+die();
