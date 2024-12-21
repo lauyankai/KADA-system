@@ -1,6 +1,6 @@
 <?php 
     $title = 'Users List';
-    require_once '../app/views/templates/header.php';
+    require_once '../app/views/layouts/header.php';
 ?>
 
     <div class="container mt-4">
@@ -8,7 +8,7 @@
         <div class="card shadow-lg mb-4">
             <div class="card-body">
                 <div class="text-center mb-4">
-                    <h2 class="card-title" style="color: #198754; font-weight: bold; font-style: italic;">
+                    <h2 class="card-title">
                         <i class="bi bi-people-fill me-2"></i>List of Users
                     </h2>
                 </div>
@@ -47,6 +47,4 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php require_once '../app/views/layouts/footer.php'; ?>

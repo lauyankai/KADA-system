@@ -1,13 +1,13 @@
 <?php 
     $title = 'Edit User';
-    require_once '../app/views/templates/header.php';
+    require_once '../app/views/layouts/header.php';
 ?>
 
     <div class="container">
         <div class="row justify-content-center my-5">
             <div class="col-lg-6">
                 <div class="card p-4 shadow-lg">               
-                    <h1 class="text-center mb-4" style="color: #198754; font-weight: bold; font-style: italic;">
+                    <h1 class="text-center mb-4 page-title">
                         <i class="bi bi-pencil-square me-2"></i>Edit User
                     </h1>
                     <form action="/update/<?= $user['id']; ?>" method="POST">
@@ -84,5 +84,4 @@
             })
         })
     </script>
-</body>
-</html>
+<?php require_once '../app/views/layouts/footer.php'; ?>
