@@ -1,4 +1,4 @@
-# KADA System - Membership Management
+# KADA System - All-in-one Online Platform
 
 An all-in-one online platform for Koperasi Kakitangan KADA Kelantan Berhad to digitise and streamline their credit union services. This system transforms the traditional manual processes into an efficient digital solution, enhancing member services and operational efficiency.
 
