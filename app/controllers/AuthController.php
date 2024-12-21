@@ -15,7 +15,7 @@ class AuthController extends Controller
 
     public function showLogin()
     {
-        $this->view('auth/login');
+        $this->view('auth/login', ['title' => 'Login - KADA System']);
     }
 
     public function login()
@@ -40,7 +40,7 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        $this->view('auth/register');
+        $this->view('auth/register', ['title' => 'Register - KADA System']);
     }
 
     public function register()
