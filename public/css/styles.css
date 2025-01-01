@@ -238,4 +238,21 @@ body {
 .form-wizard .step:not(.completed):not(.active) {
     cursor: not-allowed;
 }
+
+/* Membership Form Select Styles */
+#membershipForm .form-select {
+    color: #6c757d;  /* Default color for select element */
+}
+
+#membershipForm .form-select option[value=""] {
+    color: #6c757d;  /* Color for placeholder option */
+}
+
+#membershipForm .form-select option:not([value=""]) {
+    color: #212529;  /* Color for non-placeholder options */
+}
+
+#membershipForm .form-select:valid {
+    color: #212529;  /* Color when an option is selected */
+}
  

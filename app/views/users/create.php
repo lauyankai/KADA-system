@@ -1,5 +1,5 @@
 <?php 
-    $title = 'Add User';
+    $title = 'Tambah Anggota';
     require_once '../app/views/layouts/header.php';
 ?>
 
@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <div class="card p-4 shadow-lg">               
                 <h1 class="text-center mb-4 page-title">
-                    <i class="bi bi-person-plus-fill me-2"></i>Membership Application Form
+                    <i class="bi bi-person-plus-fill me-2"></i>Pendaftaran Anggota
                 </h1>
 
                 <!-- Step Indicators -->
@@ -16,63 +16,74 @@
                     <div class="step-indicator mb-5">
                         <div class="step active" data-step="1">
                             <i class="bi bi-person-badge"></i>
-                            <div>Personal Information</div>
+                            <div>Maklumat Pemohon</div>
                         </div>
                         <div class="step" data-step="2">
                             <i class="bi bi-briefcase"></i>
-                            <div>Employment Details</div>
+                            <div>Maklumat Pekerjaan</div>
                         </div>
                         <div class="step" data-step="3">
                             <i class="bi bi-house"></i>
-                            <div>Contact Information</div>
+                            <div>Maklumat Kediaman</div>
                         </div>
                         <div class="step" data-step="4">
                             <i class="bi bi-people"></i>
-                            <div>Family Information</div>
+                            <div>Maklumat Keluarga</div>
                         </div>
                         <div class="step" data-step="5">
                             <i class="bi bi-cash-coin"></i>
-                            <div>Fees & Contributions</div>
+                            <div>Yuran dan Sumbangan</div>
                         </div>
                     </div>
                     
                     <form id="membershipForm" action="/store" method="POST" class="row g-3">
                         <!-- Step 1: Personal Information -->
                         <div class="step-content active" data-step="1">
-                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-person-badge me-2"></i>Personal Information</h4>
+                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-person-badge me-2"></i>Maklumat Pemohon</h4>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Full Name</label>
+                                    <label class="form-label fw-bold">Nama Penuh</label>
                                     <input type="text" name="name" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">IC Number</label>
+                                    <label class="form-label fw-bold">No. K/P</label>
                                     <input type="text" name="ic_no" class="form-control" placeholder="e.g., 880101-01-1234" required>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold">Gender</label>
+                                    <label class="form-label fw-bold">Jantina</label>
                                     <select name="gender" class="form-select" required>
-                                        <option value="">Select Gender</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
+                                        <option value="">Pilih</option>
+                                        <option value="Male">Lelaki</option>
+                                        <option value="Female">Perempuan</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold">Religion</label>
-                                    <input type="text" name="religion" class="form-control" required>
+                                    <label class="form-label fw-bold">Agama</label>
+                                    <select name="religion" class="form-select" required>
+                                        <option value="" disabled selected>Pilih</option>
+                                        <option value="Islam">Islam</option>
+                                        <option value="Buddha">Buddha</option>
+                                        <option value="Hindu">Hindu</option>
+                                        <option value="Kristian">Kristian</option>
+                                        <option value="Others-Religion">Lain-lain</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold">Race</label>
-                                    <input type="text" name="race" class="form-control" required>
+                                    <label class="form-label fw-bold">Bangsa</label>
+                                    <select name="race" class="form-select" required>
+                                        <option value="" disabled selected>Pilih</option>
+                                        <option value="Malay">Melayu</option>
+                                        <option value="Chinese">Cina</option>
+                                        <option value="Indian">India</option>
+                                        <option value="Others-Race">Lain-lain</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold">Marital Status</label>
+                                    <label class="form-label fw-bold">Status Perkahwinan</label>
                                     <select name="marital_status" class="form-select" required>
-                                        <option value="">Select Status</option>
-                                        <option value="Single">Single</option>
-                                        <option value="Married">Married</option>
-                                        <option value="Divorced">Divorced</option>
-                                        <option value="Widowed">Widowed</option>
+                                        <option value="" disabled selected>Pilih</option>
+                                        <option value="Single">Bujang</option>
+                                        <option value="Married">Kahwin</option>
                                     </select>
                                 </div>
                             </div>
@@ -80,26 +91,26 @@
 
                         <!-- Step 2: Employment Details -->
                         <div class="step-content" data-step="2">
-                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-briefcase me-2"></i>Employment Details</h4>
+                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-briefcase me-2"></i>Maklumat Pekerjaan Pemohon</h4>
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Member Number</label>
+                                    <label class="form-label fw-bold">No. Anggota</label>
                                     <input type="text" name="member_no" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">PF Number</label>
+                                    <label class="form-label fw-bold">No. PF</label>
                                     <input type="text" name="pf_no" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Monthly Salary (RM)</label>
+                                    <label class="form-label fw-bold">Gaji Bulanan (RM)</label>
                                     <input type="number" name="monthly_salary" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Position</label>
+                                    <label class="form-label fw-bold">Jawatan</label>
                                     <input type="text" name="position" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Grade</label>
+                                    <label class="form-label fw-bold">Gred</label>
                                     <input type="text" name="grade" class="form-control" required>
                                 </div>
                             </div>
@@ -107,20 +118,20 @@
 
                         <!-- Step 3: Contact Information -->
                         <div class="step-content" data-step="3">
-                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-house me-2"></i>Contact Information</h4>
+                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-house me-2"></i>Maklumat Kediaman</h4>
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <label class="form-label fw-bold">Home Address</label>
+                                    <label class="form-label fw-bold">Alamat Rumah</label>
                                     <textarea name="home_address" class="form-control" rows="3" required></textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Postcode</label>
+                                    <label class="form-label fw-bold">Poskod</label>
                                     <input type="text" name="home_postcode" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">State</label>
+                                    <label class="form-label fw-bold">Negeri/Wilayah</label>
                                     <select name="home_state" class="form-select" required>
-                                        <option value="">Select State</option>
+                                        <option value="">Pilih</option>
                                         <option value="Johor">Johor</option>
                                         <option value="Kedah">Kedah</option>
                                         <option value="Kelantan">Kelantan</option>
@@ -139,26 +150,26 @@
                                         <option value="WP Putrajaya">WP Putrajaya</option>
                                     </select>
                                 </div>
-                                <h4 class="mt-4 mb-3 text-success"><i class="bi bi-building me-2"></i>Office Address</h4>
+                                <h4 class="mt-4 mb-3 text-success"><i class="bi bi-building me-2"></i>Alamat</h4>
                                 <div class="col-12">
-                                    <label class="form-label fw-bold">Office Address</label>
+                                    <label class="form-label fw-bold">Alamat</label>
                                     <textarea name="office_address" class="form-control" rows="3" required></textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Office Postcode</label>
+                                    <label class="form-label fw-bold">Poskod</label>
                                     <input type="text" name="office_postcode" class="form-control" required>
                                 </div>
                                 <h4 class="mt-4 mb-3 text-success"><i class="bi bi-telephone me-2"></i>Contact Numbers</h4>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Office Telephone</label>
+                                    <label class="form-label fw-bold">No. Telefon</label>
                                     <input type="tel" name="office_phone" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Home Telephone</label>
+                                    <label class="form-label fw-bold">No. Telefon</label>
                                     <input type="tel" name="home_phone" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Fax Number</label>
+                                    <label class="form-label fw-bold">No. Fax</label>
                                     <input type="tel" name="fax" class="form-control">
                                 </div>
                             </div>
@@ -166,27 +177,27 @@
 
                         <!-- Step 4: Family Information -->
                         <div class="step-content" data-step="4">
-                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-people me-2"></i>Family Information</h4>
+                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-people me-2"></i>Maklumat Keluarga dan Pewaris</h4>
                             <div class="row g-3">
                                 <div class="col-12 mb-3">
                                     <div class="family-member-container">
                                         <div class="row family-member mb-3">
                                             <div class="col-md-3">
-                                                <label class="form-label fw-bold">Relationship</label>
+                                                <label class="form-label fw-bold">Hubungan Keluarga</label>
                                                 <select name="family_relationship[]" class="form-select" required>
-                                                    <option value="">Select</option>
-                                                    <option value="Spouse">Spouse</option>
-                                                    <option value="Child">Child</option>
-                                                    <option value="Parent">Parent</option>
-                                                    <option value="Sibling">Sibling</option>
+                                                    <option value="">Pilih</option>
+                                                    <option value="Spouse">Suami</option>
+                                                    <option value="Child">Anak</option>
+                                                    <option value="Parent">Bapa</option>
+                                                    <option value="Sibling">Adik-beradik</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
-                                                <label class="form-label fw-bold">Name</label>
+                                                <label class="form-label fw-bold">Nama</label>
                                                 <input type="text" name="family_name[]" class="form-control" required>
                                             </div>
                                             <div class="col-md-4">
-                                                <label class="form-label fw-bold">IC Number</label>
+                                                <label class="form-label fw-bold">No. K/P atau No. Surat Beranak</label>
                                                 <input type="text" name="family_ic[]" class="form-control" 
                                                        placeholder="e.g., 880101-01-1234" required>
                                             </div>
@@ -206,34 +217,34 @@
 
                         <!-- Step 5: Fees & Contributions -->
                         <div class="step-content" data-step="5">
-                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-cash-coin me-2"></i>Fees and Contributions</h4>
+                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-cash-coin me-2"></i>Yuran dan Sumbangan</h4>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Registration Fee (RM)</label>
+                                    <label class="form-label fw-bold">Fee Masuk (RM)</label>
                                     <input type="number" name="registration_fee" class="form-control" step="0.01" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Share Capital (RM)</label>
+                                    <label class="form-label fw-bold">Modal Syer (RM)</label>
                                     <input type="number" name="share_capital" class="form-control" step="0.01" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Fee Capital (RM)</label>
+                                    <label class="form-label fw-bold">Modal Yuran (RM)</label>
                                     <input type="number" name="fee_capital" class="form-control" step="0.01" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Member Deposit Funds (RM)</label>
+                                    <label class="form-label fw-bold">Wang Deposit Anggota (RM)</label>
                                     <input type="number" name="deposit_funds" class="form-control" step="0.01" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">AL-ABRAR Welfare Fund (RM)</label>
+                                    <label class="form-label fw-bold">Sumbangan Tabung Kebajikan (Al-Abrar)  (RM)</label>
                                     <input type="number" name="welfare_fund" class="form-control" step="0.01" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Fixed Deposit (RM)</label>
+                                    <label class="form-label fw-bold">Simpanan Tetap (RM)</label>
                                     <input type="number" name="fixed_deposit" class="form-control" step="0.01" required>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label fw-bold">Other Contributions</label>
+                                    <label class="form-label fw-bold">Lain-lain Sumbangan</label>
                                     <textarea name="other_contributions" class="form-control" rows="3" 
                                             placeholder="Please specify any other contributions..."></textarea>
                                 </div>
@@ -243,13 +254,13 @@
                         <!-- Navigation Buttons -->
                         <div class="step-buttons mt-4">
                             <button type="button" class="btn btn-secondary prev-step" style="display: none;">
-                                <i class="bi bi-arrow-left me-2"></i>Previous
+                                <i class="bi bi-arrow-left me-2"></i>Sebelumnya
                             </button>
                             <button type="button" class="btn btn-gradient next-step">
-                                Next<i class="bi bi-arrow-right ms-2"></i>
+                                Seterusnya<i class="bi bi-arrow-right ms-2"></i>
                             </button>
                             <button type="submit" class="btn btn-gradient submit-form" style="display: none;">
-                                Submit Application<i class="bi bi-check-circle ms-2"></i>
+                                Hantar<i class="bi bi-check-circle ms-2"></i>
                             </button>
                         </div>
                     </form>
