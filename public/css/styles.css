@@ -287,3 +287,75 @@ select.form-select option[disabled] {
 select.form-select.is-invalid {
     background-position: right 1.75rem center, center right 2.75rem !important;
 }
+
+/* Grade search styles */
+.grade-search-container {
+    position: relative;
+    max-width: 100%;
+}
+
+#gradeInput {
+    cursor: pointer;
+    background-color: #fff;
+}
+
+#gradeSearch {
+    margin-bottom: 0.5rem;
+    width: 100%;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+}
+
+.grade-select {
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    position: absolute;
+    top: calc(100% + 38px); /* Height of search input + margin */
+    left: 0;
+    z-index: 1000;
+    background-color: #fff;
+}
+
+.grade-select option {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.grade-select option:hover {
+    background-color: #e9ecef;
+}
+
+.grade-select option:checked {
+    background-color: #198754 !important;
+    color: white;
+}
+
+.grade-select option[disabled] {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Scrollbar styling for grade select */
+.grade-select::-webkit-scrollbar {
+    width: 8px;
+}
+
+.grade-select::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.grade-select::-webkit-scrollbar-thumb {
+    background: #198754;
+    border-radius: 4px;
+}
+
+.grade-select::-webkit-scrollbar-thumb:hover {
+    background: #146c43;
+}
