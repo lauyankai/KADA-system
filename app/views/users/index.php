@@ -1,5 +1,5 @@
 <?php 
-    $title = 'Users List';
+    $title = 'Pending Member List';
     require_once '../app/views/layouts/header.php';
 ?>
 
@@ -9,7 +9,7 @@
             <div class="card-body">
                 <div class="text-center mb-4">
                     <h2 class="card-title">
-                        <i class="bi bi-people-fill me-2"></i>List of Users
+                        <i class="bi bi-people-fill me-2"></i>Senarai Ahli
                     </h2>
                 </div>
 
@@ -18,25 +18,31 @@
                         <thead>
                             <tr class="text-center">
                                 <th><i class="bi bi-person me-2"></i>Nama</th>
-                                <th><i class="bi bi-envelope me-2"></i>Emel</th>
-                                <th><i class="bi bi-gear me-2"></i>Actions</th>
+                                <th><i class="bi bi-credit-card me-2"></i>No. KP</th>
+                                <th><i class="bi bi-gender-ambiguous me-2"></i>Jantina</th>
+                                <th><i class="bi bi-briefcase me-2"></i>Jawatan</th>
+                                <th><i class="bi bi-cash me-2"></i>Gaji Bulanan</th>
+                                <th><i class="bi bi-gear me-2"></i>Tindakan</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($users as $user): ?>
+                            <?php foreach ($pendingregistermembers as $member): ?>
                             <tr>
-                                <td><?= htmlspecialchars($user['username']); ?></td>
-                                <td><?= htmlspecialchars($user['email']); ?></td>
+                                <td><?= htmlspecialchars($member['name']); ?></td>
+                                <td><?= htmlspecialchars($member['ic_no']); ?></td>
+                                <td><?= htmlspecialchars($member['gender']); ?></td>
+                                <td><?= htmlspecialchars($member['position']); ?></td>
+                                <td class="text-end">RM <?= number_format($member['monthly_salary'], 2); ?></td>
                                 <td class="text-center action-buttons">
-                                    <a href="/edit/<?= $user['id']; ?>" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-pencil-fill"></i> Edit
+                                    <a href="/member/view/<?= $member['id']; ?>" class="btn btn-info btn-sm">
+                                        <i class="bi bi-eye-fill"></i> Lihat
                                     </a>
-                                    <form action="/delete/<?= $user['id']; ?>" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-danger btn-sm" 
-                                                onclick="return confirm('Are you sure you want to delete this user?')">
-                                            <i class="bi bi-trash-fill"></i> Delete
-                                        </button>
-                                    </form>
+                                    <a href="/member/approve/<?= $member['id']; ?>" class="btn btn-success btn-sm">
+                                        <i class="bi bi-check-circle-fill"></i> Lulus
+                                    </a>
+                                    <a href="/member/reject/<?= $member['id']; ?>" class="btn btn-danger btn-sm">
+                                        <i class="bi bi-x-circle-fill"></i> Tolak
+                                    </a>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
