@@ -116,7 +116,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">Gaji Bulanan (RM)</label>
-                                    <input type="number" name="monthly_salary" class="form-control" required>
+                                    <input type="text" name="monthly_salary" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Jawatan</label>
@@ -139,7 +139,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Poskod</label>
-                                    <input type="text" name="home_postcode" maxlength="5" class="form-control" required>
+                                    <input type="text" name="home_postcode" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Negeri/Wilayah</label>
@@ -174,16 +174,16 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Poskod</label>
-                                    <input type="text" name="office_postcode" class="form-control" required>
+                                    <input type="text" name="office_postcode" class="form-control" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                                 </div>
                                 <h4 class="mt-4 mb-3 text-success"><i class="bi bi-telephone me-2"></i>Contact Numbers</h4>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Telefon Pejabat</label>
-                                    <input type="tel" name="office_phone" class="form-control" required>
+                                    <input type="tel" name="office_phone" oninput="this.value = this.value.replace(/[^0-9]/g, '')"class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Fax</label>
-                                    <input type="tel" name="fax" class="form-control" required>
+                                    <input type="tel" name="fax" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" required>
                                 </div>
                             </div>
                         </div>
