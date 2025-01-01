@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Form Wizard JS loaded');
     const form = document.getElementById('membershipForm');
     const steps = document.querySelectorAll('.step');
     const contents = document.querySelectorAll('.step-content');
@@ -71,6 +72,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+
+        // Additional validation for family members if we're on step 4
+        if (currentStep === 4) {
+            const familyMembers = currentContent.querySelectorAll('.family-member');
+            familyMembers.forEach(member => {
+                const fields = member.querySelectorAll('[required]');
+                fields.forEach(field => {
+                    let isEmpty = false;
+                    
+                    if (field.tagName === 'SELECT') {
+                        const selectedOption = field.options[field.selectedIndex];
+                        isEmpty = !field.value || field.value === "" || (selectedOption && selectedOption.disabled);
+                    } else if (field.name === 'family_ic[]') {
+                        isEmpty = !field.value.trim() || !/^\d{6}-\d{2}-\d{4}$/.test(field.value);
+                    } else {
+                        isEmpty = !field.value.trim();
+                    }
+
+                    if (isEmpty) {
+                        isValid = false;
+                        field.classList.add('is-invalid');
+                        
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        
+                        if (field.tagName === 'SELECT') {
+                            errorDiv.textContent = 'Sila pilih satu pilihan';
+                        } else if (field.name === 'family_ic[]') {
+                            errorDiv.textContent = 'Sila masukkan nombor IC yang sah (format: XXXXXX-XX-XXXX)';
+                        } else {
+                            errorDiv.textContent = 'Ruangan ini perlu diisi';
+                        }
+                        
+                        field.insertAdjacentElement('afterend', errorDiv);
+
+                        if (!firstInvalid) {
+                            firstInvalid = field;
+                        }
+                    }
+                });
+            });
+        }
 
         // Scroll to and focus on first invalid field
         if (firstInvalid) {
@@ -174,4 +217,68 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Add Family Member functionality
+    const addFamilyBtn = document.querySelector('.add-family-member');
+    const familyContainer = document.querySelector('.family-member-container');
+    
+    if (addFamilyBtn && familyContainer) {
+        addFamilyBtn.addEventListener('click', () => {
+            const template = familyContainer.querySelector('.family-member').cloneNode(true);
+            
+            // Clear input values
+            template.querySelectorAll('input').forEach(input => {
+                input.value = '';
+                // Re-add the IC formatting for new IC input fields
+                if (input.name === 'family_ic[]') {
+                    input.oninput = function() {
+                        let value = this.value.replace(/\D/g, '');
+                        value = value.substring(0, 14);
+                        if (value.length >= 6) {
+                            value = value.substring(0, 6) + '-' + value.substring(6);
+                        }
+                        if (value.length >= 9) {
+                            value = value.substring(0, 9) + '-' + value.substring(9);
+                        }
+                        this.value = value;
+                    };
+                }
+            });
+            
+            // Reset select to default
+            template.querySelectorAll('select').forEach(select => {
+                select.selectedIndex = 0;
+            });
+            
+            // Show remove button
+            const removeBtn = template.querySelector('.remove-family');
+            removeBtn.style.display = 'block';
+            
+            // Add remove functionality
+            removeBtn.addEventListener('click', () => {
+                if (familyContainer.querySelectorAll('.family-member').length > 1) {
+                    template.remove();
+                }
+            });
+            
+            // Remove any existing error messages in the template
+            template.querySelectorAll('.invalid-feedback').forEach(error => error.remove());
+            template.querySelectorAll('.is-invalid').forEach(field => {
+                field.classList.remove('is-invalid');
+            });
+            
+            // Add the new family member form
+            familyContainer.appendChild(template);
+        });
+    }
+
+    // Add remove functionality to initial remove button
+    const initialRemoveBtn = document.querySelector('.remove-family');
+    if (initialRemoveBtn) {
+        initialRemoveBtn.addEventListener('click', function() {
+            if (familyContainer.querySelectorAll('.family-member').length > 1) {
+                this.closest('.family-member').remove();
+            }
+        });
+    }
 }); 

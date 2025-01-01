@@ -139,7 +139,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Poskod</label>
-                                    <input type="text" name="home_postcode" class="form-control" required>
+                                    <input type="text" name="home_postcode" maxlength="5" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Negeri/Wilayah</label>
@@ -163,9 +163,13 @@
                                         <option value="WP Putrajaya">WP Putrajaya</option>
                                     </select>
                                 </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">No. Telefon Rumah</label>
+                                    <input type="tel" name="home_phone" class="form-control" required>
+                                </div>
                                 <h4 class="mt-4 mb-3 text-success"><i class="bi bi-building me-2"></i>Alamat</h4>
                                 <div class="col-12">
-                                    <label class="form-label fw-bold">Alamat</label>
+                                    <label class="form-label fw-bold">Alamat Pejabat</label>
                                     <textarea name="office_address" class="form-control" rows="3" required></textarea>
                                 </div>
                                 <div class="col-md-6">
@@ -174,12 +178,8 @@
                                 </div>
                                 <h4 class="mt-4 mb-3 text-success"><i class="bi bi-telephone me-2"></i>Contact Numbers</h4>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">No. Telefon</label>
+                                    <label class="form-label fw-bold">No. Telefon Pejabat</label>
                                     <input type="tel" name="office_phone" class="form-control" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">No. Telefon</label>
-                                    <input type="tel" name="home_phone" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Fax</label>
@@ -210,9 +210,21 @@
                                                 <input type="text" name="family_name[]" class="form-control" required>
                                             </div>
                                             <div class="col-md-4">
-                                                <label class="form-label fw-bold">No. K/P atau No. Surat Beranak</label>
-                                                <input type="text" name="family_ic[]" class="form-control" 
-                                                       placeholder="e.g., 880101-01-1234" required>
+                                            <label class="form-label fw-bold">No. K/P atau No. Surat Beranak</label>
+                                            <input type="text" name="family_ic[]" class="form-control" maxlength="14" oninput="formatIC(this)" placeholder="e.g., 880101-01-1234" required>
+                                                <script>
+                                                    function formatIC(input) {
+                                                        let value = input.value.replace(/\D/g, '');
+                                                        value = value.substring(0, 14);
+                                                        if (value.length >= 6) {
+                                                            value = value.substring(0, 6) + '-' + value.substring(6);
+                                                        }
+                                                        if (value.length >= 9) {
+                                                            value = value.substring(0, 9) + '-' + value.substring(9);
+                                                        }
+                                                        input.value = value;
+                                                    }
+                                                </script>                  
                                             </div>
                                             <div class="col-md-1 d-flex align-items-end">
                                                 <button type="button" class="btn btn-danger remove-family mb-3" style="display: none;">
@@ -222,7 +234,7 @@
                                         </div>
                                     </div>
                                     <button type="button" class="btn btn-success add-family-member">
-                                        <i class="bi bi-plus-circle me-2"></i>Add Family Member
+                                        <i class="bi bi-plus-circle me-2"></i>Tambah Ahli
                                     </button>
                                 </div>
                             </div>
