@@ -52,7 +52,7 @@
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Jantina</label>
                                     <select name="gender" class="form-select" required>
-                                        <option value="">Pilih</option>
+                                        <option value="" disabled selected>Pilih</option>
                                         <option value="Male">Lelaki</option>
                                         <option value="Female">Perempuan</option>
                                     </select>
@@ -131,7 +131,7 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Negeri/Wilayah</label>
                                     <select name="home_state" class="form-select" required>
-                                        <option value="">Pilih</option>
+                                        <option value="" disabled selected>Pilih</option>
                                         <option value="Johor">Johor</option>
                                         <option value="Kedah">Kedah</option>
                                         <option value="Kelantan">Kelantan</option>

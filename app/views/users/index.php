@@ -17,8 +17,8 @@
                     <table class="table table-hover table-bordered align-middle">
                         <thead>
                             <tr class="text-center">
-                                <th><i class="bi bi-person me-2"></i>Name</th>
-                                <th><i class="bi bi-envelope me-2"></i>Email</th>
+                                <th><i class="bi bi-person me-2"></i>Nama</th>
+                                <th><i class="bi bi-envelope me-2"></i>Emel</th>
                                 <th><i class="bi bi-gear me-2"></i>Actions</th>
                             </tr>
                         </thead>

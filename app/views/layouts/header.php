@@ -21,16 +21,16 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><i class="bi bi-people me-2"></i>Users</a>
+                        <a class="nav-link" href="/"><i class="bi bi-people me-2"></i>Anggota</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/create"><i class="bi bi-person-plus me-2"></i>Register as Member</a>
+                        <a class="nav-link" href="/create"><i class="bi bi-person-plus me-2"></i>Daftar Anggota</a>
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">
                     <span class="me-3">Welcome, <?= htmlspecialchars($_SESSION['admin_username']) ?></span>
                     <a href="/logout" class="btn btn-outline-danger">
-                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        <i class="bi bi-box-arrow-right me-2"></i>Keluar
                     </a>
                 </div>
             </div>

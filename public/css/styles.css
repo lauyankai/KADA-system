@@ -239,20 +239,21 @@ body {
     cursor: not-allowed;
 }
 
-/* Membership Form Select Styles */
-#membershipForm .form-select {
-    color: #6c757d;  /* Default color for select element */
+/* Select placeholder styles */
+select.form-select {
+    color: #6c757d;
 }
 
-#membershipForm .form-select option[value=""] {
-    color: #6c757d;  /* Color for placeholder option */
+select.form-select:valid {
+    color: #212529;
 }
 
-#membershipForm .form-select option:not([value=""]) {
-    color: #212529;  /* Color for non-placeholder options */
+/* Style for options */
+select.form-select option {
+    color: #212529;
 }
 
-#membershipForm .form-select:valid {
-    color: #212529;  /* Color when an option is selected */
+/* Style for disabled option */
+select.form-select option[disabled] {
+    color: #6c757d;
 }
- 
