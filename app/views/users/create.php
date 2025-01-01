@@ -47,7 +47,20 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">No. K/P</label>
-                                    <input type="text" name="ic_no" class="form-control" placeholder="e.g., 880101-01-1234" required>
+                                    <input type="text" name="ic_no" class="form-control" maxlength="14" oninput="formatIC(this)" placeholder="e.g., 880101-01-1234" required>
+                                    <script>
+                                        function formatIC(input) {
+                                            let value = input.value.replace(/\D/g, '');
+                                            value = value.substring(0, 14);
+                                            if (value.length >= 6) {
+                                                value = value.substring(0, 6) + '-' + value.substring(6);
+                                            }
+                                            if (value.length >= 9) {
+                                                value = value.substring(0, 9) + '-' + value.substring(9);
+                                            }
+                                            input.value = value;
+                                        }
+                                    </script>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Jantina</label>
@@ -170,7 +183,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Fax</label>
-                                    <input type="tel" name="fax" class="form-control">
+                                    <input type="tel" name="fax" class="form-control" required>
                                 </div>
                             </div>
                         </div>
@@ -185,7 +198,7 @@
                                             <div class="col-md-3">
                                                 <label class="form-label fw-bold">Hubungan Keluarga</label>
                                                 <select name="family_relationship[]" class="form-select" required>
-                                                    <option value="">Pilih</option>
+                                                    <option value="" disabled selected>Pilih</option>
                                                     <option value="Spouse">Suami</option>
                                                     <option value="Child">Anak</option>
                                                     <option value="Parent">Bapa</option>
@@ -245,8 +258,8 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Lain-lain Sumbangan</label>
-                                    <textarea name="other_contributions" class="form-control" rows="3" 
-                                            placeholder="Please specify any other contributions..."></textarea>
+                                    <textarea name="other_contributions" class="form-control" rows="3"
+                                            placeholder="Please specify any other contributions..." required></textarea>
                                 </div>
                             </div>
                         </div>

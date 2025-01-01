@@ -8,11 +8,84 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentStep = 1;
     let maxStepReached = 1;
 
+    function validateCurrentStep() {
+        const currentContent = document.querySelector(`.step-content[data-step="${currentStep}"]`);
+        const requiredFields = currentContent.querySelectorAll('[required]');
+        let isValid = true;
+        let firstInvalid = null;
+
+        // Remove existing error messages
+        const existingErrors = currentContent.querySelectorAll('.invalid-feedback');
+        existingErrors.forEach(error => error.remove());
+
+        // Remove all invalid states
+        requiredFields.forEach(field => {
+            field.classList.remove('is-invalid');
+        });
+
+        // Validate each required field
+        requiredFields.forEach(field => {
+            let isEmpty = false;
+            
+            // Check different types of fields
+            if (field.tagName === 'SELECT') {
+                const selectedOption = field.options[field.selectedIndex];
+                isEmpty = !field.value || field.value === "" || (selectedOption && selectedOption.disabled);
+            } else if (field.type === 'number') {
+                isEmpty = !field.value || field.value <= 0 || isNaN(parseFloat(field.value));
+            } else if (field.type === 'tel') {
+                isEmpty = !field.value.trim() || !/^[\d\s-+()]*$/.test(field.value);
+            } else if (field.type === 'text' && field.name === 'ic_no') {
+                isEmpty = !field.value.trim() || !/^\d{6}-\d{2}-\d{4}$/.test(field.value);
+            } else {
+                isEmpty = !field.value.trim();
+            }
+
+            if (isEmpty) {
+                isValid = false;
+                field.classList.add('is-invalid');
+                
+                // Create error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                
+                // Custom error messages based on field type
+                if (field.tagName === 'SELECT') {
+                    errorDiv.textContent = 'Sila pilih satu pilihan';
+                } else if (field.type === 'number') {
+                    errorDiv.textContent = 'Sila masukkan nombor yang sah';
+                } else if (field.type === 'tel') {
+                    errorDiv.textContent = 'Sila masukkan nombor telefon yang sah';
+                } else if (field.type === 'text' && field.name === 'ic_no') {
+                    errorDiv.textContent = 'Sila masukkan nombor IC yang sah (format: XXXXXX-XX-XXXX)';
+                } else {
+                    errorDiv.textContent = 'Ruangan ini perlu diisi';
+                }
+                
+                // Insert error message
+                field.insertAdjacentElement('afterend', errorDiv);
+
+                // Store first invalid field
+                if (!firstInvalid) {
+                    firstInvalid = field;
+                }
+            }
+        });
+
+        // Scroll to and focus on first invalid field
+        if (firstInvalid) {
+            setTimeout(() => {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }, 100);
+        }
+
+        return isValid;
+    }
+
     function updateStep(step) {
-        // Update step indicators
         steps.forEach((s, index) => {
             s.classList.remove('active');
-            // Mark all steps up to maxStepReached as completed, except current step
             if (index + 1 <= maxStepReached && index + 1 !== step) {
                 s.classList.add('completed');
             } else {
@@ -21,33 +94,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         steps[step-1].classList.add('active');
 
-        // Update step content
         contents.forEach(c => c.classList.remove('active'));
         contents[step-1].classList.add('active');
 
-        // Update buttons
         prevBtn.style.display = step === 1 ? 'none' : 'block';
         nextBtn.style.display = step === steps.length ? 'none' : 'block';
         submitBtn.style.display = step === steps.length ? 'block' : 'none';
+
+        // Scroll to top of new step
+        contents[step-1].scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // Add click event listeners to steps
-    steps.forEach((step, index) => {
-        step.addEventListener('click', () => {
-            const stepNumber = index + 1;
-            // Only allow clicking on completed steps or the next available step
-            if (stepNumber <= maxStepReached) {
-                currentStep = stepNumber;
+    nextBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (validateCurrentStep()) {
+            if (currentStep < steps.length) {
+                currentStep++;
+                maxStepReached = Math.max(maxStepReached, currentStep);
                 updateStep(currentStep);
             }
-        });
-    });
-
-    nextBtn.addEventListener('click', () => {
-        if (currentStep < steps.length) {
-            currentStep++;
-            maxStepReached = Math.max(maxStepReached, currentStep);
-            updateStep(currentStep);
         }
     });
 
@@ -56,5 +121,57 @@ document.addEventListener('DOMContentLoaded', function() {
             currentStep--;
             updateStep(currentStep);
         }
+    });
+
+    steps.forEach((step, index) => {
+        step.addEventListener('click', () => {
+            const stepNumber = index + 1;
+            if (stepNumber <= maxStepReached) {
+                if (stepNumber > currentStep) {
+                    if (validateCurrentStep()) {
+                        currentStep = stepNumber;
+                        updateStep(currentStep);
+                    }
+                } else {
+                    currentStep = stepNumber;
+                    updateStep(currentStep);
+                }
+            }
+        });
+    });
+
+    // Prevent form submission if current step is invalid
+    form.addEventListener('submit', (e) => {
+        if (!validateCurrentStep()) {
+            e.preventDefault();
+        }
+    });
+
+    // Update the change event listener for real-time validation
+    contents.forEach(content => {
+        const fields = content.querySelectorAll('[required]');
+        fields.forEach(field => {
+            field.addEventListener('change', () => {
+                if (field.classList.contains('is-invalid')) {
+                    let isValid = true;
+                    if (field.tagName === 'SELECT') {
+                        const selectedOption = field.options[field.selectedIndex];
+                        isValid = field.value && field.value !== "" && !(selectedOption && selectedOption.disabled);
+                    } else if (field.type === 'number') {
+                        isValid = field.value && field.value > 0;
+                    } else {
+                        isValid = field.value.trim() !== "";
+                    }
+
+                    if (isValid) {
+                        field.classList.remove('is-invalid');
+                        const errorMessage = field.nextElementSibling;
+                        if (errorMessage && errorMessage.classList.contains('invalid-feedback')) {
+                            errorMessage.remove();
+                        }
+                    }
+                }
+            });
+        });
     });
 }); 

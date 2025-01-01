@@ -25,7 +25,7 @@
                         <tbody>
                             <?php foreach ($users as $user): ?>
                             <tr>
-                                <td><?= htmlspecialchars($user['name']); ?></td>
+                                <td><?= htmlspecialchars($user['username']); ?></td>
                                 <td><?= htmlspecialchars($user['email']); ?></td>
                                 <td class="text-center action-buttons">
                                     <a href="/edit/<?= $user['id']; ?>" class="btn btn-warning btn-sm">
