@@ -9,33 +9,31 @@ class AuthUser extends Model
     public function createAdmin($data)
     {
         try {
-            $sql = "INSERT INTO admins (username, email, password, name) 
-                    VALUES (:username, :email, :password, :name)";
-            
-            $stmt = $this->getConnection()->prepare($sql);
+            $stmt = $this->getConnection()->prepare(
+                "INSERT INTO admins (username, email, password) 
+                 VALUES (:username, :email, :password)"
+            );
             return $stmt->execute([
                 ':username' => $data['username'],
                 ':email' => $data['email'],
-                ':password' => $data['password'],
-                ':name' => $data['name'] ?? $data['username']
+                ':password' => $data['password']
             ]);
         } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            return false;
+            // Check for duplicate entry
+            if ($e->getCode() == 23000) {
+                return false;
+            }
+            throw $e;
         }
     }
 
     public function findAdminByUsername($username)
     {
-        try {
-            $sql = "SELECT id, username, password, name FROM admins WHERE username = :username";
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':username' => $username]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            return false;
-        }
+        $stmt = $this->getConnection()->prepare(
+            "SELECT * FROM admins WHERE username = :username"
+        );
+        $stmt->execute([':username' => $username]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function isAdmin($userId)

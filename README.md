@@ -47,6 +47,3 @@ This digital platform streamlines credit union operations by:
 - Bootstrap
 - JavaScript
 - PDO for database operations
-
-
-\\
