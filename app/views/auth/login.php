@@ -10,7 +10,7 @@
         body { background-color: #fff8e8; }
         .card {
             border-radius: 15px;
-            border: none;
+            
         }
         .btn-gradient {
             background: linear-gradient(45deg, #198754, #20c997);
