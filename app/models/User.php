@@ -110,4 +110,261 @@ class User extends Model
         $stmt->execute(); // Use execute() to run the query
         return $stmt; // Return the PDOStatement object
     }
+
+    public function getDashboardStats()
+    {
+        try {
+            // Get total savings only
+            $sql = "SELECT COALESCE(SUM(current_amount), 0) as total FROM savings_accounts";
+            $stmt = $this->getConnection()->query($sql);
+            $totalSavings = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+            return [
+                'totalSavings' => $totalSavings
+            ];
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Failed to fetch dashboard stats');
+        }
+    }
+
+    public function getRecentSavings()
+    {
+        try {
+            // Modified to show member number instead of username
+            $sql = "SELECT sa.*, prm.member_number as member_number 
+                    FROM savings_accounts sa
+                    JOIN admins a ON sa.member_id = a.id
+                    JOIN pendingregistermember prm ON a.username = prm.username
+                    WHERE sa.member_id = :member_id
+                    ORDER BY sa.created_at DESC LIMIT 10";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $_SESSION['admin_id']]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Failed to fetch recent savings');
+        }
+    }
+
+    public function getRecentRecurringPayments()
+    {
+        try {
+            // Modified to show member number instead of username
+            $sql = "SELECT rp.*, prm.member_number as member_number 
+                    FROM savings_recurring_payments rp
+                    JOIN savings_accounts sa ON rp.savings_account_id = sa.id
+                    JOIN admins a ON sa.member_id = a.id
+                    JOIN pendingregistermember prm ON a.username = prm.username
+                    WHERE sa.member_id = :member_id
+                    ORDER BY rp.created_at DESC LIMIT 10";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $_SESSION['admin_id']]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Failed to fetch recent recurring payments');
+        }
+    }
+
+    public function getAllMembers()
+    {
+        try {
+            $sql = "SELECT id, name, member_number FROM pendingregistermember ORDER BY name";
+            $stmt = $this->getConnection()->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Failed to fetch members');
+        }
+    }
+
+    public function createSavingsAccount($data)
+    {
+        try {
+            error_log('Creating savings account with data: ' . print_r($data, true));
+            
+            $sql = "INSERT INTO savings_accounts (
+                member_id, target_amount, duration_months, monthly_deposit,
+                start_date, end_date, status, current_amount
+            ) VALUES (
+                :member_id, :target_amount, :duration_months, :monthly_deposit,
+                :start_date, :end_date, :status, :current_amount
+            )";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            
+            // Log the SQL query
+            error_log('SQL Query: ' . $sql);
+            
+            // Execute and check for errors
+            if (!$stmt->execute($data)) {
+                $error = $stmt->errorInfo();
+                error_log('Database Error Info: ' . print_r($error, true));
+                throw new \PDOException('Database error: ' . $error[2]);
+            }
+
+            $newId = $this->getConnection()->lastInsertId();
+            error_log('New savings account created with ID: ' . $newId);
+            
+            return $newId;
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in createSavingsAccount: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            throw new \Exception('Gagal membuat akaun simpanan: ' . $e->getMessage());
+        }
+    }
+
+    public function getLatestSavingsAccount($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM savings_accounts 
+                    WHERE member_id = :member_id 
+                    AND status = 'active'
+                    ORDER BY created_at DESC 
+                    LIMIT 1";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat akaun simpanan');
+        }
+    }
+
+    public function createRecurringPayment($data)
+    {
+        try {
+            error_log('Creating recurring payment with data: ' . print_r($data, true));
+            
+            $sql = "INSERT INTO savings_recurring_payments (
+                savings_account_id, amount, frequency, payment_method,
+                next_payment_date, status
+            ) VALUES (
+                :savings_account_id, :amount, :frequency, :payment_method,
+                :next_payment_date, :status
+            )";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            
+            // Log the SQL query
+            error_log('SQL Query: ' . $sql);
+            
+            // Execute and check for errors
+            if (!$stmt->execute($data)) {
+                $error = $stmt->errorInfo();
+                error_log('Database Error Info: ' . print_r($error, true));
+                throw new \PDOException('Database error: ' . $error[2]);
+            }
+
+            $newId = $this->getConnection()->lastInsertId();
+            error_log('New recurring payment created with ID: ' . $newId);
+            
+            return $newId;
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in createRecurringPayment: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            throw new \Exception('Gagal mendaftar bayaran berulang: ' . $e->getMessage());
+        }
+    }
+
+    public function getSavingsAccount($id)
+    {
+        try {
+            $sql = "SELECT sa.*, a.username as member_name 
+                    FROM savings_accounts sa
+                    JOIN admins a ON sa.member_id = a.id
+                    WHERE sa.id = :id AND sa.member_id = :member_id";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':id' => $id,
+                ':member_id' => $_SESSION['admin_id']
+            ]);
+            
+            $account = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$account) {
+                throw new \Exception('Akaun simpanan tidak ditemui');
+            }
+            return $account;
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat akaun');
+        }
+    }
+
+    public function getSavingsTransactions($accountId)
+    {
+        try {
+            $sql = "SELECT * FROM savings_transactions 
+                    WHERE savings_account_id = :account_id 
+                    ORDER BY created_at DESC";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':account_id' => $accountId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan sejarah transaksi');
+        }
+    }
+
+    public function addDeposit($accountId, $amount)
+    {
+        try {
+            $this->getConnection()->beginTransaction();
+
+            // Add transaction record
+            $sql = "INSERT INTO savings_transactions (
+                savings_account_id, amount, type, description
+            ) VALUES (
+                :account_id, :amount, 'deposit', 'Simpanan manual'
+            )";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':account_id' => $accountId,
+                ':amount' => $amount
+            ]);
+
+            // Update account balance
+            $sql = "UPDATE savings_accounts 
+                    SET current_amount = current_amount + :amount 
+                    WHERE id = :id";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':id' => $accountId,
+                ':amount' => $amount
+            ]);
+
+            $this->getConnection()->commit();
+        } catch (\PDOException $e) {
+            $this->getConnection()->rollBack();
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal menambah simpanan');
+        }
+    }
+
+    public function updateSavingsStatus($id, $status)
+    {
+        try {
+            $sql = "UPDATE savings_accounts 
+                    SET status = :status 
+                    WHERE id = :id AND member_id = :member_id";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':id' => $id,
+                ':status' => $status,
+                ':member_id' => $_SESSION['admin_id']
+            ]);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mengemaskini status akaun');
+        }
+    }
 }
