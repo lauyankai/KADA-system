@@ -29,7 +29,7 @@ class AuthController extends Controller
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_username'] = $admin['username'];
             $_SESSION['is_admin'] = true;
-            header('Location: /');
+            header('Location: /users/index');
             exit;
         }
 
@@ -85,7 +85,7 @@ class AuthController extends Controller
         session_destroy();
         
         // Redirect to login page
-        header('Location: /login');
+        header('Location: /');
         exit;
     }
 }

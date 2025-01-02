@@ -41,12 +41,8 @@ $publicRoutes = ['login', 'register', 'auth/login', 'auth/register'];
 
 // Router
 if ($uri === '') {
-    // Redirect to login if not authenticated, otherwise show dashboard
-    if (!isset($_SESSION['admin_id'])) {
-        header('Location: /login');
-        exit;
-    }
-    $userController->index();
+    // Show landing page
+    require_once '../app/views/home/landing.php';
 }
 // Handle public routes
 else if (in_array($uri, $publicRoutes)) {
