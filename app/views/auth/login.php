@@ -31,13 +31,13 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Log Masuk
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Log Masuk
                         </button>
                     </form>
                 </div>
             </div>
         </div>
-    </div>
+    </div> 
 </div>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 
