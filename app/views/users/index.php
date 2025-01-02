@@ -40,9 +40,8 @@
                                     <a href="/member/approve/<?= $member['id']; ?>" class="btn btn-success btn-sm">
                                         <i class="bi bi-check-circle-fill"></i> Lulus
                                     </a>
-                                    <a href="/member/reject/<?= $member['id']; ?>" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-x-circle-fill"></i> Tolak
-                                    </a>
+                                    <a href="delete.php?id=<?php echo $row['id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this record?')">Tolak</a>
+
                                 </td>
                             </tr>
                             <?php endforeach; ?>

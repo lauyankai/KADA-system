@@ -3,6 +3,8 @@ namespace App\Models;
 
 use App\Core\Model;
 use PDO;
+use App\Core\Database;
+use PDOException;
 
 class User extends Model
 {
@@ -103,11 +105,29 @@ class User extends Model
         return $stmt; // Return the PDOStatement object
     }
 
-    public function delete($id)
+    
+    public function deleteById($id)
     {
-        $stmt = $this->getConnection()->prepare("DELETE FROM users WHERE id = :id"); // Use prepare() for SQL statements with variables
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT); // Use bindParam() to bind variables
-        $stmt->execute(); // Use execute() to run the query
-        return $stmt; // Return the PDOStatement object
+        require_once 'Database.php'; // Ensure Database.php is included
+    
+        $db = new Database();
+        $conn = $db->connect();
+    
+        try {
+            $stmt = $conn->prepare("DELETE FROM users WHERE id = :id"); // Use correct table name
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            // Log the error or handle it appropriately
+            error_log("Error deleting user: " . $e->getMessage());
+            return false;
+        }
     }
+    
+
+
+
+    
+
 }
