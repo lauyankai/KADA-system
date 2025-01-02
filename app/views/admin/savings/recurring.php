@@ -120,10 +120,10 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-info">
-                    <strong>Jumlah:</strong> <span id="confirmAmount">RM 0.00</span><br>
+                    <strong>Jumlah Bayaran:</strong> <span id="confirmAmount">RM 0.00</span><br>
                     <strong>Kekerapan:</strong> <span id="confirmFrequency">-</span><br>
                     <strong>Kaedah:</strong> <span id="confirmMethod">-</span><br>
-                    <strong>Tarikh Mula:</strong> <span id="confirmDate">-</span>
+                    <strong>Tarikh Mula (Hari/Bulan/Tahun):</strong> <span id="confirmDate">-</span>
                 </div>
                 <p class="text-muted mb-0">Sila pastikan maklumat di atas adalah tepat sebelum menghantar.</p>
             </div>
