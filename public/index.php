@@ -1,4 +1,5 @@
 <?php
+ob_start(); // Start output buffering
 session_start();
 
 // Load Composer autoloader and environment variables
@@ -91,6 +92,62 @@ else {
         case 'store':
             if ($method === 'POST') {
                 $userController->store();
+            }
+            break;
+        case 'admin/dashboard':
+            $userController->adminDashboard();
+            break;
+        case 'admin/savings':
+            $userController->savingsManagement();
+            break;
+        case 'admin/savings/toggle-payment':
+            if (preg_match('/admin\/savings\/toggle-payment\/(\d+)/', $uri, $matches)) {
+                $userController->toggleRecurringPayment($matches[1]);
+            }
+            break;
+        case 'admin/savings/apply':
+            $userController->showSavingsApplication();
+            break;
+        case 'admin/savings/store':
+            if ($method === 'POST') {
+                $userController->storeSavingsAccount();
+            }
+            break;
+        case 'admin/savings/recurring/setup':
+            if ($method === 'POST') {
+                $userController->setupRecurringPayment();
+            }
+            break;
+        case 'admin/savings/view':
+            if (preg_match('/admin\/savings\/view\/(\d+)/', $uri, $matches)) {
+                $userController->viewSavings($matches[1]);
+            }
+            break;
+        case 'admin/savings/deposit':
+            if (preg_match('/admin\/savings\/deposit\/(\d+)/', $uri, $matches)) {
+                if ($method === 'POST') {
+                    $userController->makeDeposit($matches[1]);
+                } else {
+                    $userController->showDepositForm($matches[1]);
+                }
+            }
+            break;
+        case 'admin/savings/deactivate':
+            if (preg_match('/admin\/savings\/deactivate\/(\d+)/', $uri, $matches)) {
+                $userController->toggleSavingsStatus($matches[1], 'inactive');
+            }
+            break;
+        case 'admin/savings/activate':
+            if (preg_match('/admin\/savings\/activate\/(\d+)/', $uri, $matches)) {
+                $userController->toggleSavingsStatus($matches[1], 'active');
+            }
+            break;
+        case 'admin/savings/recurring':
+            $userController->showRecurringPaymentForm();
+            break;
+        case 'admin/savings/recurring/store':
+            if ($method === 'POST') {
+                $userController->storeRecurringPayment();
             }
             break;
         default:

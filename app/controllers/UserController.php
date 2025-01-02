@@ -149,4 +149,274 @@ class UserController extends Controller
         $this->user->delete($id);
         header('Location: /');
     }
+
+    public function adminDashboard()
+    {
+        try {
+            $stats = $this->user->getDashboardStats();
+            $recentSavings = $this->user->getRecentSavings();
+            $recentRecurring = $this->user->getRecentRecurringPayments();
+
+            $this->view('admin/dashboard', [
+                'totalSavings' => $stats['totalSavings'],
+                'recentSavings' => $recentSavings,
+                'recentRecurring' => $recentRecurring
+            ]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            $this->view('admin/dashboard', [
+                'totalSavings' => 0,
+                'recentSavings' => [],
+                'recentRecurring' => []
+            ]);
+        }
+    }
+
+    public function savingsManagement()
+    {
+        try {
+            $savingsAccounts = $this->user->getAllSavingsAccounts();
+            $recurringPayments = $this->user->getAllRecurringPayments();
+
+            $this->view('admin/savings/index', [
+                'savingsAccounts' => $savingsAccounts,
+                'recurringPayments' => $recurringPayments
+            ]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            $this->view('admin/savings/index', [
+                'savingsAccounts' => [],
+                'recurringPayments' => []
+            ]);
+        }
+    }
+
+    public function showSavingsApplication()
+    {
+        try {
+            $members = $this->user->getAllMembers();
+            $this->view('admin/savings/apply', ['members' => $members]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/dashboard');
+            exit;
+        }
+    }
+
+    public function storeSavingsAccount()
+    {
+        try {
+            if (!isset($_SESSION['admin_id'])) {
+                throw new \Exception('Sesi tamat. Sila log masuk semula.');
+            }
+
+            error_log('Admin ID from session: ' . $_SESSION['admin_id']);
+            error_log('POST data received: ' . print_r($_POST, true));
+            
+            $data = [
+                'member_id' => $_SESSION['admin_id'],
+                'target_amount' => $_POST['target_amount'],
+                'duration_months' => $_POST['duration_months'],
+                'monthly_deposit' => $_POST['target_amount'] / $_POST['duration_months'],
+                'start_date' => date('Y-m-d'),
+                'end_date' => date('Y-m-d', strtotime("+{$_POST['duration_months']} months")),
+                'status' => 'active',
+                'current_amount' => 0
+            ];
+
+            // Validate data
+            if (!is_numeric($data['target_amount']) || $data['target_amount'] < 100 || $data['target_amount'] > 10000) {
+                throw new \Exception('Jumlah sasaran tidak sah');
+            }
+
+            if (!is_numeric($data['duration_months']) || $data['duration_months'] < 6 || $data['duration_months'] > 60) {
+                throw new \Exception('Tempoh tidak sah');
+            }
+
+            $accountId = $this->user->createSavingsAccount($data);
+            
+            if ($accountId) {
+                $_SESSION['success'] = 'Permohonan akaun simpanan berjaya dihantar';
+                $this->view('admin/savings/apply', [
+                    'success' => true,
+                    'message' => 'Sila pastikan maklumat di atas adalah tepat sebelum menghantar permohonan.'
+                ]);
+                exit();
+            } else {
+                throw new \Exception('Gagal membuat akaun simpanan: Tiada ID dikembalikan');
+            }
+
+        } catch (\Exception $e) {
+            error_log('Error in storeSavingsAccount: ' . $e->getMessage());
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/savings/apply');
+            exit();
+        }
+    }
+
+    public function setupRecurringPayment()
+    {
+        try {
+            // Get the latest savings account for the current admin
+            $savingsAccount = $this->user->getLatestSavingsAccount($_SESSION['admin_id']);
+            
+            if (!$savingsAccount) {
+                throw new \Exception('Tiada akaun simpanan aktif ditemui');
+            }
+
+            $data = [
+                'savings_account_id' => $savingsAccount['id'],
+                'amount' => $_POST['amount'],
+                'frequency' => $_POST['frequency'],
+                'payment_method' => $_POST['payment_method'],
+                'next_payment_date' => $_POST['start_date'],
+                'status' => 'active'
+            ];
+
+            $paymentId = $this->user->createRecurringPayment($data);
+            
+            if ($paymentId) {
+                $_SESSION['success'] = 'Bayaran berulang berjaya didaftarkan';
+            } else {
+                throw new \Exception('Gagal mendaftar bayaran berulang');
+            }
+
+            header('Location: /admin/dashboard');
+            exit;
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/dashboard');
+            exit;
+        }
+    }
+
+    public function viewSavings($id)
+    {
+        try {
+            $account = $this->user->getSavingsAccount($id);
+            $transactions = $this->user->getSavingsTransactions($id);
+            
+            $this->view('admin/savings/view', [
+                'account' => $account,
+                'transactions' => $transactions
+            ]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/dashboard');
+            exit();
+        }
+    }
+
+    public function showDepositForm($id)
+    {
+        try {
+            $account = $this->user->getSavingsAccount($id);
+            $this->view('admin/savings/deposit', ['account' => $account]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/dashboard');
+            exit();
+        }
+    }
+
+    public function makeDeposit($id)
+    {
+        try {
+            $amount = $_POST['amount'];
+            if (!is_numeric($amount) || $amount <= 0) {
+                throw new \Exception('Jumlah tidak sah');
+            }
+
+            $this->user->addDeposit($id, $amount);
+            $_SESSION['success'] = 'Simpanan berjaya ditambah';
+            header('Location: /admin/savings/view/' . $id);
+            exit();
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/savings/deposit/' . $id);
+            exit();
+        }
+    }
+
+    public function toggleSavingsStatus($id, $status)
+    {
+        try {
+            $this->user->updateSavingsStatus($id, $status);
+            $_SESSION['success'] = 'Status akaun simpanan berjaya dikemaskini';
+            header('Location: /admin/dashboard');
+            exit();
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/dashboard');
+            exit();
+        }
+    }
+
+    public function showRecurringPaymentForm()
+    {
+        try {
+            // Check if user has active savings account
+            $account = $this->user->getLatestSavingsAccount($_SESSION['admin_id']);
+            if (!$account) {
+                throw new \Exception('Anda perlu membuat akaun simpanan terlebih dahulu');
+            }
+            $this->view('admin/savings/recurring');
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/dashboard');
+            exit();
+        }
+    }
+
+    public function storeRecurringPayment()
+    {
+        try {
+            $account = $this->user->getLatestSavingsAccount($_SESSION['admin_id']);
+            if (!$account) {
+                throw new \Exception('Tiada akaun simpanan aktif ditemui');
+            }
+
+            // Validate input
+            if (!is_numeric($_POST['amount']) || $_POST['amount'] <= 0) {
+                throw new \Exception('Jumlah bayaran tidak sah');
+            }
+
+            if (!in_array($_POST['frequency'], ['weekly', 'biweekly', 'monthly'])) {
+                throw new \Exception('Kekerapan bayaran tidak sah');
+            }
+
+            if (!in_array($_POST['payment_method'], ['bank_transfer', 'salary_deduction'])) {
+                throw new \Exception('Kaedah bayaran tidak sah');
+            }
+
+            $data = [
+                'savings_account_id' => $account['id'],
+                'amount' => $_POST['amount'],
+                'frequency' => $_POST['frequency'],
+                'payment_method' => $_POST['payment_method'],
+                'next_payment_date' => $_POST['start_date'],
+                'status' => 'active'
+            ];
+
+            $paymentId = $this->user->createRecurringPayment($data);
+            
+            if ($paymentId) {
+                $_SESSION['success'] = 'Bayaran berulang berjaya didaftarkan';
+                $this->view('admin/savings/recurring', [
+                    'success' => true,
+                    'message' => 'Sila pastikan maklumat di atas adalah tepat sebelum menghantar permohonan.'
+                ]);
+                exit();
+            } else {
+                throw new \Exception('Gagal mendaftar bayaran berulang: Tiada ID dikembalikan');
+            }
+
+        } catch (\Exception $e) {
+            error_log('Error in storeRecurringPayment: ' . $e->getMessage());
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/savings/recurring');
+            exit();
+        }
+    }
 }
