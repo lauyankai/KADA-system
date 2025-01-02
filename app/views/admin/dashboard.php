@@ -8,7 +8,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <h3 class="card-title">
-                <i class="bi bi-person-circle me-2"></i>Selamat Datang, 
+                <i class="bi bi-person-circle me-2"></i>Selamat Datang kepada kamu 
                 <?= htmlspecialchars($_SESSION['admin_name'] ?? $_SESSION['admin_username']) ?>
             </h3>
             <p class="text-muted mb-0">Sistem Pengurusan Koperasi</p>
