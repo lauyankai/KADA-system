@@ -28,13 +28,12 @@ class AuthController extends Controller
         if ($admin && password_verify($password, $admin['password'])) {
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_username'] = $admin['username'];
-            $_SESSION['admin_name'] = $admin['username'];
             $_SESSION['is_admin'] = true;
             header('Location: /');
             exit;
         }
 
-        $_SESSION['error'] = "Nama pengguna atau kata laluan tidak sah";
+        $_SESSION['error'] = 'Invalid admin credentials';
         header('Location: /login');
         exit;
     }
@@ -62,7 +61,7 @@ class AuthController extends Controller
 
         // Attempt to create admin
         if ($this->authUser->createAdmin($data)) {
-            $_SESSION['success'] = "Berjaya log masuk";
+            $_SESSION['success'] = 'Admin registration successful! Please login.';
             header('Location: /login');
             exit;
         }

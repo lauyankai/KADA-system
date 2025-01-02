@@ -106,23 +106,23 @@
                         <div class="step-content" data-step="2">
                             <h4 class="mt-3 mb-4 text-success"><i class="bi bi-briefcase me-2"></i>Maklumat Pekerjaan Pemohon</h4>
                             <div class="row g-3">
-                                <div class="col-md-4">
+                                <!-- <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Anggota</label>
                                     <input type="text" name="member_no" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">No. PF</label>
                                     <input type="text" name="pf_no" class="form-control" required>
-                                </div>
-                                <div class="col-md-4">
+                                </div> -->
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Gaji Bulanan (RM)</label>
                                     <input type="text" name="monthly_salary" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-5">
                                     <label class="form-label fw-bold">Jawatan</label>
                                     <input type="text" name="position" class="form-control" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Gred</label>
                                     <div class="grade-search-container">
                                         <input type="text" name="grade" id="gradeInput" class="form-control" 
@@ -703,7 +703,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Modal Syer (RM)</label>
-                                    <input type="number" name="share_capital" class="form-control" step="0.01" required>
+                                    <input type="number" name="share_capital" class="form-control" value="300.00" readonly required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Modal Yuran (RM)</label>
