@@ -15,11 +15,11 @@
             <div class="col-lg-6">
                 <span class="hero-badge">Koperasi Kakitangan KADA</span>
                 <h1 class="display-4 fw-bold mb-4">
-                    Platform Digital <span class="text-gradient">Koperasi</span> Untuk Masa Depan
+                    Platform Digital <span class="text-gradient">Koperasi</span> KADA Kelantan
                 </h1>
-                <p class="lead mb-5">Urus semua urusan koperasi anda dengan mudah dan selamat melalui platform digital kami.</p>
+                <p class="lead mb-5">Urus semua urusan koperasi dengan mudah dan selamat melalui platform digital kami.</p>
                 <div class="d-flex gap-3">
-                    <a href="/login" class="btn btn-gradient btn-lg">
+                    <a href="/auth/login" class="btn btn-gradient btn-lg">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Log Masuk
                     </a>
                     <a href="/users/create" class="btn btn-outline-primary btn-lg">Daftar Sekarang</a>

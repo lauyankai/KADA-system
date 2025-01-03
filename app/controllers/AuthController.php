@@ -1,6 +1,5 @@
 <?php
 namespace App\Controllers;
-
 use App\Core\Controller;
 use App\Models\AuthUser;
 
@@ -18,24 +17,10 @@ class AuthController extends Controller
         $this->view('auth/login', ['title' => 'Login - KADA System']);
     }
 
-    public function login()
+    public function authenticate()
     {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-
-        $admin = $this->authUser->findAdminByUsername($username);
-
-        if ($admin && password_verify($password, $admin['password'])) {
-            $_SESSION['admin_id'] = $admin['id'];
-            $_SESSION['admin_username'] = $admin['username'];
-            $_SESSION['is_admin'] = true;
-            header('Location: /users/index');
-            exit;
-        }
-
-        $_SESSION['error'] = 'Invalid admin credentials';
-        header('Location: /login');
-        exit;
+        // Handle login form submission
+        // ... rest of your authentication code
     }
 
     public function showRegister()
