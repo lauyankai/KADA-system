@@ -57,6 +57,13 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Savings Dashboard Redirect Button -->
+    <div class="text-center mt-4">
+        <a href="/admin/savings" class="btn btn-success btn-lg">
+            <i class="bi bi-piggy-bank me-2"></i>Ke Papan Pemuka Simpanan
+        </a>
+    </div>
 </div>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>

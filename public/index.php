@@ -23,6 +23,7 @@ require_once '../app/Core/Router.php';
 require_once '../app/Controllers/HomeController.php';
 require_once '../app/Controllers/AuthController.php';
 require_once '../app/Controllers/UserController.php';
+require_once '../app/Controllers/PaymentController.php';
 
 // Include models
 require_once '../app/Models/User.php';
@@ -51,6 +52,49 @@ $router->addRoute('GET', '/users/edit/{id}', 'UserController', 'edit');
 $router->addRoute('GET', '/users/details/{id}', 'UserController', 'details');
 $router->addRoute('GET', '/users/approve/{id}', 'UserController', 'approve');
 $router->addRoute('GET', '/users/reject/{id}', 'UserController', 'reject');
+
+// Savings routes
+$router->addRoute('GET', '/admin/savings', 'UserController', 'showSavingsDashboard');
+$router->addRoute('GET', '/admin/savings/apply', 'UserController', 'showSavingsApplication');
+$router->addRoute('POST', '/admin/savings/store', 'UserController', 'storeSavingsAccount');
+$router->addRoute('GET', '/admin/savings/deposit/{id}', 'UserController', 'showDepositForm');
+$router->addRoute('POST', '/admin/savings/deposit/{id}', 'UserController', 'makeDeposit');
+$router->addRoute('POST', '/admin/savings/goal/store', 'UserController', 'storeSavingsGoal');
+$router->addRoute('GET', '/admin/savings/recurring', 'UserController', 'showRecurringSettings');
+$router->addRoute('POST', '/admin/savings/recurring/store', 'UserController', 'storeRecurringPayment');
+$router->addRoute('GET', '/admin/savings/deposit', 'UserController', 'showDepositPage');
+$router->addRoute('GET', '/admin/savings/transfer', 'UserController', 'showTransferPage');
+
+// Payment routes
+$router->addRoute('POST', '/payment/process', 'PaymentController', 'processPayment');
+$router->addRoute('GET', '/payment/simulate/{provider}', 'PaymentController', 'showSimulation');
+$router->addRoute('POST', '/payment/callback', 'PaymentController', 'handleCallback');
+
+// Add these routes
+$router->addRoute('POST', '/admin/savings/deposit', 'UserController', 'makeDeposit');
+$router->addRoute('POST', '/admin/savings/transfer', 'UserController', 'makeTransfer');
+
+// Add these routes for editing
+$router->addRoute('GET', '/admin/savings/goal/edit/{id}', 'UserController', 'editSavingsGoal');
+$router->addRoute('POST', '/admin/savings/goal/update/{id}', 'UserController', 'updateSavingsGoal');
+$router->addRoute('GET', '/admin/savings/recurring/edit', 'UserController', 'editRecurringPayment');
+$router->addRoute('POST', '/admin/savings/recurring/update', 'UserController', 'updateRecurringPayment');
+
+// Add this route
+$router->addRoute('GET', '/admin/savings/verify-account/{account}', 'UserController', 'verifyAccount');
+
+// Add these routes for account management
+$router->addRoute('GET', '/admin/savings/accounts', 'UserController', 'showAccounts');
+$router->addRoute('GET', '/admin/savings/accounts/add', 'UserController', 'showAddAccount');
+$router->addRoute('POST', '/admin/savings/accounts/store', 'UserController', 'storeAccount');
+$router->addRoute('POST', '/admin/savings/accounts/delete/{id}', 'UserController', 'deleteAccount');
+$router->addRoute('POST', '/admin/savings/accounts/set-main/{id}', 'UserController', 'setMainAccount');
+
+// Add this route
+$router->addRoute('GET', '/admin/savings/receipt/{reference}', 'UserController', 'showReceipt');
+
+// Add this route
+$router->addRoute('POST', '/admin/savings/goal/delete/{id}', 'UserController', 'deleteGoal');
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
