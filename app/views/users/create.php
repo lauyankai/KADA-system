@@ -35,7 +35,7 @@
                         </div>
                     </div>
                     
-                    <form id="membershipForm" action="/store" method="POST" class="row g-3">
+                    <form id="membershipForm" action="/users/store" method="POST" class="row g-3">
                         <!-- Step 1: Personal Information -->
                         <div class="step-content active" data-step="1">
                             <h4 class="mt-3 mb-4 text-success"><i class="bi bi-person-badge me-2"></i>Maklumat Pemohon</h4>

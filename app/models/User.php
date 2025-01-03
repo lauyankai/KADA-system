@@ -26,22 +26,24 @@ class User extends Model
         try {
             $sql = "INSERT INTO pendingregistermember (
                 name, ic_no, gender, religion, race, marital_status,
-                member_number, pf_number, position, grade, monthly_salary,
+                position, grade, monthly_salary,
                 home_address, home_postcode, home_state,
                 office_address, office_postcode,
                 office_phone, home_phone, fax,
                 registration_fee, share_capital, fee_capital,
                 deposit_funds, welfare_fund, fixed_deposit,
-                other_contributions
+                other_contributions,
+                family_relationship, family_name, family_ic
             ) VALUES (
                 :name, :ic_no, :gender, :religion, :race, :marital_status,
-                :member_number, :pf_number, :position, :grade, :monthly_salary,
+                :position, :grade, :monthly_salary,
                 :home_address, :home_postcode, :home_state,
                 :office_address, :office_postcode,
                 :office_phone, :home_phone, :fax,
                 :registration_fee, :share_capital, :fee_capital,
                 :deposit_funds, :welfare_fund, :fixed_deposit,
-                :other_contributions
+                :other_contributions,
+                :family_relationship, :family_name, :family_ic
             )";
 
             $stmt = $this->getConnection()->prepare($sql);
@@ -53,8 +55,6 @@ class User extends Model
                 ':religion' => $data['religion'],
                 ':race' => $data['race'],
                 ':marital_status' => $data['marital_status'],
-                ':member_number' => $data['member_no'],
-                ':pf_number' => $data['pf_no'],
                 ':position' => $data['position'],
                 ':grade' => $data['grade'],
                 ':monthly_salary' => $data['monthly_salary'],
@@ -72,7 +72,10 @@ class User extends Model
                 ':deposit_funds' => $data['deposit_funds'] ?? 0,
                 ':welfare_fund' => $data['welfare_fund'] ?? 0,
                 ':fixed_deposit' => $data['fixed_deposit'] ?? 0,
-                ':other_contributions' => $data['other_contributions'] ?? null
+                ':other_contributions' => $data['other_contributions'] ?? null,
+                ':family_relationship' => $data['family_relationship'][0] ?? null,
+                ':family_name' => $data['family_name'][0] ?? null,
+                ':family_ic' => $data['family_ic'][0] ?? null
             ];
 
             // Debug log

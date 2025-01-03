@@ -47,7 +47,8 @@ $router->addRoute('GET', '/auth/logout', 'AuthController', 'logout');
 // User routes
 $router->addRoute('GET', '/users', 'UserController', 'index');
 $router->addRoute('GET', '/users/create', 'UserController', 'create');
-$router->addRoute('POST', '/users', 'UserController', 'store');
+$router->addRoute('POST', '/store', 'UserController', 'store');
+$router->addRoute('POST', '/users/store', 'UserController', 'store');
 $router->addRoute('GET', '/users/edit/{id}', 'UserController', 'edit');
 $router->addRoute('GET', '/users/details/{id}', 'UserController', 'details');
 $router->addRoute('GET', '/users/approve/{id}', 'UserController', 'approve');
