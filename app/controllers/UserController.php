@@ -170,4 +170,48 @@ class UserController extends Controller
         $this->user->delete($id);
         header('Location: /');
     }
+
+    public function showSavingsDashboard()
+    {
+        $this->checkAuth();
+        try {
+            $memberId = $_SESSION['admin_id'];
+
+            // Get total savings
+            $totalSavings = $this->user->getTotalSavings($memberId);
+
+            // Get savings goals
+            $savingsGoals = $this->user->getSavingsGoals($memberId);
+
+            // Get recurring payment settings
+            $recurringPayment = $this->user->getRecurringPayment($memberId);
+
+            // Get recent transactions
+            $recentTransactions = $this->user->getRecentTransactions($memberId);
+
+            $this->view('admin/savings/dashboard', [
+                'totalSavings' => $totalSavings,
+                'savingsGoals' => $savingsGoals,
+                'recurringPayment' => $recurringPayment,
+                'recentTransactions' => $recentTransactions
+            ]);
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            $this->view('admin/savings/dashboard', [
+                'totalSavings' => 0,
+                'savingsGoals' => [],
+                'recurringPayment' => null,
+                'recentTransactions' => []
+            ]);
+        }
+    }
+
+    private function checkAuth()
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            header('Location: /auth/login');
+            exit();
+        }
+    }
 }
