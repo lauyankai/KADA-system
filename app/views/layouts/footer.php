@@ -1,4 +1,4 @@
-<footer class="modern-footer py-4">
+<footer class="modern-footer py-3">
     <div class="container">
         <div class="row g-4 mb-3">
             <div class="col-lg-3 col-md-6">

@@ -3,9 +3,9 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
-    <div class="container mt-5">
+    <div class="login-container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-5">
             <div class="card shadow-lg">
                     <div class="card-body p-5">
                         <h2 class="text-center mb-4" style="color: #198754; font-weight: bold;">
