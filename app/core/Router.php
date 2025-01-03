@@ -77,4 +77,9 @@ class Router {
         array_shift($matches);
         return $matches;
     }
+
+    public function __construct() {
+        $this->addRoute('GET', '/users/delete/{id}', 'UserController', 'delete');
+        $this->addRoute('GET', '/users', 'UserController', 'index');
+    }
 }
