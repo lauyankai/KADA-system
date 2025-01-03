@@ -113,13 +113,24 @@ class User extends Model
         $conn = $db->connect();
     
         try {
-            $stmt = $conn->prepare("DELETE FROM users WHERE id = :id"); // Use correct table name
+            $stmt = $conn->prepare("DELETE FROM pendingregistermembers WHERE id = :id"); // Use correct table name
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     
             return $stmt->execute();
         } catch (PDOException $e) {
             // Log the error or handle it appropriately
             error_log("Error deleting user: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function delete($id) {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM pendingregistermember WHERE id = ?");
+            return $stmt->execute([$id]);
+        } catch (PDOException $e) {
+            // Log the error
+            error_log($e->getMessage());
             return false;
         }
     }

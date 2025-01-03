@@ -166,23 +166,16 @@ class UserController extends Controller
 
     public function delete($id)
     {
-        require_once 'models/User.php'; // Ensure the User model is included
-    
-        if (is_numeric($id)) {
-            $userModel = new User(); // Create an instance of the User model
-    
-            if ($userModel->deleteById($id)) {
-                // Redirect back to the users index page with a success message
-                header("Location: /users/index?message=User deleted successfully");
-                exit;
-            } else {
-                // Redirect back with an error message
-                header("Location: /users/index?message=Failed to delete the user");
-                exit;
-            }
+        $user = new User();
+        if ($user->delete($id)) {
+            // Redirect back to users list with success message
+            header('Location: /users');
+            $_SESSION['success'] = 'Data successfully deleted';
+            exit;
         } else {
-            // Handle invalid ID
-            header("Location: /users/index?message=Invalid request");
+            // Redirect back with error message
+            header('Location: /users');
+            $_SESSION['error'] = 'Failed to delete user';
             exit;
         }
     }

@@ -12,7 +12,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         $conn = $db->connect();
 
         // Prepare the DELETE query
-        $stmt = $conn->prepare("DELETE FROM members WHERE id = :id");
+        $stmt = $conn->prepare("DELETE FROM pendingregistermember WHERE id = :id");
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
         // Execute the query
