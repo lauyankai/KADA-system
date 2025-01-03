@@ -48,6 +48,9 @@ $router->addRoute('GET', '/users', 'UserController', 'index');
 $router->addRoute('GET', '/users/create', 'UserController', 'create');
 $router->addRoute('POST', '/users', 'UserController', 'store');
 $router->addRoute('GET', '/users/edit/{id}', 'UserController', 'edit');
+$router->addRoute('GET', '/users/details/{id}', 'UserController', 'details');
+$router->addRoute('GET', '/users/approve/{id}', 'UserController', 'approve');
+$router->addRoute('GET', '/users/reject/{id}', 'UserController', 'reject');
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

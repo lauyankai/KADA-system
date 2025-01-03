@@ -22,7 +22,9 @@
                     <th>Nama</th>
                     <th>No. KP</th>
                     <th>Jantina</th>
+                    <th>Bangsa</th>
                     <th>Jawatan</th>
+                    <th>Gred</th>
                     <th>Gaji Bulanan</th>
                     <th>Tindakan</th>
                 </tr>
@@ -30,14 +32,25 @@
             <tbody>
                 <?php foreach ($pendingregistermembers as $member): ?>
                     <tr>
-                        <td><?= htmlspecialchars($member['name']) ?></td>
-                        <td><?= htmlspecialchars($member['ic_no']) ?></td>
-                        <td><?= htmlspecialchars($member['gender']) ?></td>
-                        <td><?= htmlspecialchars($member['position']) ?></td>
-                        <td>RM <?= number_format($member['monthly_salary'], 2) ?></td>
+                        <td><?= htmlspecialchars($member['name'] ?? 'error') ?></td>
+                        <td><?= htmlspecialchars($member['ic_no'] ?? 'error') ?></td>
+                        <td><?= htmlspecialchars($member['gender'] ?? 'error') ?></td>
+                        <td><?= htmlspecialchars($member['race'] ?? 'error') ?></td>
+                        <td><?= htmlspecialchars($member['position'] ?? 'error') ?></td>
+                        <td><?= htmlspecialchars($member['grade'] ?? 'error') ?></td>
+                        <td><?= isset($member['monthly_salary']) ? 'RM ' . number_format($member['monthly_salary'], 2) : '-' ?></td>
                         <td>
-                            <a href="/users/edit/<?= $member['id'] ?>" class="btn btn-sm btn-primary">Edit</a>
-                            <a href="/users/delete/<?= $member['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                            <a href="/users/details/<?= $member['id'] ?>" class="btn btn-sm btn-info text-white me-1">
+                                <i class="bi bi-info-circle me-1"></i>Butiran
+                            </a>
+                            <a href="/users/approve/<?= $member['id'] ?>" class="btn btn-sm btn-success me-1" 
+                               onclick="return confirm('Adakah anda pasti untuk meluluskan permohonan ini?')">
+                                <i class="bi bi-check-circle me-1"></i>Lulus
+                            </a>
+                            <a href="/users/reject/<?= $member['id'] ?>" class="btn btn-sm btn-danger"
+                               onclick="return confirm('Adakah anda pasti untuk menolak permohonan ini?')">
+                                <i class="bi bi-x-circle me-1"></i>Tolak
+                            </a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

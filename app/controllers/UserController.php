@@ -23,7 +23,7 @@ class UserController extends Controller
             $conn = $db->connect();
             
             // Fetch all pending register members
-            $sql = "SELECT id, name, ic_no, gender, position, monthly_salary 
+            $sql = "SELECT *
                     FROM pendingregistermember 
                     ORDER BY id DESC";
             
