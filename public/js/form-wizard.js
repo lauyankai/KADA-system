@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Form Wizard JS loaded');
     const form = document.getElementById('membershipForm');
+    const pageTitle = document.querySelector('.pageTitle');
     const steps = document.querySelectorAll('.step');
     const contents = document.querySelectorAll('.step-content');
     const prevBtn = document.querySelector('.prev-step');
@@ -9,6 +10,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentStep = 1;
     let maxStepReached = 1;
 
+    function scrollToPageTitle() {
+        if (pageTitle) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
     function validateCurrentStep() {
         const currentContent = document.querySelector(`.step-content[data-step="${currentStep}"]`);
         const requiredFields = currentContent.querySelectorAll('[required]');
@@ -145,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.style.display = step === steps.length ? 'block' : 'none';
 
         // Scroll to top of new step
-        contents[step-1].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        scrollToPageTitle();
     }
 
     nextBtn.addEventListener('click', (e) => {
@@ -155,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentStep++;
                 maxStepReached = Math.max(maxStepReached, currentStep);
                 updateStep(currentStep);
+                scrollToPageTitle();
             }
         }
     });
@@ -163,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentStep > 1) {
             currentStep--;
             updateStep(currentStep);
+            scrollToPageTitle();
         }
     });
 

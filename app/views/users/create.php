@@ -4,15 +4,14 @@
 ?>
 
 <div class="container">
-    <div class="row justify-content-center my-5">
-        <div class="col-lg-8">
-            <div class="card p-4 shadow-lg">               
-                <h1 class="text-center mb-4 page-title">
-                    <i class="bi bi-person-plus-fill me-2"></i>Pendaftaran Anggota
-                </h1>
-
-                <!-- Step Indicators -->
-                <div class="form-wizard">
+    <div class="form-wizard">   
+        <div class="row justify-content-center my-5">
+            <div class="col-lg-8">
+                <div class="card p-4 shadow-lg">               
+                    <h1 class="pageTitle text-center mb-4">
+                        <i class="bi bi-person-plus-fill me-2"></i>Pendaftaran Anggota
+                    </h1>
+                    <!-- Step Indicators -->
                     <div class="step-indicator mb-5">
                         <div class="step active" data-step="1">
                             <i class="bi bi-person-badge"></i>
@@ -43,7 +42,12 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Nama Penuh</label>
-                                    <input type="text" name="name" class="form-control" required>
+                                    <input type="text" 
+                                           name="name" 
+                                           class="form-control" 
+                                           required
+                                           onkeyup="this.value = this.value.toUpperCase();"
+                                           style="text-transform: uppercase;">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">No. K/P</label>
@@ -106,23 +110,15 @@
                         <div class="step-content" data-step="2">
                             <h4 class="mt-3 mb-4 text-success"><i class="bi bi-briefcase me-2"></i>Maklumat Pekerjaan Pemohon</h4>
                             <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">No. Anggota</label>
-                                    <input type="text" name="member_no" class="form-control" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">No. PF</label>
-                                    <input type="text" name="pf_no" class="form-control" required>
-                                </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Gaji Bulanan (RM)</label>
                                     <input type="text" name="monthly_salary" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-5">
                                     <label class="form-label fw-bold">Jawatan</label>
                                     <input type="text" name="position" class="form-control" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Gred</label>
                                     <div class="grade-search-container">
                                         <input type="text" name="grade" id="gradeInput" class="form-control" 
@@ -588,7 +584,7 @@
                                     <label class="form-label fw-bold">Alamat Rumah</label>
                                     <textarea name="home_address" class="form-control" rows="3" required></textarea>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-2">
                                     <label class="form-label fw-bold">Poskod</label>
                                     <input type="text" name="home_postcode" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" required>
                                 </div>
@@ -623,11 +619,10 @@
                                     <label class="form-label fw-bold">Alamat Pejabat</label>
                                     <textarea name="office_address" class="form-control" rows="3" required></textarea>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-2">
                                     <label class="form-label fw-bold">Poskod</label>
                                     <input type="text" name="office_postcode" class="form-control" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                                 </div>
-                                <h4 class="mt-4 mb-3 text-success"><i class="bi bi-telephone me-2"></i>Contact Numbers</h4>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Telefon Pejabat</label>
                                     <input type="tel" name="office_phone" oninput="this.value = this.value.replace(/[^0-9]/g, '')"class="form-control" required>
@@ -703,7 +698,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Modal Syer (RM)</label>
-                                    <input type="number" name="share_capital" class="form-control" step="0.01" required>
+                                    <input type="number" name="share_capital" class="form-control" value="300.00" readonly required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Modal Yuran (RM)</label>
@@ -724,7 +719,7 @@
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Lain-lain Sumbangan</label>
                                     <textarea name="other_contributions" class="form-control" rows="3"
-                                            placeholder="Please specify any other contributions..."></textarea>
+                                            placeholder="Sumbangan lain..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -748,95 +743,16 @@
     </div>
 </div>
 
-<script src="/js/form-wizard.js"></script>
-
 <script>
-// Show search and select when clicking the input
-document.getElementById('gradeInput').addEventListener('click', function() {
-    document.getElementById('gradeSearch').style.display = 'block';
-    document.getElementById('gradeSelect').style.display = 'block';
-    document.getElementById('gradeSearch').focus();
-});
-
-// Hide search and select when clicking outside
-document.addEventListener('click', function(e) {
-    const container = document.querySelector('.grade-search-container');
-    if (!container.contains(e.target)) {
-        document.getElementById('gradeSearch').style.display = 'none';
-        document.getElementById('gradeSelect').style.display = 'none';
-    }
-});
-
-// Handle grade selection
-document.getElementById('gradeSelect').addEventListener('change', function() {
-    const selectedGrade = this.value;
-    document.getElementById('gradeInput').value = selectedGrade;
-    document.getElementById('gradeSearch').style.display = 'none';
-    document.getElementById('gradeSelect').style.display = 'none';
-    
-    // Remove invalid state if exists
-    document.getElementById('gradeInput').classList.remove('is-invalid');
-    const errorMessage = document.getElementById('gradeInput').nextElementSibling;
-    if (errorMessage && errorMessage.classList.contains('invalid-feedback')) {
-        errorMessage.remove();
-    }
-});
-
-function filterGrades(searchText) {
-    const select = document.getElementById('gradeSelect');
-    const options = select.getElementsByTagName('option');
-    const searchValue = searchText.toLowerCase();
-    let visibleCount = 0;
-
-    for (let i = 0; i < options.length; i++) {
-        const option = options[i];
-        const value = option.value.toLowerCase();
-        
-        // Skip the first "Pilih" option
-        if (value === "") continue;
-        
-        if (value.includes(searchValue)) {
-            option.style.display = '';
-            visibleCount++;
-        } else {
-            option.style.display = 'none';
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInput = document.querySelector('input[name="name"]');
+        if (nameInput) {
+            nameInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
         }
-    }
-    
-    // Adjust select height based on visible options
-    const optionHeight = 40; // height of each option in pixels
-    const maxVisibleOptions = 6;
-    const visibleHeight = Math.min(visibleCount, maxVisibleOptions) * optionHeight;
-    select.style.height = visibleHeight + 'px';
-}
-
-// Add these styles dynamically
-document.head.insertAdjacentHTML('beforeend', `
-    <style>
-        .grade-search-container {
-            position: relative;
-        }
-        
-        #gradeSearch {
-            border-radius: 0.375rem;
-            border: 1px solid #ced4da;
-            padding: 0.375rem 0.75rem;
-        }
-        
-        #gradeSelect option {
-            padding: 8px;
-        }
-        
-        #gradeSelect option:checked {
-            background-color: #198754;
-            color: white;
-        }
-        
-        #gradeSelect {
-            max-height: 200px;
-        }
-    </style>
-`);
+    });
 </script>
-
+<script src="/js/form-wizard.js"></script>
+<script src="/js/grade-selector.js"></script>
 <?php require_once '../app/views/layouts/footer.php'; ?>
