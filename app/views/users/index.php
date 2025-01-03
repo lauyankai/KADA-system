@@ -1,4 +1,7 @@
-<?php require_once '../app/views/layouts/header.php'; ?>
+<?php 
+    $title = 'List of Users';
+    require_once '../app/views/layouts/header.php';
+?>
 
 <div class="container mt-4">
     <h2>Senarai Pengguna</h2>
