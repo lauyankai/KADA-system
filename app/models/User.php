@@ -115,4 +115,81 @@ class User extends Model
         $stmt->execute(); // Use execute() to run the query
         return $stmt; // Return the PDOStatement object
     }
+
+    public function getTotalSavings($memberId)
+    {
+        try {
+            $sql = "SELECT COALESCE(current_amount, 0) as total 
+                    FROM savings_accounts 
+                    WHERE member_id = :member_id 
+                    AND (display_main = 1 OR target_amount IS NULL)
+                    ORDER BY display_main DESC
+                    LIMIT 1";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $result['total'] ?? 0;
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan jumlah simpanan');
+        }
+    }
+
+    public function getSavingsGoals($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM savings_goals 
+                    WHERE member_id = :member_id 
+                    ORDER BY target_date ASC";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan sasaran simpanan');
+        }
+    }
+
+    public function getRecurringPayment($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM recurring_payments 
+                    WHERE member_id = :member_id 
+                    AND status = 'active'
+                    LIMIT 1";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat bayaran berulang');
+        }
+    }
+
+    public function getRecentTransactions($memberId)
+    {
+        try {
+            $sql = "SELECT t.*, a.current_amount 
+                    FROM savings_transactions t
+                    JOIN savings_accounts a ON t.savings_account_id = a.id
+                    WHERE a.member_id = :member_id
+                    ORDER BY t.created_at DESC
+                    LIMIT 10";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan sejarah transaksi');
+        }
+    }
 }
