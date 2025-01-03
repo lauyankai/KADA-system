@@ -1462,3 +1462,14 @@ select.form-select.is-invalid {
     height: 12px !important;
     line-height: 1 !important;
 }
+
+.prev-step {
+    transition: all 0.3s ease;
+}
+
+.prev-step:hover {
+    background-color: #0061f2;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
