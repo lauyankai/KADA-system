@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Core\Database;
 use PDO;
 use PDOException;
+use DateTime;
 
 class UserController extends Controller
 {
@@ -166,19 +167,7 @@ class UserController extends Controller
 
     public function delete($id)
     {
-        $user = new User();
-        if ($user->delete($id)) {
-            // Redirect back to users list with success message
-            header('Location: /users');
-            $_SESSION['success'] = 'Data successfully deleted';
-            exit;
-        } else {
-            // Redirect back with error message
-            header('Location: /users');
-            $_SESSION['error'] = 'Failed to delete user';
-            exit;
-        }
+        $this->user->delete($id);
+        header('Location: /');
     }
-    
-
 }

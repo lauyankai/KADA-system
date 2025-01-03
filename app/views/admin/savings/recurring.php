@@ -4,165 +4,199 @@
 ?>
 
 <div class="container mt-4">
-    <!-- Add error/success messages here -->
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger">
-            <?= $_SESSION['error']; ?>
-            <?php unset($_SESSION['error']); ?>
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+            <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <?= $_SESSION['success']; ?>
-            <?php unset($_SESSION['success']); ?>
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
+            <div class="card shadow">
+                <div class="card-body p-4">
                     <h4 class="card-title mb-4">
                         <i class="bi bi-arrow-repeat me-2"></i>Tetapan Bayaran Berulang
                     </h4>
 
-                    <?php if (isset($success) && $success): ?>
-                        <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Pengesahan Bayaran Berulang</h5>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="alert alert-success">
-                                            <i class="bi bi-check-circle me-2"></i>Bayaran berulang berjaya didaftarkan
-                                        </div>
-                                        <p class="text-muted mb-0"><?= $message ?></p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-success" onclick="window.location.href='/admin/dashboard'">
-                                            OK
-                                        </button>
-                                    </div>
+                    <!-- Information Card -->
+                    <div class="alert alert-info mb-4">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-info-circle me-2"></i>Mengenai Bayaran Berulang
+                        </h6>
+                        <ul class="mb-0">
+                            <li>Potongan akan dibuat secara automatik setiap bulan</li>
+                            <li>Minimum RM10 sebulan</li>
+                            <li>Boleh dibatalkan pada bila-bila masa</li>
+                            <li>Notifikasi akan dihantar sebelum potongan dibuat</li>
+                        </ul>
+                    </div>
+
+                    <form action="/admin/savings/recurring/store" method="POST" class="needs-validation" novalidate>
+                        <!-- Amount Setting -->
+                        <div class="mb-4">
+                            <label class="form-label">Jumlah Potongan Bulanan (RM)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">RM</span>
+                                <input type="number" name="amount" class="form-control form-control-lg" 
+                                       min="10" max="1000" step="10" required
+                                       value="<?= $recurringPayment['amount'] ?? '' ?>">
+                            </div>
+                            <div class="form-text">Minimum: RM10.00 sebulan</div>
+                        </div>
+
+                        <!-- Deduction Date -->
+                        <div class="mb-4">
+                            <label class="form-label">Tarikh Potongan</label>
+                            <select name="deduction_day" class="form-select form-select-lg" required>
+                                <?php for($i = 1; $i <= 28; $i++): ?>
+                                    <option value="<?= $i ?>" <?= ($recurringPayment['deduction_day'] ?? '') == $i ? 'selected' : '' ?>>
+                                        <?= $i ?> hb setiap bulan
+                                    </option>
+                                <?php endfor; ?>
+                            </select>
+                            <div class="form-text">Pilih tarikh untuk potongan bulanan</div>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="mb-4">
+                            <label class="form-label">Kaedah Pembayaran</label>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="payment_method" 
+                                           id="salary" value="salary" required>
+                                    <label class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" 
+                                           for="salary">
+                                        <i class="bi bi-wallet2 fs-3 mb-2"></i>
+                                        <span>Potongan Gaji</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="payment_method" 
+                                           id="fpx" value="fpx" required>
+                                    <label class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" 
+                                           for="fpx">
+                                        <i class="bi bi-bank fs-3 mb-2"></i>
+                                        <span>FPX</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="payment_method" 
+                                           id="card" value="card" required>
+                                    <label class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" 
+                                           for="card">
+                                        <i class="bi bi-credit-card fs-3 mb-2"></i>
+                                        <span>Kad Kredit/Debit</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                const modal = new bootstrap.Modal(document.getElementById('successModal'));
-                                modal.show();
-                            });
-                        </script>
-                    <?php endif; ?>
 
-                    <form id="recurringForm" action="/admin/savings/recurring/store" method="POST" class="needs-validation" novalidate>
+                        <!-- Agreement -->
                         <div class="mb-4">
-                            <label class="form-label">Jumlah Bayaran (RM)</label>
-                            <input type="number" 
-                                   name="amount" 
-                                   class="form-control" 
-                                   min="1"
-                                   step="0.01"
-                                   required>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="agreement" required>
+                                <label class="form-check-label" for="agreement">
+                                    Saya bersetuju untuk memberi kebenaran potongan bulanan mengikut tetapan di atas
+                                </label>
+                            </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label">Kekerapan</label>
-                            <select name="frequency" class="form-select" required>
-                                <option value="">Pilih kekerapan</option>
-                                <option value="weekly">Mingguan</option>
-                                <option value="biweekly">Dua Minggu</option>
-                                <option value="monthly">Bulanan</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label">Kaedah Bayaran</label>
-                            <select name="payment_method" class="form-select" required>
-                                <option value="">Pilih kaedah</option>
-                                <option value="bank_transfer">Pindahan Bank</option>
-                                <option value="salary_deduction">Potongan Gaji</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label">Tarikh Mula</label>
-                            <input type="date" 
-                                   name="start_date" 
-                                   class="form-control" 
-                                   min="<?= date('Y-m-d') ?>"
-                                   required>
-                        </div>
-
-                        <div class="text-end">
-                            <a href="/admin/dashboard" class="btn btn-outline-secondary me-2">
-                                <i class="bi bi-x-circle me-2"></i>Batal
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="/admin/savings" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Kembali
                             </a>
-                            <button type="button" class="btn btn-success" onclick="showConfirmation()">
-                                <i class="bi bi-check-circle me-2"></i>Hantar
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Simpan Tetapan
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Confirmation Modal -->
-<div class="modal fade" id="confirmModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Pengesahan Bayaran Berulang</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-info">
-                    <strong>Jumlah Bayaran:</strong> <span id="confirmAmount">RM 0.00</span><br>
-                    <strong>Kekerapan:</strong> <span id="confirmFrequency">-</span><br>
-                    <strong>Kaedah:</strong> <span id="confirmMethod">-</span><br>
-                    <strong>Tarikh Mula (Hari/Bulan/Tahun):</strong> <span id="confirmDate">-</span>
+            <?php if (isset($recurringPayment) && is_array($recurringPayment) && !empty($recurringPayment)): ?>
+            <!-- Current Settings Card -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Tetapan Semasa</h5>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <h6 class="text-muted">Jumlah Bulanan</h6>
+                            <p class="fs-5 mb-0">RM <?= number_format($recurringPayment['amount'] ?? 0, 2) ?></p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h6 class="text-muted">Tarikh Potongan</h6>
+                            <p class="fs-5 mb-0"><?= $recurringPayment['deduction_day'] ?? '-' ?> hb</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h6 class="text-muted">Kaedah Pembayaran</h6>
+                            <p class="fs-5 mb-0">
+                                <?php
+                                $method = $recurringPayment['payment_method'] ?? '';
+                                switch($method) {
+                                    case 'salary':
+                                        echo '<i class="bi bi-wallet2 me-2"></i>Potongan Gaji';
+                                        break;
+                                    case 'fpx':
+                                        echo '<i class="bi bi-bank me-2"></i>FPX';
+                                        break;
+                                    case 'card':
+                                        echo '<i class="bi bi-credit-card me-2"></i>Kad';
+                                        break;
+                                    default:
+                                        echo '-';
+                                }
+                                ?>
+                            </p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h6 class="text-muted">Status</h6>
+                            <span class="badge bg-<?= ($recurringPayment['status'] ?? '') === 'active' ? 'success' : 'warning' ?>">
+                                <?= ($recurringPayment['status'] ?? '') === 'active' ? 'Aktif' : 'Tidak Aktif' ?>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <p class="text-muted mb-0">Sila pastikan maklumat di atas adalah tepat sebelum menghantar.</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-success" onclick="submitForm()">Sahkan</button>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <script>
-function showConfirmation() {
-    const form = document.getElementById('recurringForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+// Auto-dismiss success alert
+document.addEventListener('DOMContentLoaded', function() {
+    const successAlert = document.getElementById('successAlert');
+    if (successAlert) {
+        setTimeout(function() {
+            const bsAlert = new bootstrap.Alert(successAlert);
+            bsAlert.close();
+        }, 3000);
     }
-
-    const amount = parseFloat(form.querySelector('[name="amount"]').value);
-    const frequency = form.querySelector('[name="frequency"]');
-    const method = form.querySelector('[name="payment_method"]');
-    const date = form.querySelector('[name="start_date"]').value;
-
-    const frequencyText = frequency.options[frequency.selectedIndex].text;
-    const methodText = method.options[method.selectedIndex].text;
-
-    document.getElementById('confirmAmount').textContent = `RM ${amount.toFixed(2)}`;
-    document.getElementById('confirmFrequency').textContent = frequencyText;
-    document.getElementById('confirmMethod').textContent = methodText;
-    document.getElementById('confirmDate').textContent = new Date(date).toLocaleDateString('ms-MY');
-
-    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
-    modal.show();
-}
-
-function submitForm() {
-    document.getElementById('recurringForm').submit();
-}
+});
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 

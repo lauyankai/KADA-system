@@ -107,37 +107,9 @@ class User extends Model
     
     public function deleteById($id)
     {
-        require_once 'Database.php'; // Ensure Database.php is included
-    
-        $db = new Database();
-        $conn = $db->connect();
-    
-        try {
-            $stmt = $conn->prepare("DELETE FROM pendingregistermembers WHERE id = :id"); // Use correct table name
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-    
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            // Log the error or handle it appropriately
-            error_log("Error deleting user: " . $e->getMessage());
-            return false;
-        }
+        $stmt = $this->getConnection()->prepare("DELETE FROM users WHERE id = :id"); // Use prepare() for SQL statements with variables
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT); // Use bindParam() to bind variables
+        $stmt->execute(); // Use execute() to run the query
+        return $stmt; // Return the PDOStatement object
     }
-    
-    public function delete($id) {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM pendingregistermember WHERE id = ?");
-            return $stmt->execute([$id]);
-        } catch (PDOException $e) {
-            // Log the error
-            error_log($e->getMessage());
-            return false;
-        }
-    }
-    
-
-
-
-    
-
 }
