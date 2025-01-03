@@ -55,6 +55,26 @@ class UserController extends Controller
             // Start transaction
             $conn->beginTransaction();
             
+            // Capitalize name
+            $name = mb_convert_case(trim($_POST['name']), MB_CASE_TITLE, "UTF-8");
+            
+            // Generate Member Number (Format: M-YYYY-XXXX)
+            $year = date('Y');
+            $stmt = $conn->query("SELECT MAX(CAST(SUBSTRING_INDEX(member_number, '-', -1) AS UNSIGNED)) as max_num 
+                                 FROM pendingregistermember 
+                                 WHERE member_number LIKE 'M-$year-%'");
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $nextNum = ($result['max_num'] ?? 0) + 1;
+            $memberNumber = sprintf("M-%s-%04d", $year, $nextNum);
+            
+            // Generate PF Number (Format: PF-YYYY-XXXX)
+            $stmt = $conn->query("SELECT MAX(CAST(SUBSTRING_INDEX(pf_number, '-', -1) AS UNSIGNED)) as max_num 
+                                 FROM pendingregistermember 
+                                 WHERE pf_number LIKE 'PF-$year-%'");
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $nextPfNum = ($result['max_num'] ?? 0) + 1;
+            $pfNumber = sprintf("PF-%s-%04d", $year, $nextPfNum);
+            
             // Insert main member data
             $sql = "INSERT INTO pendingregistermember (
                 name, ic_no, gender, religion, race, marital_status,
@@ -78,14 +98,14 @@ class UserController extends Controller
             
             $stmt = $conn->prepare($sql);
             $stmt->execute([
-                'name' => $_POST['name'],
+                'name' => $name,  // Use the capitalized name
                 'ic_no' => $_POST['ic_no'],
                 'gender' => $_POST['gender'],
                 'religion' => $_POST['religion'],
                 'race' => $_POST['race'],
                 'marital_status' => $_POST['marital_status'],
-                'member_number' => $_POST['member_no'],
-                'pf_number' => $_POST['pf_no'],
+                'member_number' => $memberNumber,  // Auto-generated
+                'pf_number' => $pfNumber,         // Auto-generated
                 'monthly_salary' => $_POST['monthly_salary'],
                 'position' => $_POST['position'],
                 'grade' => $_POST['grade'],
