@@ -17,10 +17,24 @@ class AuthController extends Controller
         $this->view('auth/login', ['title' => 'Login - KADA System']);
     }
 
-    public function authenticate()
+    public function login()
     {
-        // Handle login form submission
-        // ... rest of your authentication code
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+
+        $admin = $this->authUser->findAdminByUsername($username);
+
+        if ($admin && password_verify($password, $admin['password'])) {
+            $_SESSION['admin_id'] = $admin['id'];
+            $_SESSION['admin_username'] = $admin['username'];
+            $_SESSION['is_admin'] = true;
+            header('Location: /users/index');
+            exit;
+        }
+
+        $_SESSION['error'] = 'Invalid admin credentials';
+        header('Location: /login');
+        exit;
     }
 
     public function showRegister()
@@ -71,6 +85,39 @@ class AuthController extends Controller
         
         // Redirect to login page
         header('Location: /');
+        exit;
+    }
+
+    public function authenticate()
+    {
+        // Get credentials from POST
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        // Validate credentials
+        if (empty($username) || empty($password)) {
+            $_SESSION['error'] = 'Username and password are required';
+            header('Location: /login');
+            exit;
+        }
+
+        // Check credentials against database
+        $admin = $this->authUser->findAdminByUsername($username);
+
+        if ($admin && password_verify($password, $admin['password'])) {
+            // Set session variables
+            $_SESSION['user_id'] = $admin['id'];
+            $_SESSION['username'] = $admin['username'];
+            $_SESSION['is_admin'] = true;
+
+            // Redirect to dashboard
+            header('Location: /users');
+            exit;
+        }
+
+        // Invalid credentials
+        $_SESSION['error'] = 'Invalid credentials';
+        header('Location: /login');
         exit;
     }
 }
