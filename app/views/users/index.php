@@ -3,8 +3,21 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
-<<<<<<< HEAD
+
     <div class="container mt-4">
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger">
+                <?= $_SESSION['error']; ?>
+                <?php unset($_SESSION['error']); ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <?= $_SESSION['success']; ?>
+                <?php unset($_SESSION['success']); ?>
+            </div>
+        <?php endif; ?>
         <!-- Main Content -->
         <div class="card shadow-lg mb-4">
             <div class="card-body">
@@ -24,6 +37,7 @@
                                 <th><i class="bi bi-briefcase me-2"></i>Jawatan</th>
                                 <th><i class="bi bi-cash me-2"></i>Gaji Bulanan</th>
                                 <th><i class="bi bi-gear me-2"></i>Tindakan</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -38,73 +52,21 @@
                                     <a href="/member/view/<?= $member['id']; ?>" class="btn btn-info btn-sm">
                                         <i class="bi bi-eye-fill"></i> Lihat
                                     </a>
-                                    <a href="/member/approve/<?= $member['id']; ?>" class="btn btn-success btn-sm">
+                                    <a href="/users/approve/<?= $member['id']; ?>" class="btn btn-success btn-sm" onclick="return confirm('Adakah anda pasti untuk meluluskan permohonan ini?')">
                                         <i class="bi bi-check-circle-fill"></i> Lulus
                                     </a>
-                                    <a href="/users/delete/<?php echo $member['id']; ?>" class="btn btn-danger" onclick="return confirm('Adakah anda pasti untuk menolak permohonan ini?')">Tolak</a>
-
+                                    <a href="/users/reject/<?= $member['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Adakah anda pasti untuk menolak permohonan ini?')">
+                                        <i class="bi bi-x-circle-fill"></i> Tolak
+                                    </a>
                                 </td>
+                                <td><?= $member['status'] ?? 'Pending' ?></td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-=======
-<div class="container mt-4">
-    <h2>Senarai Pengguna</h2>
-    
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <?php 
-                echo $_SESSION['success'];
-                unset($_SESSION['success']);
-            ?>
->>>>>>> 1dfbf68df6007cc594c5aa7728e7bc9ceb2b7a24
-        </div>
-    <?php endif; ?>
-
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nama</th>
-                    <th>No. KP</th>
-                    <th>Jantina</th>
-                    <th>Bangsa</th>
-                    <th>Jawatan</th>
-                    <th>Gred</th>
-                    <th>Gaji Bulanan</th>
-                    <th>Tindakan</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($pendingregistermembers as $member): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($member['name'] ?? 'error') ?></td>
-                        <td><?= htmlspecialchars($member['ic_no'] ?? 'error') ?></td>
-                        <td><?= htmlspecialchars($member['gender'] ?? 'error') ?></td>
-                        <td><?= htmlspecialchars($member['race'] ?? 'error') ?></td>
-                        <td><?= htmlspecialchars($member['position'] ?? 'error') ?></td>
-                        <td><?= htmlspecialchars($member['grade'] ?? 'error') ?></td>
-                        <td><?= isset($member['monthly_salary']) ? 'RM ' . number_format($member['monthly_salary'], 2) : '-' ?></td>
-                        <td>
-                            <a href="/users/details/<?= $member['id'] ?>" class="btn btn-sm btn-info text-white me-1">
-                                <i class="bi bi-info-circle me-1"></i>Butiran
-                            </a>
-                            <a href="/users/approve/<?= $member['id'] ?>" class="btn btn-sm btn-success me-1" 
-                               onclick="return confirm('Adakah anda pasti untuk meluluskan permohonan ini?')">
-                                <i class="bi bi-check-circle me-1"></i>Lulus
-                            </a>
-                            <a href="/users/reject/<?= $member['id'] ?>" class="btn btn-sm btn-danger"
-                               onclick="return confirm('Adakah anda pasti untuk menolak permohonan ini?')">
-                                <i class="bi bi-x-circle me-1"></i>Tolak
-                            </a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        </div>                       
     </div>
 
     <!-- Savings Dashboard Redirect Button -->
@@ -113,6 +75,6 @@
             <i class="bi bi-piggy-bank me-2"></i>Ke Papan Pemuka Simpanan
         </a>
     </div>
-</div>
+
 
 <?php require_once '../app/views/layouts/footer.php'; ?>

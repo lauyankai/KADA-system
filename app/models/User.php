@@ -4,6 +4,7 @@ use App\Core\Model;
 use PDO;
 use App\Core\Database;
 use PDOException;
+use Exception;
 
 class User extends Model
 {
@@ -108,13 +109,6 @@ class User extends Model
     }
 
     
-    public function deleteById($id)
-    {
-        $stmt = $this->getConnection()->prepare("DELETE FROM users WHERE id = :id"); // Use prepare() for SQL statements with variables
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT); // Use bindParam() to bind variables
-        $stmt->execute(); // Use execute() to run the query
-        return $stmt; // Return the PDOStatement object
-    }
 
     public function getTotalSavings($memberId)
     {
@@ -190,6 +184,48 @@ class User extends Model
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan sejarah transaksi');
+        }
+    }
+
+    public function updateStatus($id, $status)
+    {
+        try {
+            // Validate status value
+            $validStatuses = ['Pending', 'Lulus', 'Tolak'];
+            if (!in_array($status, $validStatuses)) {
+                throw new Exception("Invalid status value");
+            }
+
+            // First, check if the record exists
+            $checkSql = "SELECT id FROM pendingregistermember WHERE id = :id";
+            $checkStmt = $this->getConnection()->prepare($checkSql);
+            $checkStmt->execute([':id' => $id]);
+            
+            if (!$checkStmt->fetch()) {
+                throw new Exception("Record with ID $id not found");
+            }
+
+            // Proceed with update if record exists
+            $sql = "UPDATE pendingregistermember SET status = :status WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            
+            $result = $stmt->execute([
+                ':status' => $status,
+                ':id' => $id
+            ]);
+            
+            if (!$result) {
+                $error = $stmt->errorInfo();
+                throw new Exception("Update failed: " . ($error[2] ?? 'Unknown error'));
+            }
+            
+            return true;
+        } catch (PDOException $e) {
+            error_log('Database Error in updateStatus: ' . $e->getMessage());
+            throw new Exception('Database error: ' . $e->getMessage());
+        } catch (Exception $e) {
+            error_log('Error in updateStatus: ' . $e->getMessage());
+            throw $e;
         }
     }
 }

@@ -7,6 +7,7 @@ use App\Core\Database;
 use PDO;
 use PDOException;
 use DateTime;
+use Exception;
 
 class UserController extends Controller
 {
@@ -77,11 +78,6 @@ class UserController extends Controller
         header('Location: /');
     }
 
-    public function delete($id)
-    {
-        $this->user->delete($id);
-        header('Location: /');
-    }
 
     public function showSavingsDashboard()
     {
@@ -123,6 +119,38 @@ class UserController extends Controller
     {
         if (!isset($_SESSION['admin_id'])) {
             header('Location: /auth/login');
+            exit();
+        }
+    }
+
+    public function approve($id)
+    {
+        try {
+            $userModel = new User();
+            $userModel->updateStatus($id, 'Lulus');
+            
+            $_SESSION['success'] = "Status telah berjaya dikemaskini kepada Lulus";
+            header('Location: /users');
+            exit();
+        } catch (Exception $e) {
+            $_SESSION['error'] = "Gagal mengemaskini status: " . $e->getMessage();
+            header('Location: /users');
+            exit();
+        }
+    }
+
+    public function reject($id)
+    {
+        try {
+            $userModel = new User();
+            $userModel->updateStatus($id, 'Tolak');
+            
+            $_SESSION['success'] = "Status telah berjaya dikemaskini kepada Tolak";
+            header('Location: /users');
+            exit();
+        } catch (Exception $e) {
+            $_SESSION['error'] = "Gagal mengemaskini status: " . $e->getMessage();
+            header('Location: /users');
             exit();
         }
     }
