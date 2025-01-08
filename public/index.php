@@ -94,6 +94,7 @@ $router->addRoute('POST', '/admin/savings/accounts/set-main/{id}', 'UserControll
 
 // Add this route
 $router->addRoute('GET', '/admin/savings/receipt/{reference}', 'UserController', 'showReceipt');
+$router->addRoute('GET', '/payment/receipt/{referenceNo}', 'UserController', 'showReceipt');
 
 // Add this route
 $router->addRoute('POST', '/admin/savings/goal/delete/{id}', 'UserController', 'deleteGoal');
@@ -103,4 +104,4 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Dispatch the route
-$router->dispatch();
+$router->dispatch();    
