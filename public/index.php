@@ -53,6 +53,7 @@ $router->addRoute('GET', '/users/edit/{id}', 'UserController', 'edit');
 $router->addRoute('GET', '/users/details/{id}', 'UserController', 'details');
 $router->addRoute('GET', '/users/approve/{id}', 'UserController', 'approve');
 $router->addRoute('GET', '/users/reject/{id}', 'UserController', 'reject');
+$router->addRoute('GET', '/users/view/{id}', 'UserController', 'viewMember');
 
 // Savings routes
 $router->addRoute('GET', '/admin/savings', 'UserController', 'showSavingsDashboard');

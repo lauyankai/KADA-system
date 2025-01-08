@@ -49,7 +49,7 @@
                                 <td><?= htmlspecialchars($member['position']); ?></td>
                                 <td class="text-end">RM <?= number_format($member['monthly_salary'], 2); ?></td>
                                 <td class="text-center action-buttons">
-                                    <a href="/member/view/<?= $member['id']; ?>" class="btn btn-info btn-sm">
+                                    <a href="/users/view/<?= $member['id']; ?>" class="btn btn-info btn-sm">
                                         <i class="bi bi-eye-fill"></i> Lihat
                                     </a>
                                     <a href="/users/approve/<?= $member['id']; ?>" class="btn btn-success btn-sm" onclick="return confirm('Adakah anda pasti untuk meluluskan permohonan ini?')">

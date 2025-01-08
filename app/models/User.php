@@ -228,4 +228,17 @@ class User extends Model
             throw $e;
         }
     }
+
+    public function getUserById($id)
+    {
+        try {
+            $sql = "SELECT * FROM pendingregistermember WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            return $stmt->fetch(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new Exception('Failed to fetch user details');
+        }
+    }
 }
