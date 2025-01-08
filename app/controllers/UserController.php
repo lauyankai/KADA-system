@@ -154,4 +154,16 @@ class UserController extends Controller
             exit();
         }
     }
+
+    public function viewMember($id)
+    {
+        // Get user model
+        $userModel = new User();
+        
+        // Get user data by ID
+        $data['member'] = $userModel->getUserById($id);
+        
+        // Load view
+        $this->view('users/view', $data);
+    }
 }
