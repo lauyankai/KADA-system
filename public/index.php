@@ -1,111 +1,105 @@
 <?php
 session_start();
 
-// Load Composer autoloader and environment variables
-require_once __DIR__ . '/../vendor/autoload.php';
-
-try {
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-    $dotenv->load();
-    $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'])->notEmpty();
-} catch (Exception $e) {
-    die('Error loading environment variables: ' . $e->getMessage());
+// Load environment variables
+$envFile = dirname(__DIR__) . '/.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            $_ENV[trim($key)] = trim($value);
+        }
+    }
 }
 
-// Core
-require_once '../app/core/Controller.php';
-require_once '../app/core/Model.php';
-require_once '../app/core/Database.php';
+// Include core files in correct order
+require_once '../app/Core/Database.php';
+require_once '../app/Core/Model.php';
+require_once '../app/Core/Controller.php';
+require_once '../app/Core/Router.php';
 
-// Controllers
-require_once '../app/controllers/UserController.php';
-require_once '../app/controllers/AuthController.php';
+// Include controllers
+require_once '../app/Controllers/HomeController.php';
+require_once '../app/Controllers/AuthController.php';
+require_once '../app/Controllers/UserController.php';
+require_once '../app/Controllers/PaymentController.php';
 
-// Models
-require_once '../app/models/User.php';
-require_once '../app/models/AuthUser.php';
+// Include models
+require_once '../app/Models/User.php';
+require_once '../app/Models/AuthUser.php';
 
-// Autoloader
-require_once '../app/core/Autoload.php';
+// Instantiate the Router
+$router = new App\Core\Router();
 
-// Get the URI and method
-$uri = trim($_SERVER['REQUEST_URI'], '/');
+// Define the routes
+$router->addRoute('GET', '/', 'HomeController', 'index');
+$router->addRoute('GET', '/home', 'HomeController', 'index');
+$router->addRoute('GET', '/home/index', 'HomeController', 'index');
+
+// Auth routes
+$router->addRoute('GET', '/auth/login', 'AuthController', 'showLogin');
+$router->addRoute('POST', '/auth/login', 'AuthController', 'authenticate');
+$router->addRoute('GET', '/auth/register', 'AuthController', 'showRegister');
+$router->addRoute('POST', '/auth/register', 'AuthController', 'register');
+$router->addRoute('GET', '/auth/logout', 'AuthController', 'logout');
+
+// User routes
+$router->addRoute('GET', '/users', 'UserController', 'index');
+$router->addRoute('GET', '/users/create', 'UserController', 'create');
+$router->addRoute('POST', '/store', 'UserController', 'store');
+$router->addRoute('POST', '/users/store', 'UserController', 'store');
+$router->addRoute('GET', '/users/edit/{id}', 'UserController', 'edit');
+$router->addRoute('GET', '/users/details/{id}', 'UserController', 'details');
+$router->addRoute('GET', '/users/approve/{id}', 'UserController', 'approve');
+$router->addRoute('GET', '/users/reject/{id}', 'UserController', 'reject');
+
+// Savings routes
+$router->addRoute('GET', '/admin/savings', 'UserController', 'showSavingsDashboard');
+$router->addRoute('GET', '/admin/savings/apply', 'UserController', 'showSavingsApplication');
+$router->addRoute('POST', '/admin/savings/store', 'UserController', 'storeSavingsAccount');
+$router->addRoute('GET', '/admin/savings/deposit/{id}', 'UserController', 'showDepositForm');
+$router->addRoute('POST', '/admin/savings/deposit/{id}', 'UserController', 'makeDeposit');
+$router->addRoute('POST', '/admin/savings/goal/store', 'UserController', 'storeSavingsGoal');
+$router->addRoute('GET', '/admin/savings/recurring', 'UserController', 'showRecurringSettings');
+$router->addRoute('POST', '/admin/savings/recurring/store', 'UserController', 'storeRecurringPayment');
+$router->addRoute('GET', '/admin/savings/deposit', 'UserController', 'showDepositPage');
+$router->addRoute('GET', '/admin/savings/transfer', 'UserController', 'showTransferPage');
+
+// Payment routes
+$router->addRoute('POST', '/payment/process', 'PaymentController', 'processPayment');
+$router->addRoute('GET', '/payment/simulate/{provider}', 'PaymentController', 'showSimulation');
+$router->addRoute('POST', '/payment/callback', 'PaymentController', 'handleCallback');
+
+// Add these routes
+$router->addRoute('POST', '/admin/savings/deposit', 'UserController', 'makeDeposit');
+$router->addRoute('POST', '/admin/savings/transfer', 'UserController', 'makeTransfer');
+
+// Add these routes for editing
+$router->addRoute('GET', '/admin/savings/goal/edit/{id}', 'UserController', 'editSavingsGoal');
+$router->addRoute('POST', '/admin/savings/goal/update/{id}', 'UserController', 'updateSavingsGoal');
+$router->addRoute('GET', '/admin/savings/recurring/edit', 'UserController', 'editRecurringPayment');
+$router->addRoute('POST', '/admin/savings/recurring/update', 'UserController', 'updateRecurringPayment');
+
+// Add this route
+$router->addRoute('GET', '/admin/savings/verify-account/{account}', 'UserController', 'verifyAccount');
+
+// Add these routes for account management
+$router->addRoute('GET', '/admin/savings/accounts', 'UserController', 'showAccounts');
+$router->addRoute('GET', '/admin/savings/accounts/add', 'UserController', 'showAddAccount');
+$router->addRoute('POST', '/admin/savings/accounts/store', 'UserController', 'storeAccount');
+$router->addRoute('POST', '/admin/savings/accounts/delete/{id}', 'UserController', 'deleteAccount');
+$router->addRoute('POST', '/admin/savings/accounts/set-main/{id}', 'UserController', 'setMainAccount');
+
+// Add this route
+$router->addRoute('GET', '/admin/savings/receipt/{reference}', 'UserController', 'showReceipt');
+
+// Add this route
+$router->addRoute('POST', '/admin/savings/goal/delete/{id}', 'UserController', 'deleteGoal');
+
+// Get current URI and HTTP method
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Initialize controllers
-$userController = new App\Controllers\UserController();
-$authController = new App\Controllers\AuthController();
-
-// Define public routes
-$publicRoutes = ['login', 'register', 'auth/login', 'auth/register'];
-
-// Router
-if ($uri === '') {
-    // Redirect to login if not authenticated, otherwise show dashboard
-    if (!isset($_SESSION['admin_id'])) {
-        header('Location: /login');
-        exit;
-    }
-    $userController->index();
-}
-// Handle public routes
-else if (in_array($uri, $publicRoutes)) {
-    switch ($uri) {
-        case 'login':
-            if (isset($_SESSION['admin_id'])) {
-                header('Location: /');
-                exit;
-            }
-            $authController->showLogin();
-            break;
-        case 'register':
-            if (isset($_SESSION['admin_id'])) {
-                header('Location: /');
-                exit;
-            }
-            $authController->showRegister();
-            break;
-        case 'auth/login':
-            $authController->login();
-            break;
-        case 'auth/register':
-            $authController->register();
-            break;
-    }
-}
-// Handle protected routes
-else {
-    // Check authentication for protected routes
-    if (!isset($_SESSION['admin_id'])) {
-        header('Location: /login');
-        exit;
-    }
-
-    switch ($uri) {
-        case 'logout':
-            $authController->logout();
-            break;
-        case 'create':
-            $userController->create();
-            break;
-        case 'store':
-            if ($method === 'POST') {
-                $userController->store();
-            }
-            break;
-        default:
-            if (preg_match('/edit\/(\d+)/', $uri, $matches)) {
-                $userController->edit($matches[1]);
-            }
-            else if (preg_match('/update\/(\d+)/', $uri, $matches) && $method === 'POST') {
-                $userController->update($matches[1]);
-            }
-            else if (preg_match('/delete\/(\d+)/', $uri, $matches) && $method === 'POST') {
-                $userController->delete($matches[1]);
-            }
-            else {
-                http_response_code(404);
-                echo "Page not found.";
-            }
-    }
-}
+// Dispatch the route
+$router->dispatch();

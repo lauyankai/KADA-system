@@ -1,30 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Registration</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        body { background-color: #fff8e8; }
-        .card {
-            border-radius: 15px;
-            border: none;
-        }
-        .btn-gradient {
-            background: linear-gradient(45deg, #198754, #20c997);
-            border: none;
-            color: white;
-            transition: all 0.3s ease;
-        }
-        .btn-gradient:hover {
-            background: linear-gradient(45deg, #20c997, #198754);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-    </style>
-</head>
 <body>
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -86,6 +59,4 @@
                 </div>
             </div>
         </div>
-    </div>
-</body>
-</html> 
+    </div> 

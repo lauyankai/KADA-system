@@ -8,16 +8,24 @@ class Controller
         // Extract data array into variables
         extract($data);
         
-        // Include the header for all views
-        require __DIR__ . '/../views/layouts/header.php';
-
-        // Construct the full path to the view file
-        $file = __DIR__ . '/../views/'. $view . '.php';
-
-        if (file_exists($file)) {
-            require $file;
+        // Convert view path format (e.g., 'home/landing' to '/home/landing.php')
+        $view = str_replace('.', '/', $view);
+        
+        // Get the base directory path
+        $basePath = dirname(__DIR__);
+        
+        // Include the header
+        require_once $basePath . '/views/layouts/header.php';
+        
+        // Include the main view file
+        $viewFile = $basePath . '/views/' . $view . '.php';
+        if (file_exists($viewFile)) {
+            require_once $viewFile;
         } else {
-            die("View file not found: " . $file);
+            die("View file not found: " . $viewFile);
         }
+        
+        // Include the footer
+        require_once $basePath . '/views/layouts/footer.php';
     }
 }

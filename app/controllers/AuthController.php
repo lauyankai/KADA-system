@@ -1,6 +1,5 @@
 <?php
 namespace App\Controllers;
-
 use App\Core\Controller;
 use App\Models\AuthUser;
 
@@ -20,22 +19,31 @@ class AuthController extends Controller
 
     public function login()
     {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
+        try {
+            $username = $_POST['username'];
+            $password = $_POST['password'];
 
-        $admin = $this->authUser->findAdminByUsername($username);
+            $admin = $this->authUser->findAdminByUsername($username);
 
-        if ($admin && password_verify($password, $admin['password'])) {
-            $_SESSION['admin_id'] = $admin['id'];
-            $_SESSION['admin_username'] = $admin['username'];
-            $_SESSION['is_admin'] = true;
-            header('Location: /');
+            if ($admin && password_verify($password, $admin['password'])) {
+                // Set all necessary session variables
+                $_SESSION['admin_id'] = $admin['id'];
+                $_SESSION['user_id'] = $admin['id'];
+                $_SESSION['admin_username'] = $admin['username'];
+                $_SESSION['username'] = $admin['username'];
+                $_SESSION['is_admin'] = true;
+
+                header('Location: /users');
+                exit;
+            }
+
+            throw new \Exception('Invalid admin credentials');
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /auth/login');
             exit;
         }
-
-        $_SESSION['error'] = 'Invalid admin credentials';
-        header('Location: /login');
-        exit;
     }
 
     public function showRegister()
@@ -85,7 +93,45 @@ class AuthController extends Controller
         session_destroy();
         
         // Redirect to login page
-        header('Location: /login');
+        header('Location: /');
         exit;
+    }
+
+    public function authenticate()
+    {
+        try {
+            // Get credentials from POST
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+
+            // Validate credentials
+            if (empty($username) || empty($password)) {
+                throw new \Exception('Username and password are required');
+            }
+
+            // Check credentials against database
+            $admin = $this->authUser->findAdminByUsername($username);
+
+            if ($admin && password_verify($password, $admin['password'])) {
+                // Set all necessary session variables
+                $_SESSION['admin_id'] = $admin['id'];
+                $_SESSION['user_id'] = $admin['id'];
+                $_SESSION['admin_username'] = $admin['username'];
+                $_SESSION['username'] = $admin['username'];
+                $_SESSION['is_admin'] = true;
+
+                // Redirect to dashboard
+                header('Location: /users');
+                exit;
+            }
+
+            // Invalid credentials
+            throw new \Exception('Invalid credentials');
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /auth/login');
+            exit;
+        }
     }
 }

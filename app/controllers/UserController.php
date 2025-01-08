@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Core\Database;
 use PDO;
 use PDOException;
+use DateTime;
+use Exception;
 
 class UserController extends Controller
 {
@@ -23,7 +25,7 @@ class UserController extends Controller
             $conn = $db->connect();
             
             // Fetch all pending register members
-            $sql = "SELECT id, name, ic_no, gender, position, monthly_salary 
+            $sql = "SELECT *
                     FROM pendingregistermember 
                     ORDER BY id DESC";
             
@@ -49,82 +51,14 @@ class UserController extends Controller
     public function store()
     {
         try {
-            $db = new Database();
-            $conn = $db->connect();
-            
-            // Start transaction
-            $conn->beginTransaction();
-            
-            // Insert main member data
-            $sql = "INSERT INTO pendingregistermember (
-                name, ic_no, gender, religion, race, marital_status,
-                member_number, pf_number, monthly_salary, position, grade,
-                home_address, home_postcode, home_state, home_phone,
-                office_address, office_postcode, office_phone, fax,
-                registration_fee, share_capital, fee_capital,
-                deposit_funds, welfare_fund, fixed_deposit, other_contributions,
-                family_relationship, family_name, family_ic,
-                status
-            ) VALUES (
-                :name, :ic_no, :gender, :religion, :race, :marital_status,
-                :member_number, :pf_number, :monthly_salary, :position, :grade,
-                :home_address, :home_postcode, :home_state, :home_phone,
-                :office_address, :office_postcode, :office_phone, :fax,
-                :registration_fee, :share_capital, :fee_capital,
-                :deposit_funds, :welfare_fund, :fixed_deposit, :other_contributions,
-                :family_relationship, :family_name, :family_ic,
-                :status
-            )";
-            
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([
-                'name' => $_POST['name'],
-                'ic_no' => $_POST['ic_no'],
-                'gender' => $_POST['gender'],
-                'religion' => $_POST['religion'],
-                'race' => $_POST['race'],
-                'marital_status' => $_POST['marital_status'],
-                'member_number' => $_POST['member_no'],
-                'pf_number' => $_POST['pf_no'],
-                'monthly_salary' => $_POST['monthly_salary'],
-                'position' => $_POST['position'],
-                'grade' => $_POST['grade'],
-                'home_address' => $_POST['home_address'],
-                'home_postcode' => $_POST['home_postcode'],
-                'home_state' => $_POST['home_state'],
-                'home_phone' => $_POST['home_phone'],
-                'office_address' => $_POST['office_address'],
-                'office_postcode' => $_POST['office_postcode'],
-                'office_phone' => $_POST['office_phone'],
-                'fax' => $_POST['fax'],
-                'registration_fee' => $_POST['registration_fee'],
-                'share_capital' => $_POST['share_capital'],
-                'fee_capital' => $_POST['fee_capital'],
-                'deposit_funds' => $_POST['deposit_funds'],
-                'welfare_fund' => $_POST['welfare_fund'],
-                'fixed_deposit' => $_POST['fixed_deposit'],
-                'other_contributions' => $_POST['other_contributions'],
-                'family_relationship' => $_POST['family_relationship'][0],
-                'family_name' => $_POST['family_name'][0],
-                'family_ic' => $_POST['family_ic'][0],
-                'status' => 'pending'
-            ]);
-            
-            // Commit transaction
-            $conn->commit();
-            
-            // Redirect with success message
-            $_SESSION['success'] = "Pendaftaran anda telah berjaya dihantar dan sedang dalam proses pengesahan.";
-            header('Location: /');
-            exit;
-            
-        } catch (PDOException $e) {
-            // Rollback transaction on error
-            if ($conn) {
-                $conn->rollBack();
+            if ($this->user->create($_POST)) {
+                $_SESSION['success'] = "Pendaftaran anda telah berjaya dihantar dan sedang dalam proses pengesahan.";
+                header('Location: /');
+                exit;
             }
+        } catch (PDOException $e) {
             $_SESSION['error'] = "Ralat semasa pendaftaran: " . $e->getMessage();
-            header('Location: /create');
+            header('Location: /users/create');
             exit;
         }
     }
@@ -144,9 +78,80 @@ class UserController extends Controller
         header('Location: /');
     }
 
-    public function delete($id)
+
+    public function showSavingsDashboard()
     {
-        $this->user->delete($id);
-        header('Location: /');
+        $this->checkAuth();
+        try {
+            $memberId = $_SESSION['admin_id'];
+
+            // Get total savings
+            $totalSavings = $this->user->getTotalSavings($memberId);
+
+            // Get savings goals
+            $savingsGoals = $this->user->getSavingsGoals($memberId);
+
+            // Get recurring payment settings
+            $recurringPayment = $this->user->getRecurringPayment($memberId);
+
+            // Get recent transactions
+            $recentTransactions = $this->user->getRecentTransactions($memberId);
+
+            $this->view('admin/savings/dashboard', [
+                'totalSavings' => $totalSavings,
+                'savingsGoals' => $savingsGoals,
+                'recurringPayment' => $recurringPayment,
+                'recentTransactions' => $recentTransactions
+            ]);
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            $this->view('admin/savings/dashboard', [
+                'totalSavings' => 0,
+                'savingsGoals' => [],
+                'recurringPayment' => null,
+                'recentTransactions' => []
+            ]);
+        }
+    }
+
+    private function checkAuth()
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            header('Location: /auth/login');
+            exit();
+        }
+    }
+
+    public function approve($id)
+    {
+        try {
+            $userModel = new User();
+            $userModel->updateStatus($id, 'Lulus');
+            
+            $_SESSION['success'] = "Status telah berjaya dikemaskini kepada Lulus";
+            header('Location: /users');
+            exit();
+        } catch (Exception $e) {
+            $_SESSION['error'] = "Gagal mengemaskini status: " . $e->getMessage();
+            header('Location: /users');
+            exit();
+        }
+    }
+
+    public function reject($id)
+    {
+        try {
+            $userModel = new User();
+            $userModel->updateStatus($id, 'Tolak');
+            
+            $_SESSION['success'] = "Status telah berjaya dikemaskini kepada Tolak";
+            header('Location: /users');
+            exit();
+        } catch (Exception $e) {
+            $_SESSION['error'] = "Gagal mengemaskini status: " . $e->getMessage();
+            header('Location: /users');
+            exit();
+        }
     }
 }
