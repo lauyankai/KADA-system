@@ -453,7 +453,7 @@ class User extends BaseModel
         }
     }
 
-    public function deleteSavingsGoal($id)
+    public function deletfeSavingsGoal($id)
     {
         try {
             $sql = "DELETE FROM savings_goals WHERE id = :id";

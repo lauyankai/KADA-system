@@ -36,13 +36,13 @@
                     <p class="text-muted mb-0">No. Akaun: <?= htmlspecialchars($_SESSION['admin_id']) ?>-SAV</p>
                 </div>
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <a href="/admin/savings/accounts" class="btn btn-outline-primary me-2">
+                    <a href="/users/accounts" class="btn btn-outline-primary me-2">
                         <i class="bi bi-wallet2 me-2"></i>Urus Akaun
                     </a>
-                    <a href="/admin/savings/deposit" class="btn btn-success me-2">
+                    <a href="/users/deposit" class="btn btn-success me-2">
                         <i class="bi bi-plus-circle me-2"></i>Deposit
                     </a>
-                    <a href="/admin/savings/transfer" class="btn btn-primary">
+                    <a href="/users/transfer" class="btn btn-primary">
                         <i class="bi bi-arrow-left-right me-2"></i>Pindah
                     </a>
                 </div>
@@ -80,7 +80,7 @@
                                                     class="btn btn-sm btn-outline-danger me-2">
                                                 <i class="bi bi-trash"></i>
                                             </button>
-                                            <a href="/admin/savings/goal/edit/<?= $goal['id'] ?>" 
+                                            <a href="/users/goal/edit/<?= $goal['id'] ?>" 
                                                class="btn btn-sm btn-outline-primary me-2">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
@@ -119,7 +119,7 @@
                             <i class="bi bi-arrow-repeat me-2"></i>Bayaran Berulang
                         </h5>
                         <?php if (!$recurringPayment): ?>
-                            <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='/admin/savings/recurring'">
+                            <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='/users/recurring'">
                                 <i class="bi bi-plus-lg me-2"></i>Tetapkan
                             </button>
                         <?php endif; ?>
@@ -131,7 +131,7 @@
                                 <p class="text-muted mb-0">Setiap <?= $recurringPayment['deduction_day'] ?> hb</p>
                             </div>
                             <div class="d-flex align-items-center">
-                                <a href="/admin/savings/recurring/edit" class="btn btn-sm btn-outline-primary me-3">
+                                <a href="/users/recurring/edit" class="btn btn-sm btn-outline-primary me-3">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
                                 <h5 class="mb-0 text-primary">
@@ -216,7 +216,7 @@
                                     </td>
                                     <td>RM <?= number_format($transaction['current_amount'], 2) ?></td>
                                     <td>
-                                        <a href="/admin/savings/receipt/<?= $transaction['reference_no'] ?>" 
+                                        <a href="/users/receipt/<?= $transaction['reference_no'] ?>" 
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-receipt me-1"></i>Resit
                                         </a>
@@ -243,7 +243,7 @@
                 <h5 class="modal-title">Tambah Deposit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/admin/savings/deposit" method="POST" id="depositForm">
+            <form action="/users/deposit" method="POST" id="depositForm">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Jumlah (RM)</label>
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h5 class="modal-title">Tetapkan Sasaran Simpanan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/admin/savings/goal/store" method="POST" id="goalForm">
+            <form action="/users/goal/store" method="POST" id="goalForm">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Nama Sasaran</label>
@@ -487,7 +487,7 @@ function confirmDeleteGoal(goalId) {
     if (confirm('Adakah anda pasti untuk memadam sasaran ini?')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/admin/savings/goal/delete/${goalId}`;
+        form.action = `/users/goal/delete/${goalId}`;
         document.body.appendChild(form);
         form.submit();
     }

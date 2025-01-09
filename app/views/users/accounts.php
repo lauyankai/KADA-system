@@ -25,10 +25,10 @@
                     <i class="bi bi-wallet2 me-2"></i>Senarai Akaun
                 </h4>
                 <div>
-                    <a href="/admin/savings" class="btn btn-outline-secondary me-2">
+                    <a href="/users" class="btn btn-outline-secondary me-2">
                         <i class="bi bi-arrow-left me-2"></i>Kembali
                     </a>
-                    <a href="/admin/savings/accounts/add" class="btn btn-success">
+                    <a href="/users/accounts/add" class="btn btn-success">
                         <i class="bi bi-plus-lg me-2"></i>Tambah Akaun
                     </a>
                 </div>
@@ -87,7 +87,7 @@ function confirmDelete(accountId) {
     if (confirm('Adakah anda pasti untuk memadam akaun ini?')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/admin/savings/accounts/delete/${accountId}`;
+        form.action = `/users/accounts/delete/${accountId}`;
         document.body.appendChild(form);
         form.submit();
     }
@@ -97,7 +97,7 @@ function setMainAccount(accountId) {
     if (confirm('Jadikan akaun ini sebagai paparan utama?')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/admin/savings/accounts/set-main/${accountId}`;
+        form.action = `/users/accounts/set-main/${accountId}`;
         document.body.appendChild(form);
         form.submit();
     }

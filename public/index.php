@@ -68,20 +68,25 @@ $router->addRoute('GET', '/users', 'UserController', 'index');
 // $router->addRoute('GET', '/users/create', 'UserController', 'create');
 // $router->addRoute('POST', '/store', 'UserController', 'store');
 // $router->addRoute('POST', '/users/store', 'UserController', 'store');
-$router->addRoute('GET', '/users/savings', 'UserController', 'showSavingsDashboard');
-$router->addRoute('GET', '/users/savings/apply', 'UserController', 'showSavingsApplication');
-$router->addRoute('POST', '/users/savings/store', 'UserController', 'storeSavingsAccount');
-$router->addRoute('GET', '/users/savings/deposit/{id}', 'UserController', 'showDepositForm');
-$router->addRoute('POST', '/users/savings/deposit/{id}', 'UserController', 'makeDeposit');
-$router->addRoute('POST', '/users/savings/goal/store', 'UserController', 'storeSavingsGoal');
-$router->addRoute('GET', '/users/savings/recurring', 'UserController', 'showRecurringSettings');
-$router->addRoute('POST', '/users/savings/recurring/store', 'UserController', 'storeRecurringPayment');
-$router->addRoute('GET', '/users/savings/deposit', 'UserController', 'showDepositPage');
-$router->addRoute('GET', '/users/savings/transfer', 'UserController', 'showTransferPage');
-$router->addRoute('POST', '/users/savings/deposit', 'UserController', 'makeDeposit');
-$router->addRoute('POST', '/users/savings/transfer', 'UserController', 'makeTransfer');
-$router->addRoute('GET', '/users/savings/receipt/{reference}', 'UserController', 'showReceipt');
-$router->addRoute('GET', '/payment/receipt/{referenceNo}', 'UserController', 'showReceipt');
+
+    // User routes --Savings
+    $router->addRoute('GET', '/users/accounts', 'UserController', 'accountPage');
+    $router->addRoute('GET', '/users/deposit', 'UserController', 'depositPage');
+    $router->addRoute('GET', '/users/transfer', 'UserController', 'transferPage');
+
+// $router->addRoute('GET', '/users/savings/apply', 'UserController', 'showSavingsApplication');
+// $router->addRoute('POST', '/users/savings/store', 'UserController', 'storeSavingsAccount');
+// $router->addRoute('GET', '/users/savings/deposit/{id}', 'UserController', 'showDepositForm');
+// $router->addRoute('POST', '/users/savings/deposit/{id}', 'UserController', 'makeDeposit');
+// $router->addRoute('POST', '/users/savings/goal/store', 'UserController', 'storeSavingsGoal');
+// $router->addRoute('GET', '/users/savings/recurring', 'UserController', 'showRecurringSettings');
+// $router->addRoute('POST', '/users/savings/recurring/store', 'UserController', 'storeRecurringPayment');
+// $router->addRoute('GET', '/users/savings/deposit', 'UserController', 'showDepositPage');
+// $router->addRoute('GET', '/users/savings/transfer', 'UserController', 'showTransferPage');
+// $router->addRoute('POST', '/users/savings/deposit', 'UserController', 'makeDeposit');
+// $router->addRoute('POST', '/users/savings/transfer', 'UserController', 'makeTransfer');
+// $router->addRoute('GET', '/users/savings/receipt/{reference}', 'UserController', 'showReceipt');
+// $router->addRoute('GET', '/payment/receipt/{referenceNo}', 'UserController', 'showReceipt');
 
 // Payment routes
 $router->addRoute('POST', '/payment/process', 'PaymentController', 'processPayment');
