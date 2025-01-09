@@ -3,7 +3,6 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
-<!-- Hero Section -->
 <div class="animated-hero min-vh-100 d-flex align-items-center">
     <div class="hero-shapes">
         <div class="shape shape-1"></div>
@@ -32,7 +31,6 @@
     </div>
 </div>
 
-<!-- Quick Links Section -->
 <div class="quick-links">
     <div class="container">
         <div class="row">
@@ -70,7 +68,6 @@
     </div>
 </div>
 
-<!-- Services Section -->
 <div class="services-section">
     <div class="container">
         <div class="text-center mb-5">

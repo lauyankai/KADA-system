@@ -16,7 +16,7 @@ if (file_exists($envFile)) {
 // Include core files
 require_once '../app/Core/Database.php';
 require_once '../app/Core/Model.php';
-require_once '../app/Core/Controller.php';
+require_once '../app/Core/BaseController.php';
 require_once '../app/Core/Router.php';
 
 // Include controllers
