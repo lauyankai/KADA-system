@@ -15,9 +15,8 @@ class UserController extends BaseController
         $this->user = new User();
     }
 
-    public function showSavingsDashboard()
+    public function index()
         {
-            $this->checkAuth();
             try {
                 $memberId = $_SESSION['admin_id'];
 
@@ -33,7 +32,7 @@ class UserController extends BaseController
                 // Get recent transactions
                 $recentTransactions = $this->user->getRecentTransactions($memberId);
 
-                $this->view('admin/savings/dashboard', [
+                $this->view('users/index', [
                     'totalSavings' => $totalSavings,
                     'savingsGoals' => $savingsGoals,
                     'recurringPayment' => $recurringPayment,
@@ -42,7 +41,7 @@ class UserController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                $this->view('admin/savings/dashboard', [
+                $this->view('users/index', [
                     'totalSavings' => 0,
                     'savingsGoals' => [],
                     'recurringPayment' => null,
@@ -196,7 +195,7 @@ class UserController extends BaseController
             if ($accountId) {
                 $_SESSION['success'] = 'Permohonan akaun simpanan berjaya dihantar';
                 // Redirect to savings dashboard instead of showing success modal
-                header('Location: /admin/savings');
+                header('Location: /users/savings');
                 exit();
             } else {
                 throw new \Exception('Gagal membuat akaun simpanan');
@@ -204,7 +203,7 @@ class UserController extends BaseController
 
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /admin/savings/apply');
+            header('Location: /users/apply');
             exit();
         }
     }

@@ -57,15 +57,14 @@ $router->addRoute('GET', '/auth/logout', 'AuthController', 'logout');
 $router->addRoute('GET', '/admin', 'AdminController', 'index');
 $router->addRoute('GET', '/admin/login', 'AdminController', 'login');
 
-// Admin routes --approve, reject, edit, details, viewMember
+// Admin routes --approve, reject, edit, viewMember
 $router->addRoute('GET', '/admin/approve/{id}', 'AdminController', 'approve');
 $router->addRoute('GET', '/admin/reject/{id}', 'AdminController', 'reject');
 $router->addRoute('GET', '/admin/edit/{id}', 'AdminController', 'edit');
-$router->addRoute('GET', '/admin/details/{id}', 'AdminController', 'details');
 $router->addRoute('GET', '/admin/view/{id}', 'AdminController', 'viewMember');
 
 // User routes
-// $router->addRoute('GET', '/users', 'UserController', 'index');
+$router->addRoute('GET', '/users', 'UserController', 'index');
 // $router->addRoute('GET', '/users/create', 'UserController', 'create');
 // $router->addRoute('POST', '/store', 'UserController', 'store');
 // $router->addRoute('POST', '/users/store', 'UserController', 'store');
