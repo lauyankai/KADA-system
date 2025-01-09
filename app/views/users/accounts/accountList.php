@@ -39,6 +39,7 @@
                     <thead>
                         <tr>
                             <th>Nama Akaun</th>
+                            <th>No. Akaun</th>
                             <th>Baki</th>
                             <th>Status</th>
                             <th>Tindakan</th>
@@ -53,6 +54,7 @@
                                         <span class="badge bg-primary ms-2">Utama</span>
                                     <?php endif; ?>
                                 </td>
+                                <td><?= htmlspecialchars($account['account_number'] ?? 'Akaun Simpanan') ?></td>
                                 <td>RM <?= number_format($account['current_amount'], 2) ?></td>
                                 <td>
                                     <span class="badge bg-<?= $account['status'] === 'active' ? 'success' : 'warning' ?>">

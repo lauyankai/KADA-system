@@ -34,12 +34,12 @@ class User extends BaseModel
     public function getTotalSavings($memberId)
     {
         try {
-            $sql = "SELECT COALESCE(current_amount, 0) as total 
+            $sql = "SELECT SUM(current_amount) as total 
                     FROM savings_accounts 
-                    WHERE member_id = :member_id 
-                    AND (display_main = 1)
-                    ORDER BY display_main DESC
-                    LIMIT 1";
+                    WHERE member_id = :member_id";
+                    // AND (display_main = 1)
+                    // ORDER BY display_main DESC
+                    // LIMIT 1";
                     
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
