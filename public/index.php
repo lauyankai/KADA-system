@@ -13,7 +13,7 @@ if (file_exists($envFile)) {
     }
 }
 
-// Include core files in correct order
+// Include core files
 require_once '../app/Core/Database.php';
 require_once '../app/Core/Model.php';
 require_once '../app/Core/Controller.php';

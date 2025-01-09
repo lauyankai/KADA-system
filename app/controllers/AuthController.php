@@ -1,9 +1,9 @@
 <?php
 namespace App\Controllers;
-use App\Core\Controller;
+use App\Core\BaseController;
 use App\Models\AuthUser;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     private $authUser;
 

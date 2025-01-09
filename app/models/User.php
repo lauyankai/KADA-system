@@ -107,7 +107,7 @@ class User extends Model
         ]);
         return $stmt; // Return the PDOStatement object
     }
-    
+
     public function getTotalSavings($memberId)
     {
         try {
@@ -182,61 +182,6 @@ class User extends Model
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan sejarah transaksi');
-        }
-    }
-
-    public function updateStatus($id, $status)
-    {
-        try {
-            // Validate status value
-            $validStatuses = ['Pending', 'Lulus', 'Tolak'];
-            if (!in_array($status, $validStatuses)) {
-                throw new Exception("Invalid status value");
-            }
-
-            // First, check if the record exists
-            $checkSql = "SELECT id FROM pendingregistermember WHERE id = :id";
-            $checkStmt = $this->getConnection()->prepare($checkSql);
-            $checkStmt->execute([':id' => $id]);
-            
-            if (!$checkStmt->fetch()) {
-                throw new Exception("Record with ID $id not found");
-            }
-
-            // Proceed with update if record exists
-            $sql = "UPDATE pendingregistermember SET status = :status WHERE id = :id";
-            $stmt = $this->getConnection()->prepare($sql);
-            
-            $result = $stmt->execute([
-                ':status' => $status,
-                ':id' => $id
-            ]);
-            
-            if (!$result) {
-                $error = $stmt->errorInfo();
-                throw new Exception("Update failed: " . ($error[2] ?? 'Unknown error'));
-            }
-            
-            return true;
-        } catch (PDOException $e) {
-            error_log('Database Error in updateStatus: ' . $e->getMessage());
-            throw new Exception('Database error: ' . $e->getMessage());
-        } catch (Exception $e) {
-            error_log('Error in updateStatus: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    public function getUserById($id)
-    {
-        try {
-            $sql = "SELECT * FROM pendingregistermember WHERE id = :id";
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':id' => $id]);
-            return $stmt->fetch(PDO::FETCH_OBJ);
-        } catch (PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            throw new Exception('Failed to fetch user details');
         }
     }
 
@@ -509,17 +454,32 @@ class User extends Model
         }
     }
 
+    private function generateAccountNumber($memberId) {
+        // Format: SAV-{member_id}-{random_4_digits}
+        $random = str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT);
+        return "SAV-" . str_pad($memberId, 6, '0', STR_PAD_LEFT) . "-" . $random;
+    }
+
     public function createNewSavingsAccount($data)
     {
         try {
+            // Generate unique account number
+            $accountNumber = $this->generateAccountNumber($data['member_id']);
+            
             $sql = "INSERT INTO savings_accounts (
-                member_id, account_name, current_amount, status
+                member_id, account_number, account_name, current_amount, status
             ) VALUES (
-                :member_id, :account_name, :initial_amount, :status
+                :member_id, :account_number, :account_name, :initial_amount, :status
             )";
             
             $stmt = $this->getConnection()->prepare($sql);
-            $result = $stmt->execute($data);
+            $result = $stmt->execute([
+                ':member_id' => $data['member_id'],
+                ':account_number' => $accountNumber,
+                ':account_name' => $data['account_name'],
+                ':initial_amount' => $data['initial_amount'],
+                ':status' => $data['status']
+            ]);
             
             return $result ? $this->getConnection()->lastInsertId() : false;
         } catch (\PDOException $e) {

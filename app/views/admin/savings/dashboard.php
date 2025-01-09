@@ -18,7 +18,7 @@
                     setTimeout(function() {
                         const bsAlert = new bootstrap.Alert(successAlert);
                         bsAlert.close();
-                    }, 3000); // 3000 milliseconds = 3 seconds
+                    }, 3000); 
                 }
             });
         </script>

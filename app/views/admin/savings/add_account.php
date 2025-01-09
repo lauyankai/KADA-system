@@ -17,7 +17,7 @@
                         </a>
                     </div>
 
-                    <form action="/admin/savings/accounts/store" method="POST">
+                    <form action="/admin/savings/store" method="POST">
                         <div class="mb-4">
                             <label class="form-label">Nama Akaun</label>
                             <input type="text" name="account_name" class="form-control" required
