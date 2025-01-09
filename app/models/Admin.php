@@ -16,7 +16,7 @@ class Admin extends BaseModel
             }
 
             // First, check if the record exists
-            $checkSql = "SELECT id FROM pendingregistermember WHERE id = :id";
+            $checkSql = "SELECT id FROM pendingmember WHERE id = :id";
             $checkStmt = $this->getConnection()->prepare($checkSql);
             $checkStmt->execute([':id' => $id]);
             
@@ -25,7 +25,7 @@ class Admin extends BaseModel
             }
 
             // Proceed with update if record exists
-            $sql = "UPDATE pendingregistermember SET status = :status WHERE id = :id";
+            $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
             
             $result = $stmt->execute([
@@ -51,7 +51,7 @@ class Admin extends BaseModel
     public function getUserById($id)
     {
         try {
-            $sql = "SELECT * FROM pendingregistermember WHERE id = :id";
+            $sql = "SELECT * FROM pendingmember WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':id' => $id]);
             return $stmt->fetch(PDO::FETCH_OBJ);

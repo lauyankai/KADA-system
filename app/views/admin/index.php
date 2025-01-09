@@ -48,13 +48,13 @@
                                 <td><?= htmlspecialchars($member['position']); ?></td>
                                 <td class="text-end">RM <?= number_format($member['monthly_salary'], 2); ?></td>
                                 <td class="text-center action-buttons">
-                                    <a href="/users/view/<?= $member['id']; ?>" class="btn btn-info btn-sm">
+                                    <a href="/admin/view/<?= $member['id']; ?>" class="btn btn-info btn-sm">
                                         <i class="bi bi-eye-fill"></i> Lihat
                                     </a>
-                                    <a href="/users/approve/<?= $member['id']; ?>" class="btn btn-success btn-sm" onclick="return confirm('Adakah anda pasti untuk meluluskan permohonan ini?')">
+                                    <a href="/admin/approve/<?= $member['id']; ?>" class="btn btn-success btn-sm" onclick="return confirm('Adakah anda pasti untuk meluluskan permohonan ini?')">
                                         <i class="bi bi-check-circle-fill"></i> Lulus
                                     </a>
-                                    <a href="/users/reject/<?= $member['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Adakah anda pasti untuk menolak permohonan ini?')">
+                                    <a href="/admin/reject/<?= $member['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Adakah anda pasti untuk menolak permohonan ini?')">
                                         <i class="bi bi-x-circle-fill"></i> Tolak
                                     </a>
                                 </td>
