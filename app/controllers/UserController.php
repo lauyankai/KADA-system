@@ -15,31 +15,6 @@ class UserController extends BaseController
         $this->user = new User();
     }
 
-    public function index()
-    {
-        try {
-            $db = new Database();
-            $conn = $db->connect();
-            
-            // Fetch all pending register members
-            $sql = "SELECT *
-                    FROM pendingmember 
-                    ORDER BY id DESC";
-            
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            
-            $pendingmember = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Pass the data to the view
-            $this->view('users/index', compact('pendingmember'));
-            
-        } catch (PDOException $e) {
-            $_SESSION['error'] = "Error fetching pending members: " . $e->getMessage();
-            $this->view('users/index', ['pendingmember' => []]);
-        }
-    }
-
     public function edit($id)
     {
         // Fetch the user data using the ID

@@ -40,7 +40,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($pendingregistermembers as $member): ?>
+                            <?php foreach ($pendingmember as $member): ?>
                             <tr>
                                 <td><?= htmlspecialchars($member['name']); ?></td>
                                 <td><?= htmlspecialchars($member['ic_no']); ?></td>

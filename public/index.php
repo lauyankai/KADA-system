@@ -14,6 +14,7 @@ if (file_exists($envFile)) {
 }
 
 // Include core files
+require_once '../app/Core/Autoload.php';
 require_once '../app/Core/Database.php';
 require_once '../app/Core/BaseModel.php';
 require_once '../app/Core/BaseController.php';
@@ -25,7 +26,7 @@ require_once '../app/Controllers/AuthController.php';
 require_once '../app/Controllers/UserController.php';
 require_once '../app/Controllers/GuestController.php';
 require_once '../app/Controllers/PaymentController.php';
-// require_once '../app/Controllers/AdminController.php';
+require_once '../app/Controllers/AdminController.php';
 
 // Include models
 require_once '../app/Models/User.php';
@@ -57,11 +58,11 @@ $router->addRoute('GET', '/admin', 'AdminController', 'index');
 $router->addRoute('GET', '/admin/login', 'AdminController', 'login');
 
 // Admin routes --approve, reject, edit, details, viewMember
-$router->addRoute('GET', '/users/approve/{id}', 'UserController', 'approve');
-$router->addRoute('GET', '/users/reject/{id}', 'UserController', 'reject');
-$router->addRoute('GET', '/users/edit/{id}', 'UserController', 'edit');
-$router->addRoute('GET', '/users/details/{id}', 'UserController', 'details');
-$router->addRoute('GET', '/users/view/{id}', 'UserController', 'viewMember');
+$router->addRoute('GET', '/admin/approve/{id}', 'AdminController', 'approve');
+$router->addRoute('GET', '/admin/reject/{id}', 'AdminController', 'reject');
+$router->addRoute('GET', '/admin/edit/{id}', 'AdminController', 'edit');
+$router->addRoute('GET', '/admin/details/{id}', 'AdminController', 'details');
+$router->addRoute('GET', '/admin/view/{id}', 'AdminController', 'viewMember');
 
 // User routes
 // $router->addRoute('GET', '/users', 'UserController', 'index');

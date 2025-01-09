@@ -2,12 +2,35 @@
 namespace App\Controllers;
 
 use App\Core\BaseController;
-use App\Models\User;
 use App\Core\Database;
+use App\Models\Admin;
 use PDO;
 
-
 class AdminController extends BaseController {
+    public function index()
+    {
+        try {
+            $db = new Database();
+            $conn = $db->connect();
+            
+            // Fetch all pending register members
+            $sql = "SELECT *
+                    FROM pendingmember 
+                    ORDER BY id DESC";
+            
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            
+            $pendingmember = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $this->view('admin/index', compact('pendingmember'));
+            
+        } catch (PDOException $e) {
+            $_SESSION['error'] = "Error fetching pending members: " . $e->getMessage();
+            $this->view('admin/index', ['pendingmember' => []]);
+        }
+    }
+
     public function showSavingsDashboard()
         {
             $this->checkAuth();
