@@ -380,7 +380,7 @@ class UserController extends Controller
             $memberId = $_SESSION['admin_id'];
             $accounts = $this->user->getSavingsAccounts($memberId);
             
-            $this->view('admin/savings/deposit_page', [
+            $this->view('admin/savings/deposit', [
                 'accounts' => $accounts
             ]);
         } catch (\Exception $e) {
@@ -397,7 +397,7 @@ class UserController extends Controller
             $memberId = $_SESSION['admin_id'];
             $accounts = $this->user->getSavingsAccounts($memberId);
             
-            $this->view('admin/savings/transfer_page', [
+            $this->view('admin/savings/transfer', [
                 'accounts' => $accounts
             ]);
         } catch (\Exception $e) {
