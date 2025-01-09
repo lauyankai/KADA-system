@@ -15,7 +15,7 @@ if (file_exists($envFile)) {
 
 // Include core files
 require_once '../app/Core/Database.php';
-require_once '../app/Core/Model.php';
+require_once '../app/Core/BaseModel.php';
 require_once '../app/Core/BaseController.php';
 require_once '../app/Core/Router.php';
 
@@ -36,6 +36,10 @@ $router = new App\Core\Router();
 $router->addRoute('GET', '/', 'HomeController', 'index');
 $router->addRoute('GET', '/home', 'HomeController', 'index');
 $router->addRoute('GET', '/home/index', 'HomeController', 'index');
+
+// Guest routes
+$router->addRoute('GET', '/guest/create', 'GuestController', 'create');
+$router->addRoute('POST', '/guest/store', 'GuestController', 'store');
 
 // Auth routes
 $router->addRoute('GET', '/auth/login', 'AuthController', 'showLogin');

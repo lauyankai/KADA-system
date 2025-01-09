@@ -21,7 +21,7 @@
                     <a href="/auth/login" class="btn btn-gradient btn-lg">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Log Masuk
                     </a>
-                    <a href="/users/create" class="btn btn-outline-primary btn-lg">Daftar Sekarang</a>
+                    <a href="/guest/create" class="btn btn-outline-primary btn-lg">Daftar Sekarang</a>
                 </div>
             </div>
             <div class="col-lg-6 position-relative d-none d-lg-block">

@@ -2,10 +2,10 @@
 namespace App\Models;
 
 use App\Core\Database;
-use App\Core\Model;
+use App\Core\BaseModel;
 use PDO;
 
-class Admin extends Model
+class Admin extends BaseModel
 {
     public function updateStatus($id, $status)
     {

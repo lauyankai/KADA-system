@@ -45,21 +45,6 @@ class UserController extends BaseController
         $this->view('users/create');
     }
 
-    public function store()
-    {
-        try {
-            if ($this->user->create($_POST)) {
-                $_SESSION['success'] = "Pendaftaran anda telah berjaya dihantar dan sedang dalam proses pengesahan.";
-                header('Location: /');
-                exit;
-            }
-        } catch (PDOException $e) {
-            $_SESSION['error'] = "Ralat semasa pendaftaran: " . $e->getMessage();
-            header('Location: /users/create');
-            exit;
-        }
-    }
-
     public function edit($id)
     {
         // Fetch the user data using the ID
