@@ -116,7 +116,7 @@
                                 </div>
                                 <div class="col-md-5">
                                     <label class="form-label fw-bold">Jawatan</label>
-                                    <input type="text" name="position" class="form-control" required>
+                                    <input type="text" name="position" class="form-control" required oninput="this.value = this.value.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Gred</label>
@@ -582,11 +582,12 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Alamat Rumah</label>
-                                    <textarea name="home_address" class="form-control" rows="3" required></textarea>
+                                    <textarea name="home_address" class="form-control" rows="3" required onkeyup="this.value = this.value.toUpperCase();"
+                                    style="text-transform: uppercase;"></textarea>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold">Poskod</label>
-                                    <input type="text" name="home_postcode" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" required>
+                                    <input type="text" name="home_postcode" minlength="5" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Negeri/Wilayah</label>
@@ -617,7 +618,8 @@
                                 <h4 class="mt-4 mb-3 text-success"><i class="bi bi-building me-2"></i>Alamat</h4>
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Alamat Pejabat</label>
-                                    <textarea name="office_address" class="form-control" rows="3" required></textarea>
+                                    <textarea name="office_address" class="form-control" rows="3" required onkeyup="this.value = this.value.toUpperCase();"
+                                    style="text-transform: uppercase;"></textarea>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold">Poskod</label>
@@ -694,7 +696,7 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Fee Masuk (RM)</label>
-                                    <input type="number" name="registration_fee" class="form-control" step="0.01" required>
+                                    <input type="number" name="registration_fee" class="form-control" value="50.00" readonly required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Modal Syer (RM)</label>

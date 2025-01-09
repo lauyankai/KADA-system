@@ -23,11 +23,15 @@ require_once '../app/Core/Router.php';
 require_once '../app/Controllers/HomeController.php';
 require_once '../app/Controllers/AuthController.php';
 require_once '../app/Controllers/UserController.php';
+require_once '../app/Controllers/GuestController.php';
 require_once '../app/Controllers/PaymentController.php';
+// require_once '../app/Controllers/AdminController.php';
 
 // Include models
 require_once '../app/Models/User.php';
+require_once '../app/Models/Guest.php';
 require_once '../app/Models/AuthUser.php';
+require_once '../app/Models/Admin.php';
 
 // Instantiate the Router
 $router = new App\Core\Router();

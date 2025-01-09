@@ -23,26 +23,21 @@ class UserController extends BaseController
             
             // Fetch all pending register members
             $sql = "SELECT *
-                    FROM pendingregistermember 
+                    FROM pendingmember 
                     ORDER BY id DESC";
             
             $stmt = $conn->prepare($sql);
             $stmt->execute();
             
-            $pendingregistermembers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $pendingmember = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // Pass the data to the view
-            $this->view('users/index', compact('pendingregistermembers'));
+            $this->view('users/index', compact('pendingmember'));
             
         } catch (PDOException $e) {
             $_SESSION['error'] = "Error fetching pending members: " . $e->getMessage();
-            $this->view('users/index', ['pendingregistermembers' => []]);
+            $this->view('users/index', ['pendingmember' => []]);
         }
-    }
-
-    public function create()
-    {
-        $this->view('users/create');
     }
 
     public function edit($id)
