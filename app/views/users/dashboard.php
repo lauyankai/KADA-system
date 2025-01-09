@@ -36,7 +36,7 @@
                     <p class="text-muted mb-0">No. Akaun: <?= htmlspecialchars($_SESSION['admin_id']) ?>-SAV</p>
                 </div>
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <a href="/users/accounts" class="btn btn-outline-primary me-2">
+                    <a href="/users/accounts/accountList" class="btn btn-outline-primary me-2">
                         <i class="bi bi-wallet2 me-2"></i>Urus Akaun
                     </a>
                     <a href="/users/deposit" class="btn btn-success me-2">

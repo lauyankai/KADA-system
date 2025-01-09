@@ -37,7 +37,7 @@ class User extends BaseModel
             $sql = "SELECT COALESCE(current_amount, 0) as total 
                     FROM savings_accounts 
                     WHERE member_id = :member_id 
-                    AND (display_main = 1 OR target_amount IS NULL)
+                    AND (display_main = 1)
                     ORDER BY display_main DESC
                     LIMIT 1";
                     
@@ -108,39 +108,26 @@ class User extends BaseModel
         }
     }
 
-    public function createSavingsAccount($data)
-    {
-        try {
-            $sql = "INSERT INTO savings_accounts (
-                member_id, target_amount, duration_months, monthly_deduction,
-                start_date, end_date, status, current_amount
-            ) VALUES (
-                :member_id, :target_amount, :duration_months, :monthly_deduction,
-                :start_date, :end_date, :status, 0
-            )";
+    // public function createSavingsAccount($data)
+    // {
+    //     try {
+    //         $sql = "INSERT INTO savings_accounts (
+    //             member_id, target_amount, duration_months, monthly_deduction,
+    //             start_date, end_date, status, current_amount
+    //         ) VALUES (
+    //             :member_id, :target_amount, :duration_months, :monthly_deduction,
+    //             :start_date, :end_date, :status, 0
+    //         )";
             
-            $stmt = $this->getConnection()->prepare($sql);
-            $result = $stmt->execute($data);
+    //         $stmt = $this->getConnection()->prepare($sql);
+    //         $result = $stmt->execute($data);
             
-            return $result ? $this->getConnection()->lastInsertId() : false;
-        } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal membuat akaun simpanan');
-        }
-    }
-
-    public function getSavingsAccount($id)
-    {
-        try {
-            $sql = "SELECT * FROM savings_accounts WHERE id = :id";
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':id' => $id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal mendapatkan maklumat akaun');
-        }
-    }
+    //         return $result ? $this->getConnection()->lastInsertId() : false;
+    //     } catch (\PDOException $e) {
+    //         error_log('Database Error: ' . $e->getMessage());
+    //         throw new \Exception('Gagal membuat akaun simpanan');
+    //     }
+    // }
 
     public function getSavingsAccounts($memberId)
     {
@@ -386,28 +373,45 @@ class User extends BaseModel
     public function createNewSavingsAccount($data)
     {
         try {
-            // Generate unique account number
             $accountNumber = $this->generateAccountNumber($data['member_id']);
             
+            // Add debug logging
+            error_log('Creating new savings account with data: ' . print_r($data, true));
+            error_log('Generated account number: ' . $accountNumber);
+            
             $sql = "INSERT INTO savings_accounts (
-                member_id, account_number, account_name, current_amount, status
+                account_number, 
+                member_id, 
+                current_amount, 
+                status,
+                display_main
             ) VALUES (
-                :member_id, :account_number, :account_name, :initial_amount, :status
+                :account_number, 
+                :member_id, 
+                :current_amount, 
+                :status,
+                0
             )";
             
             $stmt = $this->getConnection()->prepare($sql);
             $result = $stmt->execute([
-                ':member_id' => $data['member_id'],
                 ':account_number' => $accountNumber,
-                ':account_name' => $data['account_name'],
-                ':initial_amount' => $data['initial_amount'],
+                ':member_id' => $data['member_id'],
+                ':current_amount' => $data['initial_amount'] ?? 0,
                 ':status' => $data['status']
             ]);
+
+            if (!$result) {
+                error_log('SQL Error: ' . print_r($stmt->errorInfo(), true));
+            }
             
             return $result ? $this->getConnection()->lastInsertId() : false;
         } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal membuat akaun baru');
+            error_log('Database Error in createNewSavingsAccount: ' . $e->getMessage());
+            error_log('SQL State: ' . $e->errorInfo[0]);
+            error_log('Error Code: ' . $e->errorInfo[1]);
+            error_log('Error Message: ' . $e->errorInfo[2]);
+            throw new \Exception('Gagal membuat akaun baru: ' . $e->getMessage());
         }
     }
 

@@ -12,12 +12,12 @@
                         <h4 class="card-title mb-0">
                             <i class="bi bi-plus-circle me-2"></i>Tambah Akaun Baru
                         </h4>
-                        <a href="/admin/savings/accounts" class="btn btn-outline-secondary">
+                        <a href="/users/accounts/accountList" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>
 
-                    <form action="/admin/savings/store" method="POST">
+                    <form action="/users/accounts/storeAccount" method="POST">
                         <div class="mb-4">
                             <label class="form-label">Nama Akaun</label>
                             <input type="text" name="account_name" class="form-control" required

@@ -32,7 +32,7 @@ class UserController extends BaseController
                 // Get recent transactions
                 $recentTransactions = $this->user->getRecentTransactions($memberId);
 
-                $this->view('users/index', [
+                $this->view('users/dashboard', [
                     'totalSavings' => $totalSavings,
                     'savingsGoals' => $savingsGoals,
                     'recurringPayment' => $recurringPayment,
@@ -41,7 +41,7 @@ class UserController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                $this->view('users/index', [
+                $this->view('users/dashboard', [
                     'totalSavings' => 0,
                     'savingsGoals' => [],
                     'recurringPayment' => null,
@@ -78,7 +78,6 @@ class UserController extends BaseController
 
         public function storeAccount()
         {
-            $this->checkAuth();
             try {
                 $data = [
                     'member_id' => $_SESSION['admin_id'],
@@ -98,13 +97,12 @@ class UserController extends BaseController
                 $_SESSION['error'] = $e->getMessage();
             }
 
-            header('Location: /users/savings/accounts');
+            header('Location: /users/accounts/accountList');
             exit();
         }
 
         public function setMainAccount($id)
         {
-            $this->checkAuth();
             try {
                 $memberId = $_SESSION['admin_id'];
                 if ($this->user->setMainDisplayAccount($id, $memberId)) {
@@ -115,15 +113,13 @@ class UserController extends BaseController
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
             }
-            header('Location: /users/accounts');
+            header('Location: /users/accounts/accountList');
             exit();
         }
 
         public function showReceipt($referenceNo)
         {
-            $this->checkAuth();
             try {
-                // If receipt is in session, use it and clear it
                 if (isset($_SESSION['receipt'])) {
                     $receipt = $_SESSION['receipt'];
                     unset($_SESSION['receipt']);
@@ -131,7 +127,6 @@ class UserController extends BaseController
                     return;
                 }
 
-                // Otherwise fetch from database
                 $transaction = $this->user->getTransactionByReference($referenceNo);
                 if (!$transaction) {
                     throw new \Exception('Transaksi tidak ditemui');
@@ -158,51 +153,51 @@ class UserController extends BaseController
                 error_log('Error in showReceipt: ' . $e->getMessage());
                 error_log('Transaction data: ' . print_r($transaction ?? null, true));
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings');
+                header('Location: /users');
                 exit();
             }
         }
 
-        public function showAddAccount()
+        public function addAccount()
         {
-            $this->view('users/add_account');
+            $this->view('users/accounts/add_account');
         }
         
-        public function showSavingsApplication()
-        {
-            $this->view('users/apply');
-        }
+        // public function showSavingsApplication()
+        // {
+        //     $this->view('users/apply');
+        // }
 
-        public function storeSavingsAccount()
-        {
-            try {
-                $data = [
-                    'member_id' => $_SESSION['admin_id'],
-                    'target_amount' => $_POST['target_amount'],
-                    'duration_months' => $_POST['duration_months'],
-                    'monthly_deduction' => min(50, $_POST['target_amount'] / $_POST['duration_months']),
-                    'start_date' => date('Y-m-d'),
-                    'end_date' => date('Y-m-d', strtotime("+{$_POST['duration_months']} months")),
-                    'status' => 'active'
-                ];
+        // public function storeSavingsAccount()
+        // {
+        //     try {
+        //         $data = [
+        //             'member_id' => $_SESSION['admin_id'],
+        //             'target_amount' => $_POST['target_amount'],
+        //             'duration_months' => $_POST['duration_months'],
+        //             'monthly_deduction' => min(50, $_POST['target_amount'] / $_POST['duration_months']),
+        //             'start_date' => date('Y-m-d'),
+        //             'end_date' => date('Y-m-d', strtotime("+{$_POST['duration_months']} months")),
+        //             'status' => 'active'
+        //         ];
 
-                $accountId = $this->user->createSavingsAccount($data);
+        //         $accountId = $this->user->createSavingsAccount($data);
                 
-                if ($accountId) {
-                    $_SESSION['success'] = 'Permohonan akaun simpanan berjaya dihantar';
-                    // Redirect to savings dashboard instead of showing success modal
-                    header('Location: /users/savings');
-                    exit();
-                } else {
-                    throw new \Exception('Gagal membuat akaun simpanan');
-                }
+        //         if ($accountId) {
+        //             $_SESSION['success'] = 'Permohonan akaun simpanan berjaya dihantar';
+        //             // Redirect to savings dashboard instead of showing success modal
+        //             header('Location: /users/savings');
+        //             exit();
+        //         } else {
+        //             throw new \Exception('Gagal membuat akaun simpanan');
+        //         }
 
-            } catch (\Exception $e) {
-                $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/apply');
-                exit();
-            }
-        }
+        //     } catch (\Exception $e) {
+        //         $_SESSION['error'] = $e->getMessage();
+        //         header('Location: /users/apply');
+        //         exit();
+        //     }
+        // }
 
         public function depositPage()
         {
@@ -275,7 +270,6 @@ class UserController extends BaseController
 
         public function storeSavingsGoal()
         {
-            $this->checkAuth();
             try {
                 $data = [
                     'member_id' => $_SESSION['admin_id'],
@@ -316,7 +310,6 @@ class UserController extends BaseController
 
         public function showRecurringSettings()
         {
-            $this->checkAuth();
             try {
                 $memberId = $_SESSION['admin_id'];
                 
@@ -343,7 +336,6 @@ class UserController extends BaseController
 
         public function storeRecurringPayment()
         {
-            $this->checkAuth();
             try {
                 $data = [
                     'member_id' => $_SESSION['admin_id'],
@@ -458,7 +450,6 @@ class UserController extends BaseController
 
         public function editSavingsGoal($id)
         {
-            $this->checkAuth();
             try {
                 $memberId = $_SESSION['admin_id'];
                 $goal = $this->user->getSavingsGoal($id);
@@ -479,7 +470,6 @@ class UserController extends BaseController
 
         public function updateSavingsGoal($id)
         {
-            $this->checkAuth();
             try {
                 $memberId = $_SESSION['admin_id'];
                 $goal = $this->user->getSavingsGoal($id);
@@ -523,7 +513,6 @@ class UserController extends BaseController
 
         public function editRecurringPayment()
         {
-            $this->checkAuth();
             try {
                 $memberId = $_SESSION['admin_id'];
                 $payment = $this->user->getRecurringPayment($memberId);
@@ -544,7 +533,6 @@ class UserController extends BaseController
 
         public function updateRecurringPayment()
         {
-            $this->checkAuth();
             try {
                 $data = [
                     'member_id' => $_SESSION['admin_id'],
@@ -605,7 +593,7 @@ class UserController extends BaseController
                 $memberId = $_SESSION['admin_id'];
                 $accounts = $this->user->getSavingsAccounts($memberId);
                 
-                $this->view('users/accounts', [
+                $this->view('users/accounts/accountList', [
                     'accounts' => $accounts
                 ]);
             } catch (\Exception $e) {
@@ -641,7 +629,7 @@ class UserController extends BaseController
                 $_SESSION['error'] = $e->getMessage();
             }
 
-            header('Location: /users/accounts');
+            header('Location: /users/accounts/accountList');
             exit();
         }
 }

@@ -90,7 +90,7 @@
                     </div>
 
                     <div class="d-flex justify-content-center mt-4">
-                        <a href="/admin/savings" class="btn btn-outline-secondary me-2">
+                        <a href="/users" class="btn btn-outline-secondary me-2">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                         <button onclick="window.print()" class="btn btn-primary">

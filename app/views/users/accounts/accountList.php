@@ -28,7 +28,7 @@
                     <a href="/users" class="btn btn-outline-secondary me-2">
                         <i class="bi bi-arrow-left me-2"></i>Kembali
                     </a>
-                    <a href="/users/accounts/add" class="btn btn-success">
+                    <a href="/users/accounts/addAccount" class="btn btn-success">
                         <i class="bi bi-plus-lg me-2"></i>Tambah Akaun
                     </a>
                 </div>
@@ -49,7 +49,7 @@
                             <tr>
                                 <td>
                                     <?= htmlspecialchars($account['account_name'] ?? 'Akaun Simpanan') ?>
-                                    <?php if ($account['target_amount'] === null): ?>
+                                    <?php if ($account['display_main'] === 1): ?>
                                         <span class="badge bg-primary ms-2">Utama</span>
                                     <?php endif; ?>
                                 </td>
@@ -65,7 +65,7 @@
                                             <?= $account['display_main'] ? 'disabled' : '' ?>>
                                         <i class="bi bi-star<?= $account['display_main'] ? '-fill' : '' ?>"></i>
                                     </button>
-                                    <?php if ($account['target_amount'] !== null): ?>
+                                    <?php if ($account['display_main'] === 0): ?>
                                         <button onclick="confirmDelete(<?= $account['id'] ?>)" 
                                                 class="btn btn-sm btn-outline-danger"
                                                 <?= $account['current_amount'] > 0 ? 'disabled' : '' ?>>
