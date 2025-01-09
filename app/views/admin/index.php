@@ -3,7 +3,6 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
-
     <div class="container mt-4">
         <?php if (isset($_SESSION['error'])): ?>
             <div class="alert alert-danger">
@@ -18,7 +17,7 @@
                 <?php unset($_SESSION['success']); ?>
             </div>
         <?php endif; ?>
-        <!-- Main Content -->
+        
         <div class="card shadow-lg mb-4">
             <div class="card-body">
                 <div class="text-center mb-4">
