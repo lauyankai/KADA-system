@@ -16,7 +16,7 @@ class UserController extends BaseController
     }
 
     public function index()
-        {
+    {
             try {
                 $memberId = $_SESSION['admin_id'];
 
@@ -268,8 +268,8 @@ class UserController extends BaseController
         }
 
         public function storeSavingsGoal()
-        {
-            try {
+    {
+        try {
                 $data = [
                     'member_id' => $_SESSION['admin_id'],
                     'name' => $_POST['goal_name'],
@@ -544,7 +544,7 @@ class UserController extends BaseController
 
                 if ($this->user->updateRecurringPayment($data)) {
                     $_SESSION['success'] = 'Tetapan bayaran berulang berjaya dikemaskini';
-                } else {
+            } else {
                     throw new \Exception('Gagal mengemaskini tetapan');
                 }
 
@@ -574,9 +574,9 @@ class UserController extends BaseController
                     'status' => 'active',
                     'account_id' => $parts[0]
                 ]);
-                exit;
+            exit;
 
-            } catch (\Exception $e) {
+        } catch (\Exception $e) {
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => false,
