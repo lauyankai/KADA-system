@@ -38,7 +38,6 @@ class UserController extends BaseController
                     'recurringPayment' => $recurringPayment,
                     'recentTransactions' => $recentTransactions
                 ]);
-
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 $this->view('users/dashboard', [
@@ -205,12 +204,12 @@ class UserController extends BaseController
                 $memberId = $_SESSION['admin_id'];
                 $accounts = $this->user->getSavingsAccounts($memberId);
                 
-                $this->view('users/deposit', [
+                $this->view('users/savings/deposit/index', [
                     'accounts' => $accounts
                 ]);
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings');
+                header('Location: /users');
                 exit();
             }
         }
@@ -263,7 +262,7 @@ class UserController extends BaseController
             } catch (\Exception $e) {
                 error_log('Error in makeDeposit: ' . $e->getMessage());
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/deposit');
+                header('Location: /users/savings/deposit/index');
                 exit();
             }
         }
@@ -369,12 +368,12 @@ class UserController extends BaseController
                 $memberId = $_SESSION['admin_id'];
                 $accounts = $this->user->getSavingsAccounts($memberId);
                 
-                $this->view('users/transfer', [
+                $this->view('users/savings/transfer/index', [
                     'accounts' => $accounts
                 ]);
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings');
+                header('Location: /users/savings/transfer/index');
                 exit();
             }
         }
@@ -605,7 +604,6 @@ class UserController extends BaseController
 
         public function deleteAccount($id)
         {
-            $this->checkAuth();
             try {
                 $memberId = $_SESSION['admin_id'];
                 $account = $this->user->getSavingsAccount($id);
@@ -615,7 +613,7 @@ class UserController extends BaseController
                 }
 
                 // Don't allow deleting the main account
-                if ($account['target_amount'] === null) {
+                if ($account['display_main'] === 1) {
                     throw new \Exception('Akaun utama tidak boleh dipadam');
                 }
 

@@ -74,9 +74,13 @@ $router->addRoute('GET', '/users', 'UserController', 'dashboard');
     $router->addRoute('GET', '/users/accounts/addAccount', 'UserController', 'addAccount');
     $router->addRoute('POST', '/users/accounts/storeAccount', 'UserController', 'storeAccount');
     $router->addRoute('POST', '/users/accounts/set-main/{id}', 'UserController', 'setMainAccount');
+    $router->addRoute('GET', '/users/accounts/delete/{id}', 'UserController', 'deleteAccount');
 
-    $router->addRoute('GET', '/users/deposit', 'UserController', 'depositPage');
-    $router->addRoute('GET', '/users/transfer', 'UserController', 'transferPage');
+    // User routes --Deposit, Transfer
+    $router->addRoute('GET', '/users/savings/deposit/index', 'UserController', 'depositPage');
+    $router->addRoute('POST', '/users/savings/deposit/deposit/{id}', 'UserController', 'makeDeposit');
+    $router->addRoute('GET', '/users/savings/transfer/index', 'UserController', 'transferPage');
+    $router->addRoute('POST', '/users/savings/transfer/index/{id}', 'UserController', 'makeTransfer');
 
     // User routes --Receipts
     $router->addRoute('GET', '/users/receipt/{reference}', 'UserController', 'showReceipt');
@@ -85,7 +89,7 @@ $router->addRoute('GET', '/users', 'UserController', 'dashboard');
 // $router->addRoute('GET', '/users/savings/apply', 'UserController', 'showSavingsApplication');
 
 // $router->addRoute('GET', '/users/savings/deposit/{id}', 'UserController', 'showDepositForm');
-// $router->addRoute('POST', '/users/savings/deposit/{id}', 'UserController', 'makeDeposit');
+
 // $router->addRoute('POST', '/users/savings/goal/store', 'UserController', 'storeSavingsGoal');
 // $router->addRoute('GET', '/users/savings/recurring', 'UserController', 'showRecurringSettings');
 // $router->addRoute('POST', '/users/savings/recurring/store', 'UserController', 'storeRecurringPayment');

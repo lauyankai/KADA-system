@@ -365,9 +365,9 @@ class User extends BaseModel
     }
 
     private function generateAccountNumber($memberId) {
-        // Format: SAV-{member_id}-{random_4_digits}
-        $random = str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT);
-        return "SAV-" . str_pad($memberId, 6, '0', STR_PAD_LEFT) . "-" . $random;
+        // Format: {member_id}-{random_4_digits}
+        $random = str_pad(mt_rand(0, 9999), 6, '0', STR_PAD_LEFT);
+        return str_pad($memberId, 4, '0', STR_PAD_LEFT) . "-" . $random;
     }
 
     public function createNewSavingsAccount($data)
@@ -375,17 +375,15 @@ class User extends BaseModel
         try {
             $accountNumber = $this->generateAccountNumber($data['member_id']);
             
-            // Add debug logging
-            error_log('Creating new savings account with data: ' . print_r($data, true));
-            error_log('Generated account number: ' . $accountNumber);
-            
             $sql = "INSERT INTO savings_accounts (
+                account_name,
                 account_number, 
                 member_id, 
                 current_amount, 
                 status,
                 display_main
             ) VALUES (
+                :account_name,
                 :account_number, 
                 :member_id, 
                 :current_amount, 
@@ -395,6 +393,7 @@ class User extends BaseModel
             
             $stmt = $this->getConnection()->prepare($sql);
             $result = $stmt->execute([
+                ':account_name' => $data['account_name'],
                 ':account_number' => $accountNumber,
                 ':member_id' => $data['member_id'],
                 ':current_amount' => $data['initial_amount'] ?? 0,

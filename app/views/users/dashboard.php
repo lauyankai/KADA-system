@@ -33,16 +33,12 @@
                         <i class="bi bi-piggy-bank me-2"></i>Akaun Simpanan Saya
                     </h4>
                     <h2 class="mb-3">RM <?= number_format($totalSavings ?? 0, 2) ?></h2>
-                    <p class="text-muted mb-0">No. Akaun: <?= htmlspecialchars($_SESSION['admin_id']) ?>-SAV</p>
                 </div>
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <a href="/users/accounts/accountList" class="btn btn-outline-primary me-2">
-                        <i class="bi bi-wallet2 me-2"></i>Urus Akaun
-                    </a>
-                    <a href="/users/deposit" class="btn btn-success me-2">
+                    <a href="/users/savings/deposit/index" class="btn btn-success me-2">
                         <i class="bi bi-plus-circle me-2"></i>Deposit
                     </a>
-                    <a href="/users/transfer" class="btn btn-primary">
+                    <a href="/users/savings/transfer/index" class="btn btn-primary">
                         <i class="bi bi-arrow-left-right me-2"></i>Pindah
                     </a>
                 </div>
@@ -243,7 +239,7 @@
                 <h5 class="modal-title">Tambah Deposit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/users/deposit" method="POST" id="depositForm">
+            <form action="/users/savings/deposit/index" method="POST" id="depositForm">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Jumlah (RM)</label>

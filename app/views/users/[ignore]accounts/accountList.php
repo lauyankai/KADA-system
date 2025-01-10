@@ -68,11 +68,12 @@
                                         <i class="bi bi-star<?= $account['display_main'] ? '-fill' : '' ?>"></i>
                                     </button>
                                     <?php if ($account['display_main'] === 0): ?>
-                                        <button onclick="confirmDelete(<?= $account['id'] ?>)" 
-                                                class="btn btn-sm btn-outline-danger"
-                                                <?= $account['current_amount'] > 0 ? 'disabled' : '' ?>>
+                                        <a href="/users/accounts/delete/<?= $account['id'] ?>" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Adakah anda pasti untuk memadam akaun ini?')"
+                                           <?= $account['current_amount'] > 0 ? 'disabled' : '' ?>>
                                             <i class="bi bi-trash"></i>
-                                        </button>
+                                        </a>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -85,16 +86,6 @@
 </div>
 
 <script>
-function confirmDelete(accountId) {
-    if (confirm('Adakah anda pasti untuk memadam akaun ini?')) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/users/accounts/delete/${accountId}`;
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
 function setMainAccount(accountId) {
     if (confirm('Jadikan akaun ini sebagai paparan utama?')) {
         const form = document.createElement('form');
