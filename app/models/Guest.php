@@ -8,7 +8,7 @@ class Guest extends BaseModel
     public function create($data)
     {
         try {
-            $sql = "INSERT INTO pendingregistermember (
+            $sql = "INSERT INTO pendingmember (
                 name, ic_no, gender, religion, race, marital_status,
                 position, grade, monthly_salary,
                 home_address, home_postcode, home_state,

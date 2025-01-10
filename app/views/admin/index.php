@@ -101,11 +101,6 @@
                         <option value="Lulus">Lulus</option>
                         <option value="Tolak">Tolak</option>
                     </select>
-                    <select class="filter-select">
-                        <option value="">Jantina</option>
-                        <option value="Lelaki">Lelaki</option>
-                        <option value="Perempuan">Perempuan</option>
-                    </select>
                 </div>
             </div>
 
@@ -128,12 +123,8 @@
                         <tr>
                             <td>
                                 <div class="member-info">
-                                    <div class="member-avatar">
-                                        <?= strtoupper(substr($member['name'], 0, 1)) ?>
-                                    </div>
                                     <div class="member-details">
                                         <div class="member-name"><?= htmlspecialchars($member['name']); ?></div>
-                                        <div class="member-email"><?= htmlspecialchars($member['email'] ?? ''); ?></div>
                                     </div>
                                 </div>
                             </td>
@@ -336,26 +327,9 @@
     gap: 0.75rem;
 }
 
-.member-avatar {
-    width: 40px;
-    height: 40px;
-    background: #e8f0fe;
-    color: #1a73e8;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-}
-
 .member-name {
     font-weight: 500;
     color: #111827;
-}
-
-.member-email {
-    font-size: 0.875rem;
-    color: #6b7280;
 }
 
 .gender-badge, .status-badge {
