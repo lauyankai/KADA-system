@@ -23,7 +23,7 @@ class AdminController extends BaseController {
             // Fetch all pending register members
             $sql = "SELECT *
                     FROM pendingmember 
-                    ORDER BY id DESC";
+                    ORDER BY id ASC";
             
             $stmt = $conn->prepare($sql);
             $stmt->execute();
@@ -40,13 +40,8 @@ class AdminController extends BaseController {
 
     public function viewMember($id)
     {
-        // Get user model
         $admin = new Admin();
-        
-        // Get user data by ID
         $data['member'] = $admin->getUserById($id);
-        
-        // Load view
         $this->view('admin/view', $data);
     }    
 
