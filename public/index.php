@@ -27,6 +27,7 @@ require_once '../app/Controllers/UserController.php';
 require_once '../app/Controllers/GuestController.php';
 require_once '../app/Controllers/PaymentController.php';
 require_once '../app/Controllers/AdminController.php';
+require_once '../app/Controllers/LoanController.php';
 
 // Include models
 require_once '../app/Models/User.php';
@@ -64,12 +65,13 @@ $router->addRoute('GET', '/admin/edit/{id}', 'AdminController', 'edit');
 $router->addRoute('GET', '/admin/view/{id}', 'AdminController', 'viewMember');
 
 // User routes
-$router->addRoute('GET', '/users', 'UserController', 'dashboard');
+$router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
 // $router->addRoute('GET', '/users/create', 'UserController', 'create');
 // $router->addRoute('POST', '/store', 'UserController', 'store');
 // $router->addRoute('POST', '/users/store', 'UserController', 'store');
 
     // User routes --Savings
+    $router->addRoute('GET', '/users/savings/dashboard', 'UserController', 'savingsDashboard');
     $router->addRoute('GET', '/users/accounts/accountList', 'UserController', 'accountPage');
     $router->addRoute('GET', '/users/accounts/addAccount', 'UserController', 'addAccount');
     $router->addRoute('POST', '/users/accounts/storeAccount', 'UserController', 'storeAccount');
@@ -120,7 +122,11 @@ $router->addRoute('POST', '/users/savings/recurring/update', 'UserController', '
 // $router->addRoute('POST', '/admin/savings/accounts/store', 'UserController', 'storeAccount');
 // $router->addRoute('POST', '/admin/savings/accounts/delete/{id}', 'UserController', 'deleteAccount');
 
-
+// User routes --Loans
+$router->addRoute('GET', '/users/loans/request', 'LoanController', 'showRequest');
+$router->addRoute('POST', '/users/loans/submit', 'LoanController', 'submitRequest');
+$router->addRoute('GET', '/users/loans/status', 'LoanController', 'showStatus');
+$router->addRoute('GET', '/users/loans/details/{id}', 'LoanController', 'showDetails');
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -1,10 +1,16 @@
 <?php
 namespace App\Models;
 use App\Core\BaseModel;
+use App\Core\Database;
 use PDO;
 
 class Payment extends BaseModel
 {
+    public function __construct()
+    {
+        $this->db = new Database();
+    }
+
     public function createPayment($data)
     {
         try {
@@ -66,4 +72,21 @@ class Payment extends BaseModel
             throw new \Exception('Gagal mengemaskini status pembayaran');
         }
     }
+
+    public function getPaymentHistory($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM payments 
+                    WHERE member_id = :member_id 
+                    ORDER BY created_at DESC";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Error getting payment history: ' . $e->getMessage());
+            return [];
+        }
+    }   
 } 

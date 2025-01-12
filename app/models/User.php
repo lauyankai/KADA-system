@@ -12,6 +12,91 @@ class User extends BaseModel
         return $stmt->fetchAll(); // Use fetchAll() to get all records
     }
 
+    public function create($data)
+    {
+        try {
+            // Clean the IC number (remove hyphens) before hashing
+            $cleanIC = str_replace('-', '', $data['ic_no']);
+            
+            // Hash the clean IC number to use as password
+            $hashedPassword = password_hash($cleanIC, PASSWORD_DEFAULT);
+            
+            // Debug log
+            error_log('Clean IC: ' . $cleanIC);
+            error_log('Hashed Password: ' . $hashedPassword);
+
+            $sql = "INSERT INTO pendingmember (
+                name, ic_no, gender, religion, race, marital_status,
+                position, grade, monthly_salary,
+                home_address, home_postcode, home_state,
+                office_address, office_postcode,
+                office_phone, home_phone, fax,
+                registration_fee, share_capital, fee_capital,
+                deposit_funds, welfare_fund, fixed_deposit,
+                other_contributions,
+                family_relationship, family_name, family_ic,
+                password,
+                status
+            ) VALUES (
+                :name, :ic_no, :gender, :religion, :race, :marital_status,
+                :position, :grade, :monthly_salary,
+                :home_address, :home_postcode, :home_state,
+                :office_address, :office_postcode,
+                :office_phone, :home_phone, :fax,
+                :registration_fee, :share_capital, :fee_capital,
+                :deposit_funds, :welfare_fund, :fixed_deposit,
+                :other_contributions,
+                :family_relationship, :family_name, :family_ic,
+                :password,
+                'Pending'
+            )";
+$stmt = $this->getConnection()->prepare($sql);
+            
+$params = [
+    ':name' => $data['name'],
+    ':ic_no' => $data['ic_no'],
+    ':gender' => $data['gender'],
+    ':religion' => $data['religion'],
+    ':race' => $data['race'],
+    ':marital_status' => $data['marital_status'],
+    ':position' => $data['position'],
+    ':grade' => $data['grade'],
+    ':monthly_salary' => $data['monthly_salary'],
+    ':home_address' => $data['home_address'],
+    ':home_postcode' => $data['home_postcode'],
+    ':home_state' => $data['home_state'],
+    ':office_address' => $data['office_address'],
+    ':office_postcode' => $data['office_postcode'],
+    ':office_phone' => $data['office_phone'],
+    ':home_phone' => $data['home_phone'],
+    ':fax' => $data['fax'] ?? null,
+    ':registration_fee' => $data['registration_fee'] ?? 0,
+    ':share_capital' => $data['share_capital'] ?? 0,
+    ':fee_capital' => $data['fee_capital'] ?? 0,
+    ':deposit_funds' => $data['deposit_funds'] ?? 0,
+    ':welfare_fund' => $data['welfare_fund'] ?? 0,
+    ':fixed_deposit' => $data['fixed_deposit'] ?? 0,
+    ':other_contributions' => $data['other_contributions'] ?? null,
+    ':family_relationship' => $data['family_relationship'][0] ?? null,
+    ':family_name' => $data['family_name'][0] ?? null,
+    ':family_ic' => $data['family_ic'][0] ?? null,
+    ':password' => $hashedPassword
+];
+
+$result = $stmt->execute($params);
+
+if (!$result) {
+    error_log('PDO Error: ' . print_r($stmt->errorInfo(), true));
+}
+
+return $result;
+
+} catch (\PDOException $e) {
+error_log('Database Error: ' . $e->getMessage());
+throw new \Exception('Database error occurred: ' . $e->getMessage());
+}
+}
+
     public function find($id)
     {
         $stmt = $this->getConnection()->prepare("SELECT * FROM users WHERE id = :id"); // Use prepare() for SQL statements with variables
@@ -67,6 +152,95 @@ class User extends BaseModel
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan sasaran simpanan');
+        }
+    }
+
+    public function getAccounts($memberId)
+    {
+        try {
+            $sql = "SELECT 
+                    id,
+                    member_id,
+                    target_amount,
+                    current_amount,
+                    duration_months,
+                    monthly_deposit,
+                    start_date,
+                    end_date,
+                    status,
+                    display_main,
+                    created_at,
+                    updated_at
+                FROM savings_accounts 
+                WHERE member_id = :member_id 
+                ORDER BY display_main DESC, created_at DESC";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Error getting savings accounts: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function createDeposit($data)
+    {
+        try {
+            $sql = "INSERT INTO savings_transactions (
+                savings_account_id,
+                amount,
+                type,
+                payment_method,
+                reference_no,
+                description,
+                created_at
+            ) VALUES (
+                :savings_account_id,
+                :amount,
+                'deposit',
+                :payment_method,
+                :reference_no,
+                :description,
+                CURRENT_TIMESTAMP
+            )";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            
+            // Start transaction
+            $this->getConnection()->beginTransaction();
+
+            // Insert transaction
+            $stmt->execute([
+                ':savings_account_id' => $data['savings_account_id'],
+                ':amount' => $data['amount'],
+                ':payment_method' => $data['payment_method'],
+                ':reference_no' => $data['reference_no'],
+                ':description' => $data['description'] ?? null
+            ]);
+
+            // Update account balance
+            $updateSql = "UPDATE savings_accounts 
+                         SET current_amount = current_amount + :amount,
+                             updated_at = CURRENT_TIMESTAMP
+                         WHERE id = :account_id";
+
+            $updateStmt = $this->getConnection()->prepare($updateSql);
+            $updateStmt->execute([
+                ':amount' => $data['amount'],
+                ':account_id' => $data['savings_account_id']
+            ]);
+
+            // Commit transaction
+            $this->getConnection()->commit();
+            return true;
+
+        } catch (\PDOException $e) {
+            // Rollback on error
+            $this->getConnection()->rollBack();
+            error_log('Error creating deposit: ' . $e->getMessage());
+            throw new \Exception('Gagal membuat deposit');
         }
     }
 
@@ -128,6 +302,15 @@ class User extends BaseModel
     //         throw new \Exception('Gagal membuat akaun simpanan');
     //     }
     // }
+
+    public function getUserById($id)
+    {
+        $stmt = $this->getConnection()->prepare(
+            "SELECT * FROM pendingmember WHERE id = :id"
+        );
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
 
     public function getSavingsAccounts($memberId)
     {

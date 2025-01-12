@@ -4,15 +4,20 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\User;
 use App\Core\Database;
+use App\Models\Payment;
 use PDO;
 
 class UserController extends BaseController
 {
     private $user;
+    private $savings;
+    private $payment;
 
     public function __construct()
     {
         $this->user = new User();
+        $this->savings = new User();
+        // $this->payment = new Payment();
     }
 
     public function index()
@@ -629,5 +634,47 @@ class UserController extends BaseController
 
             header('Location: /users/accounts/accountList');
             exit();
+        }
+
+        public function dashboard()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses dashboard');
+                }
+
+                $memberId = $_SESSION['member_id'];
+                $member = $this->user->getUserById($memberId);
+                $totalSavings = $this->savings->getTotalSavings($memberId);
+
+                $this->view('users/dashboard', [
+                    'member' => $member,
+                    'totalSavings' => $totalSavings
+                ]);
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /auth/login');
+                exit;
+            }
+        }
+
+        public function savingsDashboard()
+        {
+            try {
+                $memberId = $_SESSION['member_id'];
+                $member = $this->user->getUserById($memberId);
+                $totalSavings = $this->savings->getTotalSavings($memberId);
+
+                $this->view('users/savings/dashboard', [
+                    'member' => $member,
+                    'totalSavings' => $totalSavings
+                ]);
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /auth/login');
+                exit;
+            }
         }
 }
