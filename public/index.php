@@ -71,6 +71,7 @@ $router->addRoute('GET', '/users', 'UserController', 'dashboard');
 // $router->addRoute('POST', '/users/store', 'UserController', 'store');
 
     // User routes --Savings
+    $router->addRoute('GET', '/users/savings/dashboard', 'UserController', 'savingsDashboard');
     $router->addRoute('GET', '/users/accounts/accountList', 'UserController', 'accountPage');
     $router->addRoute('GET', '/users/accounts/addAccount', 'UserController', 'addAccount');
     $router->addRoute('POST', '/users/accounts/storeAccount', 'UserController', 'storeAccount');

@@ -637,25 +637,43 @@ class UserController extends BaseController
         }
 
         public function dashboard()
-    {
-        try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses dashboard');
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses dashboard');
+                }
+
+                $memberId = $_SESSION['member_id'];
+                $member = $this->user->getUserById($memberId);
+                $totalSavings = $this->savings->getTotalSavings($memberId);
+
+                $this->view('members/dashboard', [
+                    'member' => $member,
+                    'totalSavings' => $totalSavings
+                ]);
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /auth/login');
+                exit;
             }
-
-            $memberId = $_SESSION['member_id'];
-            $member = $this->user->getUserById($memberId);
-            $totalSavings = $this->savings->getTotalSavings($memberId);
-
-            $this->view('members/dashboard', [
-                'member' => $member,
-                'totalSavings' => $totalSavings
-            ]);
-
-        } catch (\Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-            header('Location: /auth/login');
-            exit;
         }
-    }
+
+        public function savingsDashboard()
+        {
+            try {
+                $member = $this->user->getUserById($memberId);
+                $totalSavings = $this->savings->getTotalSavings($memberId);
+
+                $this->view('users/savings/dashboard', [
+                    'member' => $member,
+                    'totalSavings' => $totalSavings
+                ]);
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /auth/login');
+                exit;
+            }
+        }
 }
