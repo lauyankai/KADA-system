@@ -26,7 +26,7 @@
                         <a class="nav-link" href="/users"><i class="bi bi-people me-2"></i>Anggota</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/users/create"><i class="bi bi-person-plus me-2"></i>Daftar Anggota</a>
+                        <a class="nav-link" href="/guest/create"><i class="bi bi-person-plus me-2"></i>Daftar Anggota</a>
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">
