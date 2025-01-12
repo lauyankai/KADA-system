@@ -45,4 +45,18 @@ class AuthUser extends BaseModel
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result && $result['is_admin'];
     }
-} 
+
+    public function findMemberByIC($ic_no)
+    {
+        // Remove any hyphens from the input IC
+        $cleanIC = str_replace('-', '', $ic_no);
+        
+        $stmt = $this->getConnection()->prepare(
+            "SELECT * FROM pendingregistermember 
+             WHERE REPLACE(ic_no, '-', '') = :ic_no 
+             AND status = 'Lulus'"
+        );
+        $stmt->execute([':ic_no' => $cleanIC]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+}
