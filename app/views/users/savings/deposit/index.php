@@ -26,12 +26,12 @@
                         <h4 class="card-title mb-0">
                             <i class="bi bi-plus-circle me-2"></i>Deposit Simpanan
                         </h4>
-                        <a href="/admin/savings" class="btn btn-outline-secondary">
+                        <a href="/users" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>
 
-                    <form action="/admin/savings/deposit" method="POST" class="needs-validation" novalidate>
+                    <form action="/users/deposit" method="POST" class="needs-validation" novalidate>
                         <div class="mb-4">
                             <label class="form-label">Jumlah (RM)</label>
                             <div class="input-group">

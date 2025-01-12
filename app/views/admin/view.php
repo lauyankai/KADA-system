@@ -169,7 +169,7 @@
                     </div>
 
                     <div class="mt-4 text-center">
-                        <a href="/users" class="btn btn-secondary">
+                        <a href="/admin" class="btn btn-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>

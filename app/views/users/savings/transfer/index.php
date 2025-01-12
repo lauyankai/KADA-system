@@ -26,7 +26,7 @@
                         <h4 class="card-title mb-0">
                             <i class="bi bi-arrow-left-right me-2"></i>Pindah Wang
                         </h4>
-                        <a href="/admin/savings" class="btn btn-outline-secondary">
+                        <a href="/users" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>

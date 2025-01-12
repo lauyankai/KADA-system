@@ -3,7 +3,6 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
-<!-- Hero Section -->
 <div class="animated-hero min-vh-100 d-flex align-items-center">
     <div class="hero-shapes">
         <div class="shape shape-1"></div>
@@ -22,7 +21,7 @@
                     <a href="/auth/login" class="btn btn-gradient btn-lg">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Log Masuk
                     </a>
-                    <a href="/users/create" class="btn btn-outline-primary btn-lg">Daftar Sekarang</a>
+                    <a href="/guest/create" class="btn btn-outline-primary btn-lg">Daftar Sekarang</a>
                 </div>
             </div>
             <div class="col-lg-6 position-relative d-none d-lg-block">
@@ -32,7 +31,6 @@
     </div>
 </div>
 
-<!-- Quick Links Section -->
 <div class="quick-links">
     <div class="container">
         <div class="row">
@@ -70,7 +68,6 @@
     </div>
 </div>
 
-<!-- Services Section -->
 <div class="services-section">
     <div class="container">
         <div class="text-center mb-5">

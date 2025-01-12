@@ -1,10 +1,10 @@
 <?php
 namespace App\Models;
 
-use App\Core\Model;
+use App\Core\BaseModel;
 use PDO;
 
-class AuthUser extends Model
+class AuthUser extends BaseModel
 {
     public function createAdmin($data)
     {

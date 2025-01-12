@@ -1,7 +1,7 @@
 <?php
 namespace App\Core;
 
-class Controller
+class BaseController
 {
     protected function view($view, $data = [])
     {

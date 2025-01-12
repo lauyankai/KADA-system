@@ -1,11 +1,11 @@
 <?php
 namespace App\Controllers;
 
-use App\Core\Controller;
+use App\Core\BaseController;
 use App\Models\Payment;
 use App\Models\User;
 
-class PaymentController extends Controller
+class PaymentController extends BaseController
 {
     private $payment;
     private $user;
