@@ -1,17 +1,11 @@
 <?php
 namespace App\Models;
 
-use App\Core\BaseModel;
-use App\Core\Database;
+use App\Core\Model;
 use PDO;
 
-class Loan extends BaseModel
+class Loan extends Model
 {
-    public function __construct()
-    {
-        $this->db = new Database();
-    }
-    
     public function create($data)
     {
         try {
@@ -113,7 +107,6 @@ class Loan extends BaseModel
 
         return $payments;
     }
-
 
     public function updateStatus($id, $status)
     {

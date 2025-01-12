@@ -647,7 +647,7 @@ class UserController extends BaseController
                 $member = $this->user->getUserById($memberId);
                 $totalSavings = $this->savings->getTotalSavings($memberId);
 
-                $this->view('members/dashboard', [
+                $this->view('users/dashboard', [
                     'member' => $member,
                     'totalSavings' => $totalSavings
                 ]);
@@ -662,6 +662,7 @@ class UserController extends BaseController
         public function savingsDashboard()
         {
             try {
+                $memberId = $_SESSION['member_id'];
                 $member = $this->user->getUserById($memberId);
                 $totalSavings = $this->savings->getTotalSavings($memberId);
 

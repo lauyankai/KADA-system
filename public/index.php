@@ -65,7 +65,7 @@ $router->addRoute('GET', '/admin/edit/{id}', 'AdminController', 'edit');
 $router->addRoute('GET', '/admin/view/{id}', 'AdminController', 'viewMember');
 
 // User routes
-$router->addRoute('GET', '/users', 'UserController', 'dashboard');
+$router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
 // $router->addRoute('GET', '/users/create', 'UserController', 'create');
 // $router->addRoute('POST', '/store', 'UserController', 'store');
 // $router->addRoute('POST', '/users/store', 'UserController', 'store');

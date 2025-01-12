@@ -20,24 +20,48 @@ class AuthController extends BaseController
     public function login()
     {
         try {
-            $username = $_POST['username'];
-            $password = $_POST['password'];
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
 
-            $admin = $this->authUser->findAdminByUsername($username);
+            // If input contains hyphens, it's an IC number
+            if (strpos($username, '-') !== false) {
+                // Remove hyphens for IC comparison
+                $cleanIC = str_replace('-', '', $username);
+                
+                // Check member login (no password needed for members)
+                $member = $this->authUser->findMemberByIC($cleanIC);
+                if ($member) {
+                    $_SESSION['member_id'] = $member['id'];
+                    $_SESSION['user_id'] = $member['id'];
+                    $_SESSION['member_name'] = $member['name'];
+                    $_SESSION['username'] = $member['name'];
+                    $_SESSION['is_member'] = true;
+                    
+                    header('Location: /users/dashboard');
+                    exit;
+                }
+                
+                throw new \Exception('No. K/P tidak dijumpai atau belum diluluskan');
+            } else {
+                // Admin login - requires password
+                if (empty($password)) {
+                    throw new \Exception('Kata laluan diperlukan untuk log masuk admin');
+                }
 
-            if ($admin && password_verify($password, $admin['password'])) {
-                // Set all necessary session variables
-                $_SESSION['admin_id'] = $admin['id'];
-                $_SESSION['user_id'] = $admin['id'];
-                $_SESSION['admin_username'] = $admin['username'];
-                $_SESSION['username'] = $admin['username'];
-                $_SESSION['is_admin'] = true;
-
-                header('Location: /admin');
-                exit;
+                $admin = $this->authUser->findAdminByUsername($username);
+                if ($admin && password_verify($password, $admin['password'])) {
+                    $_SESSION['admin_id'] = $admin['id'];
+                    $_SESSION['user_id'] = $admin['id'];
+                    $_SESSION['admin_username'] = $admin['username'];
+                    $_SESSION['username'] = $admin['username'];
+                    $_SESSION['is_admin'] = true;
+                    
+                    header('Location: /admin');
+                    exit;
+                }
+                
+                throw new \Exception('ID Admin atau kata laluan tidak sah');
             }
-
-            throw new \Exception('Invalid admin credentials');
 
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
