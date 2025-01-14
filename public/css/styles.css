@@ -2,6 +2,11 @@
 .card {
     border-radius: 15px;
     border: none;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
 }
 
 .form-control:focus {
@@ -1895,5 +1900,32 @@ select.form-select.is-invalid {
         padding: 1rem;
         border-radius: 8px;
         margin-top: 1rem;
+    }
+}
+
+/* Dashboard specific styles */
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.table th {
+    font-weight: 600;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+.stats-icon i {
+    opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+    .chart-legend {
+        flex-direction: column;
     }
 }

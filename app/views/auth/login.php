@@ -1,4 +1,3 @@
-
 <?php 
     $title = 'Log Masuk';
     require_once '../app/views/layouts/header.php';
@@ -85,9 +84,11 @@ function togglePassword(input) {
     const isIC = /^\d[-\d]*$/.test(input.value);
     
     if (isIC) {
+        // Member login (no password needed)
         passwordField.style.display = 'none';
         passwordInput.removeAttribute('required');
     } else {
+        // Admin or Director login (password required)
         passwordField.style.display = 'block';
         passwordInput.setAttribute('required', 'required');
     }

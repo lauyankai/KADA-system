@@ -27,6 +27,7 @@ require_once '../app/Models/AuthUser.php';
 require_once '../app/Models/Admin.php';
 require_once '../app/Models/Saving.php';
 require_once '../app/Models/Loan.php';
+require_once '../app/Models/Director.php';
 
 // Include controllers
 require_once '../app/Controllers/HomeController.php';
@@ -37,6 +38,10 @@ require_once '../app/Controllers/PaymentController.php';
 require_once '../app/Controllers/AdminController.php';
 require_once '../app/Controllers/LoanController.php';
 require_once '../app/Controllers/SavingController.php';
+require_once '../app/Controllers/DirectorController.php';
+
+// Include middleware
+require_once '../app/Middleware/AuthMiddleware.php';
 
 // Instantiate the Router
 $router = new App\Core\Router();
@@ -111,6 +116,12 @@ $router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTr
     $router->addRoute('POST', '/users/loans/submit', 'LoanController', 'submitRequest');
     $router->addRoute('GET', '/users/loans/status', 'LoanController', 'showStatus');
     $router->addRoute('GET', '/users/loans/details/{id}', 'LoanController', 'showDetails');
+
+    $router->addRoute('GET', '/director/dashboard', 'DirectorController', 'dashboard');
+
+    // Director management routes
+    $router->addRoute('GET', '/director/add', 'DirectorController', 'showAddDirector');
+    $router->addRoute('POST', '/director/store', 'DirectorController', 'store');
 
     // Get current URI and HTTP method
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
