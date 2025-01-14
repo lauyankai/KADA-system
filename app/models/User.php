@@ -87,8 +87,8 @@ class User extends BaseModel
                 ':other_contributions' => $data['other_contributions'] ?? null,
                 ':family_relationship' => $data['family_relationship'][0] ?? null,
                 ':family_name' => $data['family_name'][0] ?? null,
-    ':family_ic' => $data['family_ic'][0] ?? null,
-    ':password' => $hashedPassword
+                ':family_ic' => $data['family_ic'][0] ?? null,
+                ':password' => $hashedPassword
             ];
 
             $result = $stmt->execute($params);
