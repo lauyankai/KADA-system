@@ -77,16 +77,4 @@ class Router {
         array_shift($matches);
         return $matches;
     }
-
-    public function __construct() {
-        $this->addRoute('GET', '/users/delete/{id}', 'UserController', 'delete');
-        $this->addRoute('GET', '/users', 'UserController', 'index');
-        $this->addRoute('GET', '/users/savings/page', 'UserController', 'savingsDashboard');
-        $this->addRoute('GET', '/users/savings/deposit', 'UserController', 'showDepositForm');
-        $this->addRoute('GET', '/users/savings/transactions', 'UserController', 'showTransactions');
-        $this->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
-        $this->addRoute('GET', '/users/savings/page', 'UserController', 'savingsDashboard');
-        $this->addRoute('GET', '/users/loans', 'UserController', 'loans');
-        $this->addRoute('GET', '/users/payments', 'UserController', 'payments');
-    }
 }

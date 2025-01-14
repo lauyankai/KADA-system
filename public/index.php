@@ -73,17 +73,17 @@ $router->addRoute('GET', '/admin/edit/{id}', 'AdminController', 'edit');
 $router->addRoute('GET', '/admin/view/{id}', 'AdminController', 'viewMember');
 
 // User Dashboard Routes
-// $router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
+$router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
 // $router->addRoute('GET', '/users/create', 'UserController', 'create');
 // $router->addRoute('POST', '/store', 'UserController', 'store');
 // $router->addRoute('POST', '/users/store', 'UserController', 'store');
 
 // Savings Routes
-// $router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
-// $router->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositForm');
-// $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
-//$router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferForm');
-// $router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
+$router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
+$router->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositForm');
+$router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
+$router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferForm');
+$router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
 
     // User routes --Receipts
     $router->addRoute('GET', '/payment/receipt/{referenceNo}', 'SavingController', 'showReceipt');
@@ -120,6 +120,9 @@ $router->addRoute('GET', '/admin/view/{id}', 'AdminController', 'viewMember');
     $router->addRoute('GET', '/director/dashboard', 'DirectorController', 'dashboard');
     $router->addRoute('GET', '/director/add', 'DirectorController', 'showAddDirector');
     $router->addRoute('POST', '/director/store', 'DirectorController', 'store');
+
+// Add this route
+$router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
