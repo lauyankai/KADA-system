@@ -41,11 +41,11 @@ class LoanController extends BaseController
                 'member' => $member,
                 'referenceNo' => $referenceNo,
                 'defaultData' => [
-                    'name' => $member->full_name,
-                    'ic_number' => $member->ic_number,
+                    'name' => $member->name,
+                    'ic_number' => $member->ic_no,
                     'member_no' => $member->member_id,
-                    'phone' => $member->phone_number,
-                    'address' => $member->address
+                    'phone' => $member->home_phone,
+                    'address' => $member->home_address
                 ]
             ]);
 

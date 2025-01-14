@@ -10,7 +10,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h3 class="card-title mb-1">
-                        Selamat Datang, <?= htmlspecialchars($member->full_name ?? 'Ahli') ?>
+                        Selamat Datang, <?= htmlspecialchars($member->name ?? 'Ahli') ?>
                     </h3>
                     <p class="text-muted mb-0">
                         No. Ahli: <?= htmlspecialchars($member->member_id ?? '-') ?>
@@ -96,7 +96,7 @@
                             <tr>
                                 <td width="40%">Nama Penuh</td>
                                 <td width="5%">:</td>
-                                <td><?= htmlspecialchars($member->full_name ?? '-') ?></td>
+                                <td><?= htmlspecialchars($member->name ?? '-') ?></td>
                             </tr>
                             <tr>
                                 <td>No. Ahli</td>

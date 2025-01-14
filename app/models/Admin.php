@@ -16,7 +16,6 @@ class Admin extends BaseModel
                 throw new \Exception("Invalid status");
             }
 
-            $checkSql = "SELECT id FROM pendingmember WHERE id = :id";
             // First, check if the record exists and get member data
             $checkSql = "SELECT * FROM pendingmember WHERE id = :id";
             $checkStmt = $this->getConnection()->prepare($checkSql);
@@ -45,29 +44,24 @@ class Admin extends BaseModel
 
                 // Insert into members table
                 $insertSql = "INSERT INTO members (
-                    full_name, 
-                    ic_number, 
-                    phone_number,
-                    email,
-                    address,
+                    name, 
+                    ic_no, 
+                    home_address,
                     member_id,
                     account_number
                 ) VALUES (
-                    :full_name,
-                    :ic_number,
-                    :phone_number,
-                    '',
-                    :address,
+                    :name,
+                    :ic_no,
+                    :home_address,
                     :member_id,
                     :account_number
                 )";
 
                 $insertStmt = $this->getConnection()->prepare($insertSql);
                 $insertResult = $insertStmt->execute([
-                    ':full_name' => $member['name'],
-                    ':ic_number' => $member['ic_no'],
-                    ':phone_number' => $member['home_phone'],
-                    ':address' => $member['home_address'],
+                    ':name' => $member['name'],
+                    ':ic_no' => $member['ic_no'],
+                    ':home_address' => $member['home_address'],
                     ':member_id' => $member_id,
                     ':account_number' => $account_number
                 ]);
