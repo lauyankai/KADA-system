@@ -98,8 +98,8 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <div class="declaration-text p-3 bg-light rounded">
-                                        Saya <span class="fw-bold"><?= htmlspecialchars($member->name ?? '') ?></span> 
-                                        No.K/P: <span class="fw-bold"><?= htmlspecialchars($member->ic_no ?? '') ?></span> 
+                                        Saya <span class="fw-bold"><?= htmlspecialchars($member->full_name ?? '') ?></span> 
+                                        No.K/P: <span class="fw-bold"><?= htmlspecialchars($member->ic_number ?? '') ?></span> 
                                         dengan ini memberi kuasa kepada KOPERASI KAKITANGAN KADA KELANTAN BHD atau wakilnya yang sah 
                                         untuk mendapat apa-apa maklumat yang diperlukan dan juga mendapatakan bayaran balik dari 
                                         potongan gaji dan emolumen saya sebagaimana amaun yang dipinjamkan. Saya juga bersetuju 
@@ -167,8 +167,8 @@
                                 <div class="col-12">
                                     <div class="confirmation-text p-3 bg-light rounded">
                                         Kami mengesahkan bahawa: 
-                                        <span class="fw-bold"><?= htmlspecialchars($member->name ?? '') ?></span><br>
-                                        No.K/P: <span class="fw-bold"><?= htmlspecialchars($member->ic_no ?? '') ?></span> 
+                                        <span class="fw-bold"><?= htmlspecialchars($member->full_name ?? '') ?></span><br>
+                                        No.K/P: <span class="fw-bold"><?= htmlspecialchars($member->ic_number ?? '') ?></span> 
                                         telah memberikan butir-butir peribadi dan maklumat pendapatan selaras dengan rekod 
                                         pekerjaan kakitangan tersebut.<br>
                                         Kami juga mengesahkan bahawa kakitangan adalah berjawatan tetap.

@@ -102,4 +102,4 @@ app\views\loans\review.php
     </div>
 </div>
 
-<?php require_once '../app/views/layouts/footer.php'; ?>
+<?php require_once '../app/views/layouts/footer.php'; ?>    
