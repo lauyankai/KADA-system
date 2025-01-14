@@ -21,7 +21,6 @@ function getBadgeClass($memberType) {
         <div class="dashboard-header">
             <div>
                 <h2 class="mb-1">Senarai Ahli</h2>
-                <p class="text-muted mb-0">Urus dan pantau permohonan keahlian</p>
             </div>
             <div class="header-actions">
                 <div class="dropdown">
@@ -145,6 +144,11 @@ function getBadgeClass($memberType) {
                             </td>
                             <td>
                                 <div class="d-flex gap-1">
+                                    <button class="action-btn view" 
+                                            onclick="window.location.href='/admin/view/<?= $member['id']; ?>'"
+                                            title="Lihat">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                     <?php if ($member['member_type'] === 'Pending'): ?>
                                         <button onclick="confirmAction('approve', <?= $member['id'] ?>)" 
                                                 class="action-btn approve" 

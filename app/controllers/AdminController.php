@@ -50,13 +50,25 @@ class AdminController extends BaseController {
     public function approve($id)
     {
         try {
-            $userModel = new Admin();
-            $userModel->updateStatus($id, 'Lulus');
+            $admin = new Admin();
+            $member = $admin->getMemberById($id);
+
+            if ($member['member_type'] === 'Rejected') {
+                // If member is from rejected table, migrate to members
+                if ($admin->migrateFromRejected($id)) {
+                    $_SESSION['success'] = "Ahli telah berjaya dipindahkan ke senarai ahli aktif";
+                } else {
+                    throw new \Exception("Gagal memindahkan ahli");
+                }
+            } else {
+                // Normal approval process for pending members
+                $admin->updateStatus($id, 'Lulus');
+                $_SESSION['success'] = "Status telah berjaya dikemaskini kepada Lulus";
+            }
             
-            $_SESSION['success'] = "Status telah berjaya dikemaskini kepada Lulus";
             header('Location: /admin');
             exit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $_SESSION['error'] = "Gagal mengemaskini status: " . $e->getMessage();
             header('Location: /admin');
             exit();
