@@ -52,18 +52,33 @@ class AuthUser extends BaseModel
             // Remove any hyphens from the input IC
             $cleanIC = str_replace('-', '', $ic_no);
             
+            // First try to find in members table
+            $stmt = $this->getConnection()->prepare(
+                "SELECT * FROM members 
+                 WHERE REPLACE(ic_number, '-', '') = :ic_no 
+                 AND status = 'active'"
+            );
+            $stmt->execute([':ic_no' => $cleanIC]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                // Debug logging
+                error_log('Found member in members table with IC: ' . $cleanIC);
+                return $result;
+            }
+            
+            // If not found in members, check pendingmember table
             $stmt = $this->getConnection()->prepare(
                 "SELECT * FROM pendingmember 
                  WHERE REPLACE(ic_no, '-', '') = :ic_no 
                  AND status = 'Lulus'"
             );
             $stmt->execute([':ic_no' => $cleanIC]);
-            
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             // Debug logging
             error_log('Finding member with IC: ' . $cleanIC);
-            error_log('Result: ' . ($result ? 'Found' : 'Not found'));
+            error_log('Result: ' . ($result ? 'Found in pendingmember' : 'Not found'));
             
             return $result;
             

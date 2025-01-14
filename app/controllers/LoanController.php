@@ -12,43 +12,49 @@ class LoanController extends BaseController
 
     public function __construct()
     {
-        // $this->loan = new Loan();
         $this->user = new User();
+        $this->loan = new Loan();
     }
 
     public function showRequest()
     {
-        if (!isset($_SESSION['member_id'])) {
-            $_SESSION['error'] = 'Sila log masuk untuk membuat permohonan';
-            header('Location: /auth/login');
-            exit;
-        }
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
 
-        $member = $this->user->getUserById($_SESSION['member_id']);
-        if (!$member) {
-            $_SESSION['error'] = 'Maklumat ahli tidak dijumpai';
+            $memberId = $_SESSION['member_id'];
+            
+            // Get member details
+            $member = $this->user->getUserById($memberId);
+            if (!$member) {
+                throw new \Exception('Maklumat ahli tidak dijumpai');
+            }
+
+            // Debug log to check member data
+            error_log('Member Data: ' . print_r($member, true));
+
+            // Generate reference number
+            $referenceNo = 'LOAN' . date('Ymd') . rand(1000, 9999);
+
+            $this->view('users/loans/request', [
+                'member' => $member,
+                'referenceNo' => $referenceNo,
+                'defaultData' => [
+                    'name' => $member->full_name,
+                    'ic_number' => $member->ic_number,
+                    'member_no' => $member->member_id,
+                    'phone' => $member->phone_number,
+                    'address' => $member->address
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            error_log('Error in showRequest: ' . $e->getMessage());
+            $_SESSION['error'] = $e->getMessage();
             header('Location: /users/dashboard');
             exit;
         }
-
-        // Pre-fill form data
-        $formData = [
-            'name' => $member->name,
-            'ic_no' => $member->ic_no,
-            'member_no' => $member->member_no ?? '',
-            'position' => $member->position ?? '',
-            'address' => $member->address ?? '',
-            'postcode' => $member->postcode ?? '',
-            'city' => $member->city ?? '',
-            'state' => $member->state ?? '',
-            'phone' => $member->phone ?? '',
-            'mobile' => $member->mobile ?? ''
-        ];
-
-        $this->view('users/loans/request', [
-            'member' => $member,
-            'formData' => $formData
-        ]);
     }
 
     public function submitRequest()
