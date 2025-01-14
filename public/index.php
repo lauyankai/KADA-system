@@ -73,13 +73,13 @@ $router->addRoute('GET', '/admin/edit/{id}', 'AdminController', 'edit');
 $router->addRoute('GET', '/admin/view/{id}', 'AdminController', 'viewMember');
 
 // User Dashboard Routes
-$router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
+// $router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
 // $router->addRoute('GET', '/users/create', 'UserController', 'create');
 // $router->addRoute('POST', '/store', 'UserController', 'store');
 // $router->addRoute('POST', '/users/store', 'UserController', 'store');
 
 // Savings Routes
-$router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
+// $router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
 // $router->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositForm');
 // $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
 //$router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferForm');

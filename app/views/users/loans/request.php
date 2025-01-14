@@ -276,9 +276,9 @@
                                             menerima sebarang keputusan dari KOPERASI ini untuk menolak pemohonan tanpa memberi sebarang alasan.
                                         </div>
                                         <div class="form-check mt-3">
-                                            <input type="checkbox" class="form-check-input" id="declaration" required>
-                                            <label class="form-check-label" for="declaration" required>
-                                                Saya mengesahkan pengakuan di atas
+                                            <input type="checkbox" class="form-check-input" id="confirmationCheckbox">
+                                            <label class="form-check-label" for="confirmationCheckbox">
+                                                Saya mengesah pengakuan di atas
                                             </label>
                                         </div>
                                     </div>
@@ -563,6 +563,37 @@ document.addEventListener('DOMContentLoaded', function() {
             updateSteps();
         } else if (!validateStep(currentStep)) {
             // Show alert if validation fails
+            alert('Sila lengkapkan semua maklumat yang diperlukan sebelum meneruskan.');
+            return false;
+        }
+    });
+
+    prevButton.addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep--;
+            updateSteps();
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmationCheckbox = document.getElementById('confirmationCheckbox');
+    const nextButton = document.querySelector('.next-step');
+
+    confirmationCheckbox.addEventListener('change', function() {
+        nextButton.disabled = !this.checked; // Enable next button if checked
+    });
+
+    // Existing code for step navigation
+    const nextButton = document.querySelector('.next-step');
+    const prevButton = document.querySelector('.prev-step');
+    let currentStep = 1;
+
+    nextButton.addEventListener('click', () => {
+        if (currentStep < 5 && validateStep(currentStep)) {
+            currentStep++;
+            updateSteps();
+        } else if (!validateStep(currentStep)) {
             alert('Sila lengkapkan semua maklumat yang diperlukan sebelum meneruskan.');
             return false;
         }
