@@ -1,6 +1,3 @@
-*status.php
-app\views\loans\status.php
-
 <?php 
     $title = 'Status Pinjaman';
     require_once '../app/views/layouts/header.php';

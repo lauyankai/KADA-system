@@ -1,5 +1,3 @@
-app\views\loans\review.php
-
 <?php 
     $title = 'Pengurusan Pinjaman';
     require_once '../app/views/layouts/header.php';

@@ -3,12 +3,11 @@ function validateAmount(input) {
     let value = parseFloat(input.value);
     
     // Validate amount range
-    if (!value || value > 100000 || value < 1000) {
+    if (!value ) {
         input.classList.add('is-invalid');
         if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('invalid-feedback')) {
             const feedback = document.createElement('div');
             feedback.className = 'invalid-feedback d-block';
-            feedback.textContent = value > 100000 ? 'Amaun tidak boleh melebihi RM100,000' : 'Amaun minimum ialah RM1,000';
             input.parentNode.appendChild(feedback);
         }
     } else {
@@ -19,9 +18,7 @@ function validateAmount(input) {
         }
     }
     
-    // Force value within range
-    if (value > 100000) input.value = 100000;
-    if (value < 1000 && value !== 0) input.value = 1000;
+    
     
     calculateMonthlyPayment();
 }
@@ -31,12 +28,11 @@ function validateDuration(input) {
     let value = parseInt(input.value);
     
     // Validate duration range
-    if (!value || value < 10 || value > 60) {
+    if (!value) {
         input.classList.add('is-invalid');
         if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('invalid-feedback')) {
             const feedback = document.createElement('div');
             feedback.className = 'invalid-feedback d-block';
-            feedback.textContent = 'Tempoh pembiayaan mestilah antara 10 hingga 60 bulan';
             input.parentNode.appendChild(feedback);
         }
     } else {
@@ -47,9 +43,6 @@ function validateDuration(input) {
         }
     }
     
-    // Force value within range
-    if (value > 60) input.value = 60;
-    if (value < 10 && value !== 0) input.value = 10;
     
     calculateMonthlyPayment();
 }
@@ -58,7 +51,7 @@ function calculateMonthlyPayment() {
     const amount = parseFloat(document.querySelector('[name="amount"]').value) || 0;
     const duration = parseInt(document.querySelector('[name="duration"]').value) || 1;
     
-    if (amount >= 1000 && amount <= 100000 && duration >= 10 && duration <= 60) {
+    if (amount&& duration) {
         // Formula: (Principal Amount / Duration) + (Principal Amount * 4.2% / Duration)
         const principal = amount / duration;
         const interest = (amount * 0.042) / duration;
@@ -97,7 +90,7 @@ function validateStep(step) {
         // Special validation for amount
         if (field.name === 'amount') {
             const amount = parseFloat(field.value);
-            if (!amount || amount < 1000 || amount > 100000) {
+            if (!amount) {
                 isValid = false;
                 field.classList.add('is-invalid');
             }
