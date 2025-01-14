@@ -1,4 +1,3 @@
-
 <?php 
     $title = 'Log Masuk';
     require_once '../app/views/layouts/header.php';
@@ -58,39 +57,19 @@
     </div>
 </div>
 
-<style>
-.login-container {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 20px;
-}
-.btn-success {
-    background-color: #198754;
-    border-color: #198754;
-}
-.btn-success:hover {
-    background-color: #157347;
-    border-color: #157347;
-}
-</style>
-
 <script>
 function formatInput(input) {
     let value = input.value;
-    
-    // If it looks like an IC number (has numbers and is long enough)
+
     if (value.length > 6 && /^\d[-\d]*$/.test(value)) {
-        // Remove any non-digits
         value = value.replace(/\D/g, '');
-        
-        // Format as IC: XXXXXX-XX-XXXX
+    
         if (value.length >= 6) {
             value = value.substring(0, 6) + '-' + value.substring(6);
         }
         if (value.length >= 9) {
             value = value.substring(0, 9) + '-' + value.substring(9);
         }
-        // Limit to 14 characters (12 digits + 2 hyphens)
         value = value.substring(0, 14);
     }
     
@@ -105,9 +84,11 @@ function togglePassword(input) {
     const isIC = /^\d[-\d]*$/.test(input.value);
     
     if (isIC) {
+        // Member login (no password needed)
         passwordField.style.display = 'none';
         passwordInput.removeAttribute('required');
     } else {
+        // Admin or Director login (password required)
         passwordField.style.display = 'block';
         passwordInput.setAttribute('required', 'required');
     }

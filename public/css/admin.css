@@ -158,9 +158,9 @@
 .gender-badge.lelaki { background: #e8f0fe; color: #1a73e8; }
 .gender-badge.perempuan { background: #fce7f3; color: #db2777; }
 
+.status-badge.ahli { background: #e6f6f0; color: #10b981; }
 .status-badge.pending { background: #fff4e5; color: #f59e0b; }
-.status-badge.lulus { background: #e6f6f0; color: #10b981; }
-.status-badge.tolak { background: #fee2e2; color: #ef4444; }
+.status-badge.rejected { background: #fee2e2; color: #ef4444; }
 
 .action-buttons {
     display: flex;

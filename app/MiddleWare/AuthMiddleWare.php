@@ -3,21 +3,45 @@ namespace App\Middleware;
 
 class AuthMiddleware
 {
-    public static function isAdmin()
+    public static function identifyUserType($username)
     {
-        if (!isset($_SESSION['is_admin'])  !$_SESSION['is_admin']) {
-            $_SESSION['error'] = 'Akses tidak dibenarkan';
-            header('Location: /auth/login');
-            exit;
+        if (preg_match('/^[\d-]+$/', $username)) {
+            return 'member';
         }
+
+        if (preg_match('/^DIR/i', $username)) {
+            return 'director';
+        }
+
+        return 'admin';
     }
 
-    public static function isMember()
+    public static function validateAccess($userType)
     {
-        if (!isset($_SESSION['is_member'])  !$_SESSION['is_member']) {
-            $_SESSION['error'] = 'Sila log masuk untuk mengakses';
-            header('Location: /auth/login');
-            exit;
+        switch ($userType) {
+            case 'member':
+                if (!isset($_SESSION['member_id'])) {
+                    $_SESSION['error'] = 'Sila log masuk untuk mengakses';
+                    header('Location: /auth/login');
+                    exit;
+                }
+                break;
+
+            case 'admin':
+                if (!isset($_SESSION['admin_id'])) {
+                    $_SESSION['error'] = 'Sila log masuk sebagai admin';
+                    header('Location: /auth/login');
+                    exit;
+                }
+                break;
+
+            case 'director':
+                if (!isset($_SESSION['director_id'])) {
+                    $_SESSION['error'] = 'Sila log masuk sebagai pengarah';
+                    header('Location: /auth/login');
+                    exit;
+                }
+                break;
         }
     }
 }
