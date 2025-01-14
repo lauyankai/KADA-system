@@ -337,4 +337,31 @@ class Director extends BaseModel
         }
         return true;
     }
+
+    public function getMembershipStats()
+    {
+        try {
+            $sql = "SELECT 
+                    SUM(CASE WHEN status = 'Active' THEN 1 ELSE 0 END) as active_count,
+                    SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending_count,
+                    SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) as rejected_count
+                    FROM members";
+            
+            $stmt = $this->getConnection()->query($sql);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return [
+                'memberCount' => (int)($result['active_count'] ?? 0),
+                'pendingCount' => (int)($result['pending_count'] ?? 0),
+                'rejectedCount' => (int)($result['rejected_count'] ?? 0)
+            ];
+        } catch (\PDOException $e) {
+            error_log('Database Error in getMembershipStats: ' . $e->getMessage());
+            return [
+                'memberCount' => 0,
+                'pendingCount' => 0,
+                'rejectedCount' => 0
+            ];
+        }
+    }
 } 

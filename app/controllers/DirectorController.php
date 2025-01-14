@@ -20,55 +20,20 @@ class DirectorController extends BaseController
                 throw new \Exception('Sila log masuk untuk mengakses dashboard');
             }
 
-            // Ensure required tables exist
-            $this->director->checkRequiredTables();
+            $metrics = $this->director->getMetrics();
+            $recentActivities = $this->director->getRecentActivities();
+            $membershipTrends = $this->director->getMembershipTrends();
+            $financialMetrics = $this->director->getFinancialMetrics();
+            $membershipStats = $this->director->getMembershipStats();
 
-            // Get metrics with error handling
-            try {
-                $metrics = $this->director->getMetrics();
-            } catch (\Exception $e) {
-                error_log('Error getting metrics: ' . $e->getMessage());
-                $metrics = [
-                    'total_members' => 0,
-                    'total_savings' => 0,
-                    'loan_stats' => [
-                        'total_loans' => 0,
-                        'total_amount' => 0,
-                        'approved_loans' => 0
-                    ],
-                    'new_members' => 0
-                ];
-            }
-
-            // Get other data with error handling
-            try {
-                $recentActivities = $this->director->getRecentActivities();
-            } catch (\Exception $e) {
-                error_log('Error getting activities: ' . $e->getMessage());
-                $recentActivities = [];
-            }
-
-            try {
-                $membershipTrends = $this->director->getMembershipTrends();
-            } catch (\Exception $e) {
-                error_log('Error getting trends: ' . $e->getMessage());
-                $membershipTrends = [];
-            }
-
-            try {
-                $financialMetrics = $this->director->getFinancialMetrics();
-                // Merge financial metrics with general metrics
-                $metrics = array_merge($metrics, $financialMetrics);
-            } catch (\Exception $e) {
-                error_log('Error getting financial metrics: ' . $e->getMessage());
-                $metrics['total_fees'] = 0;
-                $metrics['other_amounts'] = 0;
-            }
+            // Merge financial metrics with general metrics
+            $metrics = array_merge($metrics, $financialMetrics);
 
             $this->view('director/dashboard', [
                 'metrics' => $metrics,
                 'recentActivities' => $recentActivities,
-                'membershipTrends' => $membershipTrends
+                'membershipTrends' => $membershipTrends,
+                'membershipStats' => $membershipStats
             ]);
 
         } catch (\Exception $e) {

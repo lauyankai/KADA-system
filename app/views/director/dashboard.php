@@ -280,38 +280,71 @@ function getStatusColor(status) {
 
 // Membership Chart
 const membershipCtx = document.getElementById('membershipChart').getContext('2d');
+const membershipData = {
+    labels: ['Ahli Aktif', 'Menunggu', 'Ditolak'],
+    datasets: [{
+        label: 'Status Keahlian',
+        data: [
+            <?= $membershipStats['memberCount'] ?? 0 ?>, 
+            <?= $membershipStats['pendingCount'] ?? 0 ?>, 
+            <?= $membershipStats['rejectedCount'] ?? 0 ?>
+        ],
+        backgroundColor: [
+            'rgba(25, 135, 84, 0.8)',   // Green for Active
+            'rgba(255, 193, 7, 0.8)',   // Yellow for Pending
+            'rgba(220, 53, 69, 0.8)'    // Red for Rejected
+        ],
+        borderColor: [
+            'rgba(25, 135, 84, 1)',
+            'rgba(255, 193, 7, 1)',
+            'rgba(220, 53, 69, 1)'
+        ],
+        borderWidth: 1,
+        hoverOffset: 4
+    }]
+};
+
 new Chart(membershipCtx, {
-    type: 'line',
-    data: {
-        labels: <?= json_encode(array_column($membershipTrends, 'month')) ?>,
-        datasets: [{
-            label: 'Ahli Baru',
-            data: <?= json_encode(array_column($membershipTrends, 'new_members')) ?>,
-            borderColor: '#0d6efd',
-            tension: 0.4,
-            fill: false
-        }]
-    },
+    type: 'doughnut',
+    data: membershipData,
     options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                display: false
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                grid: {
-                    drawBorder: false
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
                 }
             },
-            x: {
-                grid: {
-                    display: false
+            title: {
+                display: true,
+                text: 'Status Keahlian',
+                font: {
+                    size: 16,
+                    weight: 'bold'
+                },
+                padding: {
+                    top: 10,
+                    bottom: 30
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.label || '';
+                        let value = context.raw || 0;
+                        return `${label}: ${value} ahli`;
+                    }
                 }
             }
+        },
+        cutout: '60%',
+        animation: {
+            animateScale: true,
+            animateRotate: true
         }
     }
 });
