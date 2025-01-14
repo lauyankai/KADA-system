@@ -16,7 +16,7 @@ class SavingController extends BaseController
         $this->saving = new Saving();
     }
 
-    public function savingsPage()
+    public function savingsDashboard()
     {
         try {
             if (!isset($_SESSION['member_id'])) {
@@ -72,4 +72,20 @@ class SavingController extends BaseController
             exit;
         }
     }
+
+    public function showTransferForm()
+    {
+        try {
+            $memberId = $_SESSION['member_id'];
+            $savingsAccount = $this->saving->getSavingsAccount($memberId);
+            
+            $this->view('users/savings/transfer/index', [
+                'accounts' => $savingsAccount
+            ]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/savings/transfer/index');
+            exit();
+        }
+    }    
 }

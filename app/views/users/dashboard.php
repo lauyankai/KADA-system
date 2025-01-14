@@ -72,10 +72,10 @@
                     </h5>
                     <!-- Payment Actions -->
                     <div class="d-grid gap-2">
-                        <a href="/users/payments/history" class="btn btn-outline-secondary">
+                        <a href="/users" class="btn btn-outline-secondary">
                             <i class="bi bi-clock-history me-2"></i>Sejarah Pembayaran
                         </a>
-                        <a href="/users/payments/make" class="btn btn-secondary">
+                        <a href="/users/savings/transfer" class="btn btn-secondary">
                             <i class="bi bi-cash me-2"></i>Buat Pembayaran
                         </a>
                     </div>

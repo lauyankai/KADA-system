@@ -4,7 +4,6 @@
 ?>
 
 <div class="container mt-4">
-    <!-- Account Overview -->
     <div class="card mb-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -28,12 +27,12 @@
     <!-- Action Buttons -->
     <div class="row mb-4">
         <div class="col-md-6">
-            <a href="/users/savings/deposit" class="btn btn-success w-100 mb-2">
+            <a href="/users/savings/deposit/index" class="btn btn-success w-100 mb-2">
                 <i class="bi bi-plus-circle me-2"></i>Deposit
             </a>
         </div>
         <div class="col-md-6">
-            <a href="/users/savings/transfer" class="btn btn-primary w-100 mb-2">
+            <a href="/users/savings/transfer/index" class="btn btn-primary w-100 mb-2">
                 <i class="bi bi-arrow-left-right me-2"></i>Pindahan
             </a>
         </div>
