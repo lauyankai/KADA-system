@@ -34,7 +34,7 @@ class Admin extends BaseModel
                 ':status' => $status,
                 ':id' => $id
             ]);
-
+            
             // If status is 'Lulus', insert into members table and create savings account
             if ($status === 'Lulus') {
                 // Generate member_id

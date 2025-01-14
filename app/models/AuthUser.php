@@ -55,8 +55,8 @@ class AuthUser extends BaseModel
             // First try to find in members table
             $stmt = $this->getConnection()->prepare(
                 "SELECT * FROM members 
-                 WHERE REPLACE(ic_number, '-', '') = :ic_no 
-                 AND status = 'active'"
+                 WHERE REPLACE(ic_no, '-', '') = :ic_no 
+                 AND status = 'Active'"
             );
             $stmt->execute([':ic_no' => $cleanIC]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -84,7 +84,7 @@ class AuthUser extends BaseModel
             
         } catch (\PDOException $e) {
             error_log('Database Error in findMemberByIC: ' . $e->getMessage());
-            throw new \Exception('Error finding member');
+            throw new \Exception('Error finding member: ' . $e->getMessage());
         }
     }
 }
