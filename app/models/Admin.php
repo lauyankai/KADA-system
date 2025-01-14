@@ -16,7 +16,6 @@ class Admin extends BaseModel
                 throw new \Exception("Invalid status");
             }
 
-            // First, check if the record exists and get member data
             $checkSql = "SELECT * FROM pendingmember WHERE id = :id";
             $checkStmt = $this->getConnection()->prepare($checkSql);
             $checkStmt->execute([':id' => $id]);
@@ -26,79 +25,71 @@ class Admin extends BaseModel
                 throw new \Exception("Record with ID $id not found");
             }
 
-            // Update status in pendingmember table
             $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
-            $result = $stmt->execute([
+            $stmt->execute([
                 ':status' => $status,
                 ':id' => $id
             ]);
             
-            // If status is 'Lulus', insert into members table and create savings account
             if ($status === 'Lulus') {
                 // Generate member_id
                 $member_id = 'M' . date('Y') . str_pad($id, 4, '0', STR_PAD_LEFT);
-                
-                // Generate account_number for member
-                $account_number = 'A' . date('Y') . str_pad($id, 4, '0', STR_PAD_LEFT);
 
-                // Insert into members table
                 $insertSql = "INSERT INTO members (
                     name, 
                     ic_no, 
                     home_address,
                     member_id,
-                    account_number
+                    status
                 ) VALUES (
                     :name,
                     :ic_no,
                     :home_address,
                     :member_id,
-                    :account_number
+                    'Active'
                 )";
 
                 $insertStmt = $this->getConnection()->prepare($insertSql);
-                $insertResult = $insertStmt->execute([
+                $insertStmt->execute([
                     ':name' => $member['name'],
                     ':ic_no' => $member['ic_no'],
                     ':home_address' => $member['home_address'],
-                    ':member_id' => $member_id,
-                    ':account_number' => $account_number
+                    ':member_id' => $member_id
                 ]);
 
-                if (!$insertResult) {
-                    throw new \Exception("Failed to create member record");
-                }
-
-                // Get the newly inserted member's ID
                 $newMemberId = $this->getConnection()->lastInsertId();
 
-                // Generate savings account number
-                $savingsAccountNumber = 'SAV-' . str_pad($newMemberId, 6, '0', STR_PAD_LEFT) . '-' . substr(str_shuffle('0123456789'), 0, 4);
+                $account_number = 'SA' . date('Y') . str_pad($newMemberId, 6, '0', STR_PAD_LEFT);
 
-                // Create savings account
-                $savingsSql = "INSERT INTO savings_accounts (
-                    account_number,
+                $savingsAccountSql = "INSERT INTO savings_accounts (
                     member_id,
+                    account_number,
+                    account_name,
+                    account_type,
                     current_amount,
                     status,
-                    display_main,
-                    account_name
+                    display_main
                 ) VALUES (
-                    :account_number,
                     :member_id,
-                    :current_amount,
+                    :account_number,
+                    'Akaun Simpanan',
+                    'savings',
+                    :initial_amount,
                     'active',
-                    1,
-                    'Akaun Utama'
+                    1
                 )";
 
-                $savingsStmt = $this->getConnection()->prepare($savingsSql);
+                $savingsStmt = $this->getConnection()->prepare($savingsAccountSql);
                 $savingsResult = $savingsStmt->execute([
-                    ':account_number' => $savingsAccountNumber,
                     ':member_id' => $newMemberId,
-                    ':current_amount' => $member['deposit_funds'] ?? 0 // Initial deposit from registration
+                    ':account_number' => $account_number,
+                    ':initial_amount' => $member['deposit_funds'] ?? 0.00
                 ]);
+
+                // Debug log
+                error_log("New member created with ID: " . $newMemberId);
+                error_log("Savings account creation result: " . ($savingsResult ? "Success" : "Failed"));
 
                 if (!$savingsResult) {
                     throw new \Exception("Failed to create savings account");
@@ -109,7 +100,9 @@ class Admin extends BaseModel
             return true;
 
         } catch (\Exception $e) {
-            $this->getConnection()->rollBack();
+            if ($this->getConnection()->inTransaction()) {
+                $this->getConnection()->rollBack();
+            }
             error_log('Error in updateStatus: ' . $e->getMessage());
             throw $e;
         }
