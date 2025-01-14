@@ -17,24 +17,26 @@ class AdminController extends BaseController {
     public function index()
     {
         try {
-            $db = new Database();
-            $conn = $db->connect();
+            $admin = new Admin();
+            $allMembers = $admin->getAllMembers();
             
-            // Fetch all pending register members
-            $sql = "SELECT *
-                    FROM pendingmember 
-                    ORDER BY id ASC";
-            
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            
-            $pendingmember = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $this->view('admin/index', ['pendingmember' => $pendingmember]);
-            
-        } catch (PDOException $e) {
-            $_SESSION['error'] = "Error fetching pending members: " . $e->getMessage();
-            $this->view('admin/index', ['pendingmember' => []]);
+            $this->view('admin/index', [
+                'members' => $allMembers,
+                'stats' => [
+                    'total' => count($allMembers),
+                    'pending' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Pending')),
+                    'active' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Ahli')),
+                    'rejected' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Rejected'))
+                ]
+            ]);
+        } catch (Exception $e) {
+            $_SESSION['error'] = "Error fetching members: " . $e->getMessage();
+            $this->view('admin/index', ['members' => [], 'stats' => [
+                'total' => 0,
+                'pending' => 0,
+                'active' => 0,
+                'rejected' => 0
+            ]]);
         }
     }
 
@@ -64,17 +66,17 @@ class AdminController extends BaseController {
     public function reject($id)
     {
         try {
-            $userModel = new Admin();
-            $userModel->updateStatus($id, 'Tolak');
-            
-            $_SESSION['success'] = "Status telah berjaya dikemaskini kepada Tolak.";
-            header('Location: /admin');
-            exit();
-        } catch (Exception $e) {
-            $_SESSION['error'] = "Gagal mengemaskini status: " . $e->getMessage();
-            header('Location: /admin');
-            exit();
+            $admin = new Admin();
+            if ($admin->reject($id)) {
+                $_SESSION['success'] = "Permohonan telah berjaya ditolak dan dipindahkan ke senarai rejected";
+            } else {
+                throw new \Exception("Gagal menolak permohonan");
+            }
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
         }
+        header('Location: /admin');
+        exit();
     }
 
     // public function edit($id)

@@ -1,6 +1,19 @@
 <?php 
     $title = 'Senarai Ahli';
     require_once '../app/views/layouts/header.php';
+
+function getBadgeClass($memberType) {
+    switch ($memberType) {
+        case 'Pending':
+            return 'bg-warning';
+        case 'Ahli':
+            return 'bg-success';
+        case 'Rejected':
+            return 'bg-danger';
+        default:
+            return 'bg-secondary';
+    }
+}
 ?>
 <link rel="stylesheet" href="/css/admin.css">
 <div class="admin-dashboard">
@@ -8,6 +21,7 @@
         <div class="dashboard-header">
             <div>
                 <h2 class="mb-1">Senarai Ahli</h2>
+                <p class="text-muted mb-0">Urus dan pantau permohonan keahlian</p>
             </div>
             <div class="header-actions">
                 <div class="dropdown">
@@ -29,7 +43,7 @@
                     <i class="bi bi-people"></i>
                 </div>
                 <div class="stat-details">
-                    <h3><?= count($pendingmember) ?></h3>
+                    <h3><?= $stats['total'] ?></h3>
                     <p>Jumlah Ahli</p>
                 </div>
             </div>
@@ -39,7 +53,7 @@
                     <i class="bi bi-clock-history"></i>
                 </div>
                 <div class="stat-details">
-                    <h3><?= count(array_filter($pendingmember, fn($m) => $m['status'] === 'Pending' || !$m['status'])) ?></h3>
+                    <h3><?= $stats['pending'] ?></h3>
                     <p>Pending</p>
                 </div>
             </div>
@@ -49,8 +63,8 @@
                     <i class="bi bi-check-circle"></i>
                 </div>
                 <div class="stat-details">
-                    <h3><?= count(array_filter($pendingmember, fn($m) => $m['status'] === 'Lulus')) ?></h3>
-                    <p>Diluluskan</p>
+                    <h3><?= $stats['active'] ?></h3>
+                    <p>Ahli Aktif</p>
                 </div>
             </div>
 
@@ -59,7 +73,7 @@
                     <i class="bi bi-x-circle"></i>
                 </div>
                 <div class="stat-details">
-                    <h3><?= count(array_filter($pendingmember, fn($m) => $m['status'] === 'Tolak')) ?></h3>
+                    <h3><?= $stats['rejected'] ?></h3>
                     <p>Ditolak</p>
                 </div>
             </div>
@@ -94,11 +108,10 @@
                 </div>
                 <div class="filters-wrapper">
                     <select class="filter-select" onchange="filterTable(this.value)">
-                        <option value="" disabled selected>Status</option>
-                        <option value="">Semua</option>
+                        <option value="">Semua Status</option>
                         <option value="Pending">Pending</option>
-                        <option value="Lulus">Lulus</option>
-                        <option value="Tolak">Tolak</option>
+                        <option value="Ahli">Ahli</option>
+                        <option value="Rejected">Ditolak</option>
                     </select>
                 </div>
             </div>
@@ -108,57 +121,51 @@
                 <table class="modern-table">
                     <thead>
                         <tr>
-                            <th>No</th>
                             <th>Nama</th>
-                            <th>No. KP</th>
+                            <th>No. K/P</th>
                             <th>Jantina</th>
                             <th>Jawatan</th>
-                            <th>Gaji (RM)</th>
+                            <th>Gaji</th>
                             <th>Status</th>
                             <th>Tindakan</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($pendingmember as $member): ?>
+                        <?php foreach ($members as $member): ?>
                         <tr>
-                            <td><?= $member['id'] ?></td>
+                            <td class="member-name"><?= htmlspecialchars($member['name']) ?></td>
+                            <td><?= htmlspecialchars($member['ic_no']) ?></td>
+                            <td><?= htmlspecialchars($member['gender']) ?></td>
+                            <td><?= htmlspecialchars($member['position']) ?></td>
+                            <td>RM <?= number_format($member['monthly_salary'], 2) ?></td>
                             <td>
-                                <div class="member-info">
-                                    <div class="member-details">
-                                        <div class="member-name"><?= htmlspecialchars($member['name']); ?></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><?= htmlspecialchars($member['ic_no']); ?></td>
-                            <td>
-                                <span class="gender-badge <?= strtolower($member['gender']) ?>">
-                                    <?= htmlspecialchars($member['gender']); ?>
-                                </span>
-                            </td>
-                            <td><?= htmlspecialchars($member['position']); ?></td>
-                            <td><?= number_format($member['monthly_salary'], 2); ?></td>
-                            <td>
-                                <span class="status-badge <?= strtolower($member['status'] ?? 'pending') ?>">
-                                    <?= $member['status'] ?? 'Pending' ?>
+                                <span class="status-badge badge <?= getBadgeClass($member['member_type']) ?>">
+                                    <?= htmlspecialchars($member['member_type']) ?>
                                 </span>
                             </td>
                             <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn view" 
-                                            onclick="window.location.href='/admin/view/<?= $member['id']; ?>'"
-                                            title="Lihat">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="action-btn approve" 
-                                            onclick="confirmAction('approve', <?= $member['id']; ?>)"
-                                            title="Lulus">
-                                        <i class="bi bi-check-lg"></i>
-                                    </button>
-                                    <button class="action-btn reject" 
-                                            onclick="confirmAction('reject', <?= $member['id']; ?>)"
-                                            title="Tolak">
-                                        <i class="bi bi-x-lg"></i>
-                                    </button>
+                                <div class="d-flex gap-1">
+                                    <?php if ($member['member_type'] === 'Pending'): ?>
+                                        <button onclick="confirmAction('approve', <?= $member['id'] ?>)" 
+                                                class="action-btn approve" 
+                                                data-bs-toggle="tooltip" 
+                                                title="Lulus">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                        <button onclick="confirmAction('reject', <?= $member['id'] ?>)" 
+                                                class="action-btn reject" 
+                                                data-bs-toggle="tooltip" 
+                                                title="Tolak">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    <?php elseif ($member['member_type'] === 'Rejected'): ?>
+                                        <button onclick="confirmAction('approve', <?= $member['id'] ?>)" 
+                                                class="action-btn approve" 
+                                                data-bs-toggle="tooltip" 
+                                                title="Lulus">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -170,7 +177,7 @@
             <!-- Pagination -->
             <div class="pagination-wrapper">
                 <span class="pagination-info">
-                    Menunjukkan 1-<?= count($pendingmember) ?> daripada <?= count($pendingmember) ?> rekod
+                    Menunjukkan 1-<?= count($members) ?> daripada <?= count($members) ?> rekod
                 </span>
                 <div class="pagination">
                     <button class="page-btn" disabled><i class="bi bi-chevron-left"></i></button>
