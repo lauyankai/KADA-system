@@ -79,7 +79,7 @@ $router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
 // $router->addRoute('POST', '/users/store', 'UserController', 'store');
 
 // Savings Routes
-$router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsPage');
+$router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
 $router->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositForm');
 $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
 $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferForm');
@@ -91,13 +91,13 @@ $router->addRoute('POST', '/users/savings/recurring', 'SavingController', 'creat
     $router->addRoute('GET', '/payment/receipt/{referenceNo}', 'SavingController', 'showReceipt');
 
     //User routes --Saving Goal, Recurring Payment, Deposit, Transfer
-    $router->addRoute('POST', '/users/savings/goal/store', 'SavingController', 'storeSavingsGoal');
-    $router->addRoute('GET', '/users/savings/recurring', 'SavingController', 'showRecurringSettings');
-    $router->addRoute('POST', '/users/savings/recurring/store', 'SavingController', 'storeRecurringPayment');
-    $router->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositPage');
-    $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferPage');
-    $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
-    $router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
+    // $router->addRoute('POST', '/users/savings/goal/store', 'SavingController', 'storeSavingsGoal');
+    // $router->addRoute('GET', '/users/savings/recurring', 'SavingController', 'showRecurringSettings');
+    // $router->addRoute('POST', '/users/savings/recurring/store', 'SavingController', 'storeRecurringPayment');
+    // $router->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositPage');
+    // $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'TransferPage');
+    // $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
+    // $router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
 
     // Payment routes
     $router->addRoute('POST', '/payment/process', 'PaymentController', 'processPayment');
@@ -123,14 +123,15 @@ $router->addRoute('POST', '/users/savings/recurring', 'SavingController', 'creat
     $router->addRoute('GET', '/users/loans/details/{id}', 'LoanController', 'showDetails');
 
     $router->addRoute('GET', '/director/dashboard', 'DirectorController', 'dashboard');
-
-    // Director management routes
     $router->addRoute('GET', '/director/add', 'DirectorController', 'showAddDirector');
     $router->addRoute('POST', '/director/store', 'DirectorController', 'store');
 
-    // Get current URI and HTTP method
-    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $method = $_SERVER['REQUEST_METHOD'];
+// Add this route
+$router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
 
-    // Dispatch the route
-    $router->dispatch();    
+// Get current URI and HTTP method
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$method = $_SERVER['REQUEST_METHOD'];
+
+// Dispatch the route
+$router->dispatch();    

@@ -29,12 +29,9 @@
                             <i class="bi bi-people"></i>
                             <div>Butir-butir Penjamin</div>
                         </div>
-                        <div class="step" data-step="5">
-                            <i class="bi bi-building"></i>
-                            <div>Pengesahan Majikan</div>
-                        </div>
+                        
                     </div>
-                    <script src="/js/form-wizard.js"></script>
+                    <script src="/js/form-validation.js"></script>
 
                     <?php if (isset($_SESSION['error'])): ?>
                         <div class="alert alert-danger">
@@ -363,6 +360,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        
 
                         <!-- Navigation Buttons -->
                         <div class="step-buttons mt-4">

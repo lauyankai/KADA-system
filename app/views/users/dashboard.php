@@ -49,15 +49,15 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title mb-3">
-                        <i class="bi bi-cash-stack me-2"></i>Pembiayaan
+                        <i class="bi bi-cash-stack me-2"></i>Pinjaman
                     </h5>
                     <!-- Loan Actions -->
                     <div class="d-grid gap-2">
                         <a href="/users/loans/status" class="btn btn-outline-primary">
-                            <i class="bi bi-list-check me-2"></i>Status Pembiayaan
+                            <i class="bi bi-list-check me-2"></i>Status Pinjaman
                         </a>
                         <a href="/users/loans/request" class="btn btn-primary">
-                            <i class="bi bi-file-earmark-text me-2"></i>Mohon Pembiayaan
+                            <i class="bi bi-file-earmark-text me-2"></i>Mohon Pinjaman
                         </a>
                     </div>
                 </div>
@@ -73,10 +73,10 @@
                     </h5>
                     <!-- Payment Actions -->
                     <div class="d-grid gap-2">
-                        <a href="/users/payments/history" class="btn btn-outline-secondary">
+                        <a href="/users" class="btn btn-outline-secondary">
                             <i class="bi bi-clock-history me-2"></i>Sejarah Pembayaran
                         </a>
-                        <a href="/users/payments/make" class="btn btn-secondary">
+                        <a href="/users/savings/transfer" class="btn btn-secondary">
                             <i class="bi bi-cash me-2"></i>Buat Pembayaran
                         </a>
                     </div>
