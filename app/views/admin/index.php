@@ -120,6 +120,7 @@ function getBadgeClass($memberType) {
                 <table class="modern-table">
                     <thead>
                         <tr>
+                            <th>No.</th>
                             <th>Nama</th>
                             <th>No. K/P</th>
                             <th>Jantina</th>
@@ -130,8 +131,12 @@ function getBadgeClass($memberType) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($members as $member): ?>
-                        <tr>
+                        <?php 
+                        $counter = 1;
+                        foreach ($members as $member): 
+                        ?>
+                        <tr class="member-row" data-status="<?= $member['member_type'] ?>">
+                            <td class="row-number"><?= $counter++ ?></td>
                             <td class="member-name"><?= htmlspecialchars($member['name']) ?></td>
                             <td><?= htmlspecialchars($member['ic_no']) ?></td>
                             <td><?= htmlspecialchars($member['gender']) ?></td>
@@ -213,11 +218,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function filterTable(status) {
-    const rows = document.querySelectorAll('.modern-table tbody tr');
+    const rows = document.querySelectorAll('.member-row');
+    let visibleCounter = 1;
+    
     rows.forEach(row => {
-        const statusCell = row.querySelector('.status-badge');
-        if (!status || statusCell.textContent.trim() === status) {
+        const rowStatus = row.getAttribute('data-status');
+        const numberCell = row.querySelector('.row-number');
+        
+        if (!status || rowStatus === status) {
             row.style.display = '';
+            numberCell.textContent = visibleCounter++;
         } else {
             row.style.display = 'none';
         }
@@ -226,14 +236,17 @@ function filterTable(status) {
 
 function searchTable(query) {
     query = query.toLowerCase();
-    const rows = document.querySelectorAll('.modern-table tbody tr');
-                    
+    const rows = document.querySelectorAll('.member-row');
+    let visibleCounter = 1;
+    
     rows.forEach(row => {
         const name = row.querySelector('.member-name').textContent.toLowerCase();
         const icNo = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        const numberCell = row.querySelector('.row-number');
         
         if (name.includes(query) || icNo.includes(query)) {
             row.style.display = '';
+            numberCell.textContent = visibleCounter++;
         } else {
             row.style.display = 'none';
         }

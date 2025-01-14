@@ -42,10 +42,91 @@ class AdminController extends BaseController {
 
     public function viewMember($id)
     {
-        $admin = new Admin();
-        $data['member'] = $admin->getUserById($id);
-        $this->view('admin/view', $data);
-    }    
+        try {
+            $admin = new Admin();
+            $member = $admin->getUserById($id);
+
+            if (!$member) {
+                throw new \Exception('Member not found');
+            }
+
+            // Add additional data based on member type
+            switch ($member->member_type) {
+                case 'Ahli':
+                    // Get additional member data like account details
+                    $member->account_details = $this->getMemberAccountDetails($id);
+                    $member->savings_info = $this->getMemberSavingsInfo($id);
+                    $member->loan_info = $this->getMemberLoanInfo($id);
+                    break;
+
+                case 'Pending':
+                    // Get submission date and other pending-specific info
+                    $member->submission_date = $member->created_at;
+                    break;
+
+                case 'Rejected':
+                    // Get rejection details if any
+                    $member->rejection_date = $member->updated_at;
+                    break;
+            }
+
+            $this->view('admin/view', ['member' => $member]);
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin');
+            exit;
+        }
+    }
+
+    // Helper methods for getting additional member data
+    private function getMemberAccountDetails($id)
+    {
+        try {
+            $sql = "SELECT * FROM savings_accounts WHERE member_id = :id";
+            $stmt = $this->admin->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (\PDOException $e) {
+            error_log('Error getting account details: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    private function getMemberSavingsInfo($id)
+    {
+        try {
+            $sql = "SELECT 
+                    SUM(current_amount) as total_savings,
+                    COUNT(*) as account_count
+                    FROM savings_accounts 
+                    WHERE member_id = :id";
+            $stmt = $this->admin->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            return $stmt->fetch(PDO::FETCH_OBJ);
+        } catch (\PDOException $e) {
+            error_log('Error getting savings info: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function getMemberLoanInfo($id)
+    {
+        try {
+            $sql = "SELECT 
+                    COUNT(*) as total_loans,
+                    SUM(amount) as total_amount,
+                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_loans
+                    FROM loans 
+                    WHERE member_id = :id";
+            $stmt = $this->admin->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            return $stmt->fetch(PDO::FETCH_OBJ);
+        } catch (\PDOException $e) {
+            error_log('Error getting loan info: ' . $e->getMessage());
+            return null;
+        }
+    }
 
     public function approve($id)
     {

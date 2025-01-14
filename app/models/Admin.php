@@ -118,12 +118,40 @@ class Admin extends BaseModel
     public function getUserById($id)
     {
         try {
-            $sql = "SELECT * FROM pendingmember WHERE id = :id";
+            // First check in members table (for 'Ahli' status)
+            $sql = "SELECT *, 'Ahli' as member_type FROM members WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':id' => $id]);
-            return $stmt->fetch(PDO::FETCH_OBJ);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            if ($result) {
+                return $result;
+            }
+
+            // If not found in members, check pendingmember table
+            $sql = "SELECT *, 'Pending' as member_type FROM pendingmember WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            if ($result) {
+                return $result;
+            }
+
+            // If not found in pendingmember, check rejectedmember table
+            $sql = "SELECT *, 'Rejected' as member_type FROM rejectedmember WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            if ($result) {
+                return $result;
+            }
+
+            throw new \Exception('Member not found in any table');
+
         } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
+            error_log('Database Error in getUserById: ' . $e->getMessage());
             throw new \Exception('Failed to fetch user details');
         }
     }
