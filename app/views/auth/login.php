@@ -28,13 +28,13 @@
                     
                     <form action="/auth/login" method="POST">
                         <div class="mb-4">
-                            <label class="form-label">ID Pengguna / No. Kad Pengenalan</label>
+                            <label class="form-label">ID Pengguna</label>
                             <input type="text" 
                                    name="username" 
                                    class="form-control form-control-lg" 
                                    required
                                    oninput="formatInput(this); togglePassword(this);"
-                                   placeholder="Masukkan ID Admin atau No. K/P">
+                                   placeholder="Masukkan ID Admin atau ID Pengguna">
                         </div>
                         <div class="mb-4" id="passwordField" style="display: none;">
                             <label class="form-label">Kata Laluan</label>
@@ -57,24 +57,40 @@
     </div>
 </div>
 
+<style>
+.login-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #157347;
+}
+</style>
+
 <script>
 function formatInput(input) {
     let value = input.value;
-
-    if (value.length > 6 && /^\d[-\d]*$/.test(value)) {
-        value = value.replace(/\D/g, '');
     
-        if (value.length >= 6) {
-            value = value.substring(0, 6) + '-' + value.substring(6);
-        }
-        if (value.length >= 9) {
-            value = value.substring(0, 9) + '-' + value.substring(9);
-        }
+    
+        // Limit to 14 characters (12 digits + 2 hyphens)
         value = value.substring(0, 14);
     }
     
     input.value = value;
-}
+
+
+function togglePassword(input) {
+        value = value.substring(0, 14);
+    }
+    
+    input.value = value;
+
 
 function togglePassword(input) {
     const passwordField = document.getElementById('passwordField');
