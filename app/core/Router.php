@@ -81,12 +81,21 @@ class Router {
     public function __construct() {
         $this->addRoute('GET', '/users/delete/{id}', 'UserController', 'delete');
         $this->addRoute('GET', '/users', 'UserController', 'index');
-        $this->addRoute('GET', '/users/savings/page', 'UserController', 'savingsDashboard');
-        $this->addRoute('GET', '/users/savings/deposit', 'UserController', 'showDepositForm');
-        $this->addRoute('GET', '/users/savings/transactions', 'UserController', 'showTransactions');
+        $this->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
+        $this->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositForm');
+        $this->addRoute('GET', '/users/savings/transactions', 'SavingController', 'showTransactions');
         $this->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
-        $this->addRoute('GET', '/users/savings/page', 'UserController', 'savingsDashboard');
+        $this->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
         $this->addRoute('GET', '/users/loans', 'UserController', 'loans');
         $this->addRoute('GET', '/users/payments', 'UserController', 'payments');
+        $this->addRoute('POST', '/users/savings/goals/store', 'SavingController', 'storeSavingsGoal');
+        $this->addRoute('GET', '/users/savings/goals/edit/{id}', 'SavingController', 'editSavingsGoal');
+        $this->addRoute('POST', '/users/savings/goals/update/{id}', 'SavingController', 'updateSavingsGoal');
+        $this->addRoute('GET', '/users/savings/goals/delete/{id}', 'SavingController', 'deleteGoal');
+        $this->addRoute('POST', '/users/savings/deposit', 'SavingController', 'deposit');
+        $this->addRoute('POST', '/users/savings/transfer', 'SavingController', 'transfer');
+        $this->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositForm');
+        $this->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferForm');
+        $this->addRoute('POST', '/users/savings/transfer', 'SavingController', 'transfer');
     }
 }

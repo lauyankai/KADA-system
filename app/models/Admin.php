@@ -11,59 +11,111 @@ class Admin extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            $validStatuses = ['Pending', 'Lulus', 'Tolak'];
-            if (!in_array($status, $validStatuses)) {
-                throw new \Exception("Invalid status");
-            }
-
-            // First, check if the record exists and get member data
-            $checkSql = "SELECT * FROM pendingmember WHERE id = :id";
-            $checkStmt = $this->getConnection()->prepare($checkSql);
-            $checkStmt->execute([':id' => $id]);
-            $member = $checkStmt->fetch(PDO::FETCH_ASSOC);
-            
+            // Get member data from pending table
+            $member = $this->getMemberById($id);
             if (!$member) {
-                throw new \Exception("Record with ID $id not found");
+                throw new \Exception("Member not found");
             }
 
-            // Update status in pendingmember table
-            $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
-            $stmt = $this->getConnection()->prepare($sql);
-            $result = $stmt->execute([
-                ':status' => $status,
-                ':id' => $id
-            ]);
-            
-            // If status is 'Lulus', insert into members table and create savings account
             if ($status === 'Lulus') {
                 // Generate member_id
-                $member_id = 'M' . date('Y') . str_pad($id, 4, '0', STR_PAD_LEFT);
+                $member_id = $this->generateMemberId();
                 
-                // Generate account_number for member
-                $account_number = 'A' . date('Y') . str_pad($id, 4, '0', STR_PAD_LEFT);
-
-                // Insert into members table
+                // Insert into members table with all fields
                 $insertSql = "INSERT INTO members (
+                    member_id, 
                     name, 
                     ic_no, 
+                    gender,
+                    religion,
+                    race,
+                    marital_status,
+                    position,
+                    grade,
+                    monthly_salary,
                     home_address,
-                    member_id,
-                    account_number
+                    home_postcode,
+                    home_state,
+                    office_address,
+                    office_postcode,
+                    office_phone,
+                    home_phone,
+                    fax,
+                    registration_fee,
+                    share_capital,
+                    fee_capital,
+                    deposit_funds,
+                    welfare_fund,
+                    fixed_deposit,
+                    other_contributions,
+                    family_relationship,
+                    family_name,
+                    family_ic,
+                    status,
+                    created_at
                 ) VALUES (
+                    :member_id,
                     :name,
                     :ic_no,
+                    :gender,
+                    :religion,
+                    :race,
+                    :marital_status,
+                    :position,
+                    :grade,
+                    :monthly_salary,
                     :home_address,
-                    :member_id,
-                    :account_number
+                    :home_postcode,
+                    :home_state,
+                    :office_address,
+                    :office_postcode,
+                    :office_phone,
+                    :home_phone,
+                    :fax,
+                    :registration_fee,
+                    :share_capital,
+                    :fee_capital,
+                    :deposit_funds,
+                    :welfare_fund,
+                    :fixed_deposit,
+                    :other_contributions,
+                    :family_relationship,
+                    :family_name,
+                    :family_ic,
+                    'Active',
+                    NOW()
                 )";
 
                 $insertStmt = $this->getConnection()->prepare($insertSql);
                 $insertResult = $insertStmt->execute([
+                    ':member_id' => $member_id,
                     ':name' => $member['name'],
                     ':ic_no' => $member['ic_no'],
+                    ':gender' => $member['gender'],
+                    ':religion' => $member['religion'],
+                    ':race' => $member['race'],
+                    ':marital_status' => $member['marital_status'],
+                    ':position' => $member['position'],
+                    ':grade' => $member['grade'],
+                    ':monthly_salary' => $member['monthly_salary'],
                     ':home_address' => $member['home_address'],
-                    ':member_id' => $member_id,
-                    ':account_number' => $account_number
+                    ':home_postcode' => $member['home_postcode'],
+                    ':home_state' => $member['home_state'],
+                    ':office_address' => $member['office_address'],
+                    ':office_postcode' => $member['office_postcode'],
+                    ':office_phone' => $member['office_phone'],
+                    ':home_phone' => $member['home_phone'],
+                    ':fax' => $member['fax'],
+                    ':registration_fee' => $member['registration_fee'],
+                    ':share_capital' => $member['share_capital'],
+                    ':fee_capital' => $member['fee_capital'],
+                    ':deposit_funds' => $member['deposit_funds'],
+                    ':welfare_fund' => $member['welfare_fund'],
+                    ':fixed_deposit' => $member['fixed_deposit'],
+                    ':other_contributions' => $member['other_contributions'],
+                    ':family_relationship' => $member['family_relationship'],
+                    ':family_name' => $member['family_name'],
+                    ':family_ic' => $member['family_ic']
                 ]);
 
                 if (!$insertResult) {
@@ -80,29 +132,36 @@ class Admin extends BaseModel
                 $savingsSql = "INSERT INTO savings_accounts (
                     account_number,
                     member_id,
+                    account_name,
                     current_amount,
                     status,
                     display_main,
-                    account_name
+                    created_at
                 ) VALUES (
                     :account_number,
                     :member_id,
-                    :current_amount,
+                    'Akaun Utama',
+                    :initial_amount,
                     'active',
                     1,
-                    'Akaun Utama'
+                    NOW()
                 )";
 
                 $savingsStmt = $this->getConnection()->prepare($savingsSql);
                 $savingsResult = $savingsStmt->execute([
                     ':account_number' => $savingsAccountNumber,
                     ':member_id' => $newMemberId,
-                    ':current_amount' => $member['deposit_funds'] ?? 0 // Initial deposit from registration
+                    ':initial_amount' => $member['deposit_funds'] ?? 0
                 ]);
 
                 if (!$savingsResult) {
                     throw new \Exception("Failed to create savings account");
                 }
+
+                // Delete from pending
+                $deleteSql = "DELETE FROM pendingmember WHERE id = :id";
+                $deleteStmt = $this->getConnection()->prepare($deleteSql);
+                $deleteStmt->execute([':id' => $id]);
             }
 
             $this->getConnection()->commit();
@@ -159,13 +218,14 @@ class Admin extends BaseModel
     private function generateMemberId()
     {
         try {
-            // Get the current year
+            // Get current year
             $year = date('Y');
             
             // Get the latest member number for the current year
             $sql = "SELECT member_id FROM members 
                     WHERE member_id LIKE :year 
-                    ORDER BY member_id DESC LIMIT 1";
+                    ORDER BY member_id DESC 
+                    LIMIT 1";
             
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':year' => $year . '%']);
@@ -179,10 +239,10 @@ class Admin extends BaseModel
                 $sequence = 1;
             }
             
-            // Format: YYYY0001
+            // Format: YYYYNNNN (e.g., 20250001)
             return $year . str_pad($sequence, 4, '0', STR_PAD_LEFT);
             
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             error_log('Error generating member ID: ' . $e->getMessage());
             throw new \Exception('Failed to generate member ID');
         }
