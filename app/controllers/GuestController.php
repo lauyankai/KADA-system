@@ -21,7 +21,7 @@ class GuestController extends BaseController
     {
         try {
             if ($this->guest->create($_POST)) {
-                $_SESSION['success'] = "Pendaftaran anda telah berjaya dihantar dan sedang dalam proses pengesahan.";
+                $_SESSION['success_message'] = "Permohonan anda telah berjaya dihantar! Terima kasih.";
                 header('Location: /');
                 exit;
             }

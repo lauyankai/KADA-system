@@ -6,38 +6,28 @@ use PDO;
 
 class Loan extends BaseModel
 {
-    public function createLoanRequest($data)
-    {
-        try {
-            $sql = "INSERT INTO loans (
-                member_id, reference_no, loan_type, other_loan_type,
-                amount, duration, monthly_payment, name, ic_number,
-                birth_date, age, gender, religion, other_religion,
-                race, other_race, home_address, home_postcode,
-                home_city, home_state, member_no, position,
-                office_address, office_postcode, office_city,
-                office_state, phone_fax, mobile, bank_name,
-                bank_account, declaration_name, declaration_ic,
-                guarantor1_name, guarantor1_ic, guarantor1_member_no,
-                guarantor2_name, guarantor2_ic, guarantor2_member_no,
-                employer_confirmation_name, employer_confirmation_ic,
-                basic_salary, net_salary, status, created_at
-            ) VALUES (
-                :member_id, :reference_no, :loan_type, :other_loan_type,
-                :amount, :duration, :monthly_payment, :name, :ic_number,
-                :birth_date, :age, :gender, :religion, :other_religion,
-                :race, :other_race, :home_address, :home_postcode,
-                :home_city, :home_state, :member_no, :position,
-                :office_address, :office_postcode, :office_city,
-                :office_state, :phone_fax, :mobile, :bank_name,
-                :bank_account, :declaration_name, :declaration_ic,
-                :guarantor1_name, :guarantor1_ic, :guarantor1_member_no,
-                :guarantor2_name, :guarantor2_ic, :guarantor2_member_no,
-                :employer_confirmation_name, :employer_confirmation_ic,
-                :basic_salary, :net_salary, 'pending', NOW()
-            )";
+    public function createLoan($data)
+{
+    try {
+        $sql = "INSERT INTO loan_applications (
+            reference_no, member_id, loan_type, other_loan_type, amount, 
+            duration, monthly_payment, birth_date, age, gender, religion, 
+            race, member_no, pf_no, position, address_line1, address_line2, 
+            postcode, city, state, office_address, office_phone, phone, 
+            bank_name, bank_account, guarantor1_name, guarantor1_ic, 
+            guarantor1_member_no, guarantor2_name, guarantor2_ic, 
+            guarantor2_member_no, status, created_at
+        ) VALUES (
+            :reference_no, :member_id, :loan_type, :other_loan_type, :amount,
+            :duration, :monthly_payment, :birth_date, :age, :gender, :religion,
+            :race, :member_no, :pf_no, :position, :address_line1, :address_line2,
+            :postcode, :city, :state, :office_address, :office_phone, :phone,
+            :bank_name, :bank_account, :guarantor1_name, :guarantor1_ic,
+            :guarantor1_member_no, :guarantor2_name, :guarantor2_ic,
+            :guarantor2_member_no, 'pending', NOW()
+        )";
 
-            $stmt = $this->getConnection()->prepare($sql);
+            $stmt = $this->db->prepare($sql);
             return $stmt->execute($data);
 
         } catch (\PDOException $e) {
@@ -49,7 +39,7 @@ class Loan extends BaseModel
     public function getLoansByMemberId($memberId)
     {
         try {
-            $sql = "SELECT * FROM loans WHERE member_id = :member_id ORDER BY created_at DESC";
+            $sql = "SELECT * FROM loan_applications WHERE member_id = :member_id ORDER BY created_at DESC";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -62,7 +52,7 @@ class Loan extends BaseModel
     public function getLoanById($id)
     {
         try {
-            $sql = "SELECT * FROM loans WHERE id = :id";
+            $sql = "SELECT * FROM loan_applications WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':id' => $id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -72,3 +62,6 @@ class Loan extends BaseModel
         }
     }
 }
+
+
+

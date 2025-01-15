@@ -39,7 +39,7 @@
                         </div>
                     <?php endif; ?>
 
-                    <form action="/loans/submit" method="POST" class="needs-validation" novalidate>
+                    <form action="/loans/request/submit" method="POST" class="needs-validation" novalidate>
                         <!-- Keep existing form sections but wrap them in step-content divs -->
                         <div class="step-content active" data-step="1">
                             <!-- Section 1: Butir-butir Pembiayaan content -->
@@ -260,23 +260,28 @@
 
                         <div class="step-content" data-step="3">
                             <!-- Section 3: Pengakuan content -->
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2">Pengakuan Pemohon</h5>
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="declaration-text p-3 bg-light rounded">
-                                        Saya <span class="fw-bold"><?= htmlspecialchars($member->name ?? '') ?></span> 
-                                        No.K/P: <span class="fw-bold"><?= htmlspecialchars($member->ic_no ?? '') ?></span> 
-                                        dengan ini memberi kuasa kepada KOPERASI KAKITANGAN KADA KELANTAN BHD atau wakilnya yang sah 
-                                        untuk mendapat apa-apa maklumat yang diperlukan dan juga mendapatakan bayaran balik dari 
-                                        potongan gaji dan emolumen saya sebagaimana amaun yang dipinjamkan. Saya juga bersetuju 
-                                        menerima sebarang keputusan dari KOPERASI ini untuk menolak pemohonan tanpa memberi sebarang alasan.
-                                    </div>
-                                    <div class="form-check mt-3">
-                                        <input type="checkbox" class="form-check-input" id="declaration" required>
-                                            <label class="form-check-label" for="declaration" required>
-                                            Saya mengesahkan pengakuan di atas
-                                        </label>
+                            <div class="mb-4">
+                                <h4 class="mt-3 mb-4 text-success">
+                                    <i class="bi bi-file-text me-2"></i>Pengakuan
+                                </h4>
+                                <div class="card bg-white p-4 shadow-sm">
+                                    <h5 class="card-title mb-4">Pengakuan Pemohon</h5>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="declaration-text p-3 bg-light rounded">
+                                                Saya <span class="fw-bold"><?= htmlspecialchars($member->name ?? '') ?></span> 
+                                                No.K/P: <span class="fw-bold"><?= htmlspecialchars($member->ic_no ?? '') ?></span> 
+                                                dengan ini memberi kuasa kepada KOPERASI KAKITANGAN KADA KELANTAN BHD atau wakilnya yang sah 
+                                                untuk mendapat apa-apa maklumat yang diperlukan dan juga mendapatakan bayaran balik dari 
+                                                potongan gaji dan emolumen saya sebagaimana amaun yang dipinjamkan. Saya juga bersetuju 
+                                                menerima sebarang keputusan dari KOPERASI ini untuk menolak pemohonan tanpa memberi sebarang alasan.
+                                            </div>
+                                            <div class="form-check mt-3">
+                                                <input type="checkbox" class="form-check-input" id="confirmationCheckbox" name="declaration_confirmed" value="1" required>
+                                                <label class="form-check-label" for="confirmationCheckbox">
+                                                    Saya mengesah pengakuan di atas
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
