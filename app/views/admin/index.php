@@ -110,7 +110,7 @@ function getBadgeClass($memberType) {
                         <option value="">Semua Status</option>
                         <option value="Pending">Pending</option>
                         <option value="Ahli">Ahli</option>
-                        <option value="Rejected">Ditolak</option>
+                        <option value="Rejected">Tolak</option>
                     </select>
                 </div>
             </div>
@@ -144,7 +144,13 @@ function getBadgeClass($memberType) {
                             <td>RM <?= number_format($member['monthly_salary'], 2) ?></td>
                             <td>
                                 <span class="status-badge badge <?= getBadgeClass($member['member_type']) ?>">
-                                    <?= htmlspecialchars($member['member_type']) ?>
+                                    <?php 
+                                    if ($member['member_type'] === 'Rejected') {
+                                        echo 'Tolak';
+                                    } else {
+                                        echo htmlspecialchars($member['member_type']);
+                                    }
+                                    ?>
                                 </span>
                             </td>
                             <td>
