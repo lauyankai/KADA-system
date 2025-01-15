@@ -79,7 +79,7 @@ class LoanController extends BaseController
                 'status' => 'pending'
             ];
 
-            // Create loan request
+            // Create loan request hhhh
             $loanId = $this->loan->create($data);
 
             $_SESSION['success'] = 'Permohonan pembiayaan berjaya dihantar. No Rujukan: ' . $reference;
