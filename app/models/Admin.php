@@ -11,99 +11,38 @@ class Admin extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            $validStatuses = ['Pending', 'Lulus', 'Tolak'];
-            if (!in_array($status, $validStatuses)) {
-                throw new \Exception("Invalid status");
-            }
-
-            $checkSql = "SELECT * FROM pendingmember WHERE id = :id";
-            $checkStmt = $this->getConnection()->prepare($checkSql);
-            $checkStmt->execute([':id' => $id]);
-            $member = $checkStmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$member) {
-                throw new \Exception("Record with ID $id not found");
-            }
-
-            $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([
-                ':status' => $status,
-                ':id' => $id
-            ]);
-            
             if ($status === 'Lulus') {
-                // Generate member_id
-                $member_id = 'M' . date('Y') . str_pad($id, 4, '0', STR_PAD_LEFT);
-
-                $insertSql = "INSERT INTO members (
-                    name, 
-                    ic_no, 
-                    home_address,
-                    member_id,
-                    status
-                ) VALUES (
-                    :name,
-                    :ic_no,
-                    :home_address,
-                    :member_id,
-                    'Active'
-                )";
-
-                $insertStmt = $this->getConnection()->prepare($insertSql);
-                $insertStmt->execute([
-                    ':name' => $member['name'],
-                    ':ic_no' => $member['ic_no'],
-                    ':home_address' => $member['home_address'],
-                    ':member_id' => $member_id
-                ]);
-
-                $newMemberId = $this->getConnection()->lastInsertId();
-
-                $account_number = 'SA' . date('Y') . str_pad($newMemberId, 6, '0', STR_PAD_LEFT);
-
-                $savingsAccountSql = "INSERT INTO savings_accounts (
-                    member_id,
-                    account_number,
-                    account_name,
-                    account_type,
-                    current_amount,
-                    status,
-                    display_main
-                ) VALUES (
-                    :member_id,
-                    :account_number,
-                    'Akaun Simpanan',
-                    'savings',
-                    :initial_amount,
-                    'active',
-                    1
-                )";
-
-                $savingsStmt = $this->getConnection()->prepare($savingsAccountSql);
-                $savingsResult = $savingsStmt->execute([
-                    ':member_id' => $newMemberId,
-                    ':account_number' => $account_number,
-                    ':initial_amount' => $member['deposit_funds'] ?? 0.00
-                ]);
-
-                // Debug log
-                error_log("New member created with ID: " . $newMemberId);
-                error_log("Savings account creation result: " . ($savingsResult ? "Success" : "Failed"));
-
-                if (!$savingsResult) {
-                    throw new \Exception("Failed to create savings account");
+                // Get member data from pending table
+                $memberData = $this->getMemberById($id);
+                if (!$memberData) {
+                    throw new \Exception("Member not found");
                 }
+
+                // Migrate to members table
+                $this->migrateToMembers($id, $memberData, false);
+
+                // Delete from pending table
+                $sql = "DELETE FROM pendingmember WHERE id = :id";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([':id' => $id]);
+            } else {
+                // For other status updates
+                $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([
+                    ':status' => $status,
+                    ':id' => $id
+                ]);
             }
 
             $this->getConnection()->commit();
             return true;
 
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             if ($this->getConnection()->inTransaction()) {
                 $this->getConnection()->rollBack();
             }
-            error_log('Error in updateStatus: ' . $e->getMessage());
+            error_log('Error updating status: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -152,13 +91,14 @@ class Admin extends BaseModel
     private function generateMemberId()
     {
         try {
-            // Get the current year
+            // Get current year
             $year = date('Y');
             
             // Get the latest member number for the current year
             $sql = "SELECT member_id FROM members 
                     WHERE member_id LIKE :year 
-                    ORDER BY member_id DESC LIMIT 1";
+                    ORDER BY member_id DESC 
+                    LIMIT 1";
             
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':year' => $year . '%']);
@@ -172,10 +112,10 @@ class Admin extends BaseModel
                 $sequence = 1;
             }
             
-            // Format: YYYY0001
+            // Format: YYYYNNNN (e.g., 20250001)
             return $year . str_pad($sequence, 4, '0', STR_PAD_LEFT);
             
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             error_log('Error generating member ID: ' . $e->getMessage());
             throw new \Exception('Failed to generate member ID');
         }

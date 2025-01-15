@@ -39,44 +39,44 @@
                         </div>
                     <?php endif; ?>
 
-                    <form action="/loans/submit" method="POST" class="needs-validation" novalidate>
+                    <form action="/loans/request/submit" method="POST" class="needs-validation" novalidate>
                         <!-- Keep existing form sections but wrap them in step-content divs -->
                         <div class="step-content active" data-step="1">
                             <!-- Section 1: Butir-butir Pembiayaan content -->
-                            <div class="mb-4">
+                        <div class="mb-4">
                                 <h4 class="mt-3 mb-4 text-success">
                                     <i class="bi bi-cash-coin me-2"></i>Butir-butir Pembiayaan
                                 </h4>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
+                            <div class="row g-3">
+                                <div class="col-md-6">
                                         <label class="form-label fw-bold">Jenis Pembiayaan</label>
-                                        <select name="loan_type" class="form-select" required>
+                                    <select name="loan_type" class="form-select" required>
                                             <option value="" disabled selected>Pilih jenis</option>
-                                            <option value="al_bai">Pinjaman Al Bai</option>
-                                            <option value="al_innah">Pinjaman Al Innah</option>
-                                            <option value="skim_khas">Pinjaman Skim Khas</option>
-                                            <option value="road_tax">Pinjaman Road Tax & Insuran</option>
-                                            <option value="al_qardhul">Pinjaman Al Qardhul Hasan</option>
-                                            <option value="other">Lain-lain</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6" id="otherLoanType" style="display: none;">
+                                        <option value="al_bai">Pinjaman Al Bai</option>
+                                        <option value="al_innah">Pinjaman Al Innah</option>
+                                        <option value="skim_khas">Pinjaman Skim Khas</option>
+                                        <option value="road_tax">Pinjaman Road Tax & Insuran</option>
+                                        <option value="al_qardhul">Pinjaman Al Qardhul Hasan</option>
+                                        <option value="other">Lain-lain</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6" id="otherLoanType" style="display: none;">
                                         <label class="form-label fw-bold">Nyatakan Jenis Lain</label>
-                                        <input type="text" name="other_loan_type" class="form-control">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Amaun Dipohon (RM)</label>
-                                        <input type="number" name="amount" class="form-control" required
+                                    <input type="text" name="other_loan_type" class="form-control">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Amaun Dipohon (RM)</label>
+                                    <input type="number" name="amount" class="form-control" required
                                                min="1" max="100000.00" step="0.01" onkeyup="validateAmount(this)"
-                                               placeholder="0.00">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Tempoh Pembiayaan (Bulan)</label>
-                                        <input type="number" name="duration" class="form-control" required
+                                           placeholder="0.00">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Tempoh Pembiayaan (Bulan)</label>
+                                    <input type="number" name="duration" class="form-control" required
                                                min="10" max="60" onkeyup="validateDuration(this)">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Ansuran Bulanan (RM)</label>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Ansuran Bulanan (RM)</label>
                                         <input type="text" name="monthly_payment" class="form-control" readonly>
                                     </div>
                                     </div>
@@ -86,7 +86,7 @@
 
                         <div class="step-content" data-step="2">
                             <!-- Section 2: Butir-Butir Peribadi content -->
-                            <div class="mb-4">
+<div class="mb-4">
                                 <h4 class="mt-3 mb-4 text-success">
                                     <i class="bi bi-person-badge me-2"></i>Butir-Butir Peribadi
                                 </h4>
@@ -95,31 +95,31 @@
                                     <div class="col-12">
                                         <div class="card bg-white p-4 shadow-sm mb-4">
                                             <h5 class="card-title mb-4">Maklumat Asas</h5>
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
+                            <div class="row g-3">
+                                <div class="col-md-6">
                                                     <label class="form-label fw-bold">Nama: </label>
                                                     <span class="fw-bold"><?= htmlspecialchars($member->name ?? '') ?></span>
-                                                </div>
-                                                <div class="col-md-6">
+                                </div>
+                                <div class="col-md-6">
                                                     <label class="form-label fw-bold">No. Kad Pengenalan: </label>
                                                     <span class="fw-bold"><?= htmlspecialchars($member->ic_no ?? '') ?></span>
-                                                </div>
-                                                <div class="col-md-4">
+                                </div>
+                                <div class="col-md-4">
                                                     <label class="form-label fw-bold">Tarikh Lahir</label>
-                                                    <input type="date" name="birth_date" class="form-control" required>
-                                                </div>
-                                                <div class="col-md-4">
+                                    <input type="date" name="birth_date" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
                                                     <label class="form-label fw-bold">Umur (Tahun)</label>
-                                                    <input type="number" name="age" class="form-control" required>
-                                                </div>
-                                                <div class="col-md-4">
+                                    <input type="number" name="age" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
                                                     <label class="form-label fw-bold">Jantina</label>
-                                                    <select name="gender" class="form-select" required>
-                                                        <option value="">Pilih jantina</option>
-                                                        <option value="Lelaki">Lelaki</option>
-                                                        <option value="Perempuan">Perempuan</option>
-                                                    </select>
-                                                </div>
+                                    <select name="gender" class="form-select" required>
+                                        <option value="">Pilih jantina</option>
+                                        <option value="Lelaki">Lelaki</option>
+                                        <option value="Perempuan">Perempuan</option>
+                                    </select>
+                                </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label fw-bold">Agama</label>
                                                     <select name="religion" class="form-select" required>
@@ -277,7 +277,7 @@
                                                 menerima sebarang keputusan dari KOPERASI ini untuk menolak pemohonan tanpa memberi sebarang alasan.
                                             </div>
                                             <div class="form-check mt-3">
-                                                <input type="checkbox" class="form-check-input" id="confirmationCheckbox" required>
+                                                <input type="checkbox" class="form-check-input" id="confirmationCheckbox" name="declaration_confirmed" value="1" required>
                                                 <label class="form-check-label" for="confirmationCheckbox">
                                                     Saya mengesah pengakuan di atas
                                                 </label>
@@ -290,50 +290,77 @@
 
                         <div class="step-content" data-step="4">
                             <!-- Section 4: Butir-butir Penjamin content -->
-                            <div class="mb-4">
-                                <h4 class="mt-3 mb-4 text-success">
-                                    <i class="bi bi-people me-2"></i>Butir-butir Penjamin
-                                </h4>
-                                
-                                <!-- Penjamin 1 -->
-                                <div class="card bg-white p-4 shadow-sm mb-4">
-                                    <h5 class="card-title mb-4">Penjamin 1</h5>
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">Nama</label>
-                                            <input type="text" name="guarantor1_name" class="form-control" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">No. K/P</label>
-                                            <input type="text" name="guarantor1_ic" class="form-control" required
-                                                   pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">No. Anggota</label>
-                                            <input type="text" name="guarantor1_member_no" class="form-control" required
-                                                   pattern="\d{5}" placeholder="00000">
-                                        </div>
+<div class="mb-4">
+                            <h5 class="border-bottom pb-2">Butir-butir Penjamin</h5>
+                            
+                            <!-- Penjamin 1 -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-12">
+                                    <h6>Penjamin 1</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Nama</label>
+                                    <input type="text" name="guarantor1_name" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">No. K/P</label>
+                                    <input type="text" name="guarantor1_ic" class="form-control" required
+                                           pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">No. Anggota</label>
+                                    <input type="text" name="guarantor1_member_no" class="form-control" required
+                                           pattern="\d{5}" placeholder="00000">
+                                </div>
+                            </div>
+
+                            <!-- Penjamin 2 -->
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <h6>Penjamin 2</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Nama</label>
+                                    <input type="text" name="guarantor2_name" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">No. K/P</label>
+                                    <input type="text" name="guarantor2_ic" class="form-control" required
+                                           pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">No. Anggota</label>
+                                    <input type="text" name="guarantor2_member_no" class="form-control" required
+                                           pattern="\d{5}" placeholder="00000">
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="step-content" data-step="5">
+                            <!-- Section 5: Pengesahan Majikan content -->
+<div class="mb-4">
+                            <h5 class="border-bottom pb-2">Pengesahan Majikan</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="confirmation-text p-3 bg-light rounded">
+                                        Kami mengesahkan bahawa: 
+                                        <span class="fw-bold"><?= htmlspecialchars($member->name ?? '') ?></span><br>
+                                        No.K/P: <span class="fw-bold"><?= htmlspecialchars($member->ic_no ?? '') ?></span> 
+                                        telah memberikan butir-butir peribadi dan maklumat pendapatan selaras dengan rekod 
+                                        pekerjaan kakitangan tersebut.<br>
+                                        Kami juga mengesahkan bahawa kakitangan adalah berjawatan tetap.
                                     </div>
                                 </div>
-
-                                <!-- Penjamin 2 -->
-                                <div class="card bg-white p-4 shadow-sm">
-                                    <h5 class="card-title mb-4">Penjamin 2</h5>
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">Nama</label>
-                                            <input type="text" name="guarantor2_name" class="form-control" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">No. K/P</label>
-                                            <input type="text" name="guarantor2_ic" class="form-control" required
-                                                   pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">No. Anggota</label>
-                                            <input type="text" name="guarantor2_member_no" class="form-control" required
-                                                   pattern="\d{5}" placeholder="00000">
-                                        </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Gaji Pokok Sebulan (RM)</label>
+                                    <input type="number" name="basic_salary" class="form-control" required
+                                           min="0" max="99999.99" step="0.01" placeholder="0.00">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Gaji Bersih Sebulan (RM)</label>
+                                    <input type="number" name="net_salary" class="form-control" required
+                                           min="0" max="99999.99" step="0.01" placeholder="0.00">
                                     </div>
                                 </div>
                             </div>
@@ -361,7 +388,4 @@
 </div>
 
 <script src="/js/loanform.js"></script>
-<link rel="stylesheet" href="/css/admin.css">
-
-<?php require_once '../app/views/layouts/footer.php'; ?>
 

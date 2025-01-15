@@ -35,8 +35,9 @@
                     <!-- Total Savings Amount -->
                     <h3 class="text-success mb-3">RM <?= number_format($totalSavings ?? 0, 2) ?></h3>
                     <div class="d-grid">
-                        <a href="/users/savings/page" class="btn btn-success">
-                            <i class="bi bi-wallet me-2"></i>Akaun Simpanan
+                        <a href="/users/savings/page" class="nav-link">
+                            <i class="bi bi-piggy-bank me-2"></i>
+                            Akaun Simpanan
                         </a>
                     </div>
                 </div>

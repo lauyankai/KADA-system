@@ -146,8 +146,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         prevButton.style.display = currentStep === 1 ? 'none' : 'inline-block';
-        nextButton.style.display = currentStep === 5 ? 'none' : 'inline-block';
-        submitButton.style.display = currentStep === 5 ? 'inline-block' : 'none';
+        nextButton.style.display = currentStep === 4 ? 'none' : 'inline-block';
+        submitButton.style.display = currentStep === 4 ? 'inline-block' : 'none';
     }
 
     nextButton.addEventListener('click', () => {
@@ -171,5 +171,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmationCheckbox = document.getElementById('confirmationCheckbox');
     confirmationCheckbox.addEventListener('change', function() {
         nextButton.disabled = !this.checked;
+    });
+
+    // Form submission handler
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate all steps before submission
+        let isValid = true;
+        for (let step = 1; step <= 4; step++) {
+            if (!validateStep(step)) {
+                isValid = false;
+                currentStep = step;
+                updateSteps();
+                alert('Sila lengkapkan semua maklumat yang diperlukan di Bahagian ' + step);
+                break;
+            }
+        }
+
+        if (isValid) {
+            // Check if declaration is confirmed
+            const declarationCheckbox = document.querySelector('[name="declaration_confirmed"]');
+            if (!declarationCheckbox.checked) {
+                alert('Sila sahkan pengakuan sebelum menghantar permohonan');
+                return false;
+            }
+
+            // Submit the form
+            this.submit();
+        }
     });
 }); 
