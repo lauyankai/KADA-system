@@ -129,6 +129,10 @@ $router->addRoute('POST', '/users/savings/recurring', 'SavingController', 'creat
 // Add this route
 $router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
 
+// Add these routes BEFORE the dispatch() call
+$router->addRoute('POST', '/admin/export-pdf', 'AdminController', 'exportPdf');
+$router->addRoute('POST', '/admin/export-excel', 'AdminController', 'exportExcel');
+
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
