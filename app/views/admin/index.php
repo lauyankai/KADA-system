@@ -24,14 +24,23 @@ function getBadgeClass($memberType) {
             </div>
             <div class="header-actions">
                 <div class="dropdown">
-                    <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown">
+                    <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-download me-2"></i>Export
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-file-pdf me-2"></i>PDF</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-file-excel me-2"></i>Excel</a></li>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#" class="dropdown-item" onclick="handleExport('/admin/export-pdf', 'pdf')">
+                                <i class="bi bi-file-pdf me-2"></i>PDF
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="dropdown-item" onclick="handleExport('/admin/export-excel', 'excel')">
+                                <i class="bi bi-file-excel me-2"></i>Excel
+                            </a>
+                        </li>
                     </ul>
                 </div>
+                <form id="exportForm" method="POST" target="_blank" style="display: none;"></form>
             </div>
         </div>
 
@@ -258,6 +267,21 @@ function searchTable(query) {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+        return new bootstrap.Dropdown(dropdownToggleEl);
+    });
+});
+
+function handleExport(url, type) {
+    const form = document.getElementById('exportForm');
+    form.action = url;
+    form.submit();
+    return false;
+}
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
