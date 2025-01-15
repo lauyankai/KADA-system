@@ -8,6 +8,17 @@ class Guest extends BaseModel
     public function create($data)
     {
         try {
+            // Generate reference number: REF[YEAR][MONTH][DAY][4-DIGIT-SEQUENCE]
+            $date = date('Ymd');
+            $sequence = $this->getNextSequence();
+            $reference_no = 'REF' . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+            
+            // Clean the IC number (remove hyphens) before hashing
+            $cleanIC = str_replace('-', '', $data['ic_no']);
+            
+            // Hash the clean IC number to use as password
+            $hashedPassword = password_hash($cleanIC, PASSWORD_DEFAULT);
+
             $sql = "INSERT INTO pendingmember (
                 name, ic_no, gender, religion, race, marital_status,
                 position, grade, monthly_salary,
@@ -17,7 +28,9 @@ class Guest extends BaseModel
                 registration_fee, share_capital, fee_capital,
                 deposit_funds, welfare_fund, fixed_deposit,
                 other_contributions,
-                family_relationship, family_name, family_ic
+                family_relationship, family_name, family_ic,
+                reference_no,
+                status
             ) VALUES (
                 :name, :ic_no, :gender, :religion, :race, :marital_status,
                 :position, :grade, :monthly_salary,
@@ -27,9 +40,11 @@ class Guest extends BaseModel
                 :registration_fee, :share_capital, :fee_capital,
                 :deposit_funds, :welfare_fund, :fixed_deposit,
                 :other_contributions,
-                :family_relationship, :family_name, :family_ic
+                :family_relationship, :family_name, :family_ic,
+                :reference_no,
+                'Pending'
             )";
-
+            
             $stmt = $this->getConnection()->prepare($sql);
             
             $params = [
@@ -59,24 +74,55 @@ class Guest extends BaseModel
                 ':other_contributions' => $data['other_contributions'] ?? null,
                 ':family_relationship' => $data['family_relationship'][0] ?? null,
                 ':family_name' => $data['family_name'][0] ?? null,
-                ':family_ic' => $data['family_ic'][0] ?? null
+                ':family_ic' => $data['family_ic'][0] ?? null,
+                ':reference_no' => $reference_no
             ];
-
-            // Debug log
-            error_log('SQL: ' . $sql);
-            error_log('Params: ' . print_r($params, true));
 
             $result = $stmt->execute($params);
             
             if (!$result) {
                 error_log('PDO Error: ' . print_r($stmt->errorInfo(), true));
+                return false;
             }
             
-            return $result;
+            // Store reference number in session for display
+            $_SESSION['reference_no'] = $reference_no;
+            
+            return true;
 
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Database error occurred: ' . $e->getMessage());
+        }
+    }
+
+    private function getNextSequence()
+    {
+        try {
+            // Get the current date in YYYYMMDD format
+            $today = date('Ymd');
+            
+            // Find the highest sequence number for today
+            $sql = "SELECT MAX(SUBSTRING(reference_no, 11)) as max_sequence 
+                    FROM pendingmember 
+                    WHERE reference_no LIKE :prefix";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':prefix' => 'REF' . $today . '%']);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // If no records found for today, start with 1
+            if (!$result['max_sequence']) {
+                return 1;
+            }
+            
+            // Otherwise, increment the highest sequence number
+            return intval($result['max_sequence']) + 1;
+            
+        } catch (\PDOException $e) {
+            error_log('Error getting sequence: ' . $e->getMessage());
+            // Return 1 as fallback
+            return 1;
         }
     }
 }
