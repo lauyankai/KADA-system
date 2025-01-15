@@ -39,7 +39,7 @@
                         </div>
                     <?php endif; ?>
 
-                    <form action="/loans/submit" method="POST" class="needs-validation" novalidate>
+                    <form action="/loans/request/submit" method="POST" class="needs-validation" novalidate>
                         <!-- Keep existing form sections but wrap them in step-content divs -->
                         <div class="step-content active" data-step="1">
                             <!-- Section 1: Butir-butir Pembiayaan content -->
@@ -277,7 +277,7 @@
                                                 menerima sebarang keputusan dari KOPERASI ini untuk menolak pemohonan tanpa memberi sebarang alasan.
                                             </div>
                                             <div class="form-check mt-3">
-                                                <input type="checkbox" class="form-check-input" id="confirmationCheckbox" required>
+                                                <input type="checkbox" class="form-check-input" id="confirmationCheckbox" name="declaration_confirmed" value="1" required>
                                                 <label class="form-check-label" for="confirmationCheckbox">
                                                     Saya mengesah pengakuan di atas
                                                 </label>
