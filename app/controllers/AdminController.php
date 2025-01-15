@@ -165,6 +165,19 @@ class AdminController extends BaseController {
         exit();
     }
 
+    public function rejectMember($id)
+    {
+        try {
+            $admin = new Admin();
+            $admin->updateMemberStatus($id, 'rejected');
+            $_SESSION['success'] = "Permohonan telah berjaya ditolak dan dipindahkan ke senarai rejected";
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+        header('Location: /admin');
+        exit();
+    }
+
     // public function edit($id)
     // {
     //     $admin = $this->admin->find($id);
