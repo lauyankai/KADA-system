@@ -289,4 +289,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Find the form submission handling code and update it:
+    document.getElementById('membershipForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate the form
+        if (this.checkValidity()) {
+            // Submit the form
+            this.submit();
+        } else {
+            e.stopPropagation();
+            this.classList.add('was-validated');
+        }
+    });
 }); 
