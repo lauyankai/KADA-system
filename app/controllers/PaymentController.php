@@ -102,4 +102,38 @@ class PaymentController extends BaseController
             exit();
         }
     }
+
+    public function showReceipt($reference)
+    {
+        try {
+            if (isset($_SESSION['receipt'])) {
+                $receipt = $_SESSION['receipt'];
+                unset($_SESSION['receipt']); // Clear after use
+                $this->view('payment/receipt', ['receipt' => $receipt]);
+                return;
+            }
+
+            // If no session receipt, try to get from database
+            $transaction = $this->saving->getTransactionByReference($reference);
+            if (!$transaction) {
+                throw new \Exception('Transaksi tidak ditemui');
+            }
+
+            $receipt = [
+                'type' => $transaction['type'],
+                'amount' => $transaction['amount'],
+                'reference_no' => $transaction['reference_no'],
+                'payment_method' => $transaction['payment_method'],
+                'created_at' => $transaction['created_at'],
+                'description' => $transaction['description']
+            ];
+
+            $this->view('payment/receipt', ['receipt' => $receipt]);
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/savings/page');
+            exit;
+        }
+    }
 } 
