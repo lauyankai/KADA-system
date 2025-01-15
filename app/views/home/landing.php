@@ -3,6 +3,40 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
+<style>
+    .alert-floating {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1050;
+        min-width: 300px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    
+    .alert-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1040;
+    }
+</style>
+
+<?php if (isset($_SESSION['success_message'])): ?>
+    <div class="alert-backdrop"></div>
+    <div class="alert alert-success alert-dismissible fade show alert-floating" role="alert">
+        <?php 
+        echo $_SESSION['success_message'];
+        unset($_SESSION['success_message']); 
+        ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
 <div class="animated-hero min-vh-100 d-flex align-items-center">
     <div class="hero-shapes">
         <div class="shape shape-1"></div>
@@ -155,5 +189,26 @@
         </div>
     </div>
 </div> -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alert = document.querySelector('.alert-floating');
+        const backdrop = document.querySelector('.alert-backdrop');
+        
+        if (alert && backdrop) {
+            // Handle manual dismissal
+            alert.querySelector('.btn-close').addEventListener('click', () => {
+                alert.remove();
+                backdrop.remove();
+            });
+            
+            // Click on backdrop to dismiss
+            backdrop.addEventListener('click', () => {
+                alert.remove();
+                backdrop.remove();
+            });
+        }
+    });
+</script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 
