@@ -11,111 +11,51 @@ class Admin extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            // Get member data from pending table
-            $member = $this->getMemberById($id);
-            if (!$member) {
-                throw new \Exception("Member not found");
+            $validStatuses = ['Pending', 'Lulus', 'Tolak'];
+            if (!in_array($status, $validStatuses)) {
+                throw new \Exception("Invalid status");
             }
 
+            $checkSql = "SELECT * FROM pendingmember WHERE id = :id";
+            $checkStmt = $this->getConnection()->prepare($checkSql);
+            $checkStmt->execute([':id' => $id]);
+            $member = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$member) {
+                throw new \Exception("Record with ID $id not found");
+            }
+
+            $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':status' => $status,
+                ':id' => $id
+            ]);
+            
             if ($status === 'Lulus') {
                 // Generate member_id
-                $member_id = $this->generateMemberId();
-                
-                // Insert into members table with all fields
+                $member_id = 'M' . date('Y') . str_pad($id, 4, '0', STR_PAD_LEFT);
+
                 $insertSql = "INSERT INTO members (
-                    member_id, 
                     name, 
                     ic_no, 
-                    gender,
-                    religion,
-                    race,
-                    marital_status,
-                    position,
-                    grade,
-                    monthly_salary,
                     home_address,
-                    home_postcode,
-                    home_state,
-                    office_address,
-                    office_postcode,
-                    office_phone,
-                    home_phone,
-                    fax,
-                    registration_fee,
-                    share_capital,
-                    fee_capital,
-                    deposit_funds,
-                    welfare_fund,
-                    fixed_deposit,
-                    other_contributions,
-                    family_relationship,
-                    family_name,
-                    family_ic,
-                    status,
-                    created_at
+                    member_id,
+                    status
                 ) VALUES (
-                    :member_id,
                     :name,
                     :ic_no,
-                    :gender,
-                    :religion,
-                    :race,
-                    :marital_status,
-                    :position,
-                    :grade,
-                    :monthly_salary,
                     :home_address,
-                    :home_postcode,
-                    :home_state,
-                    :office_address,
-                    :office_postcode,
-                    :office_phone,
-                    :home_phone,
-                    :fax,
-                    :registration_fee,
-                    :share_capital,
-                    :fee_capital,
-                    :deposit_funds,
-                    :welfare_fund,
-                    :fixed_deposit,
-                    :other_contributions,
-                    :family_relationship,
-                    :family_name,
-                    :family_ic,
-                    'Active',
-                    NOW()
+                    :member_id,
+                    'Active'
                 )";
 
                 $insertStmt = $this->getConnection()->prepare($insertSql);
-                $insertResult = $insertStmt->execute([
-                    ':member_id' => $member_id,
+                $insertStmt->execute([
                     ':name' => $member['name'],
                     ':ic_no' => $member['ic_no'],
-                    ':gender' => $member['gender'],
-                    ':religion' => $member['religion'],
-                    ':race' => $member['race'],
-                    ':marital_status' => $member['marital_status'],
-                    ':position' => $member['position'],
-                    ':grade' => $member['grade'],
-                    ':monthly_salary' => $member['monthly_salary'],
                     ':home_address' => $member['home_address'],
-                    ':home_postcode' => $member['home_postcode'],
-                    ':home_state' => $member['home_state'],
-                    ':office_address' => $member['office_address'],
-                    ':office_postcode' => $member['office_postcode'],
-                    ':office_phone' => $member['office_phone'],
-                    ':home_phone' => $member['home_phone'],
-                    ':fax' => $member['fax'],
-                    ':registration_fee' => $member['registration_fee'],
-                    ':share_capital' => $member['share_capital'],
-                    ':fee_capital' => $member['fee_capital'],
-                    ':deposit_funds' => $member['deposit_funds'],
-                    ':welfare_fund' => $member['welfare_fund'],
-                    ':fixed_deposit' => $member['fixed_deposit'],
-                    ':other_contributions' => $member['other_contributions'],
-                    ':family_relationship' => $member['family_relationship'],
-                    ':family_name' => $member['family_name'],
-                    ':family_ic' => $member['family_ic']
+                    ':member_id' => $member_id
                 ]);
 
                 $newMemberId = $this->getConnection()->lastInsertId();
@@ -125,27 +65,26 @@ class Admin extends BaseModel
                 $savingsAccountSql = "INSERT INTO savings_accounts (
                     member_id,
                     account_number,
-                    member_id,
                     account_name,
+                    account_type,
                     current_amount,
                     status,
-                    display_main,
-                    created_at
+                    display_main
                 ) VALUES (
                     :member_id,
                     :account_number,
-                    :member_id,
-                    'Akaun Utama',
+                    'Akaun Simpanan',
+                    'savings',
                     :initial_amount,
                     'active',
-                    1,
-                    NOW()
+                    1
                 )";
 
                 $savingsStmt = $this->getConnection()->prepare($savingsAccountSql);
                 $savingsResult = $savingsStmt->execute([
                     ':member_id' => $newMemberId,
-                    ':initial_amount' => $member['deposit_funds'] ?? 0
+                    ':account_number' => $account_number,
+                    ':initial_amount' => $member['deposit_funds'] ?? 0.00
                 ]);
 
                 // Debug log
@@ -155,11 +94,6 @@ class Admin extends BaseModel
                 if (!$savingsResult) {
                     throw new \Exception("Failed to create savings account");
                 }
-
-                // Delete from pending
-                $deleteSql = "DELETE FROM pendingmember WHERE id = :id";
-                $deleteStmt = $this->getConnection()->prepare($deleteSql);
-                $deleteStmt->execute([':id' => $id]);
             }
 
             $this->getConnection()->commit();
@@ -218,14 +152,13 @@ class Admin extends BaseModel
     private function generateMemberId()
     {
         try {
-            // Get current year
+            // Get the current year
             $year = date('Y');
             
             // Get the latest member number for the current year
             $sql = "SELECT member_id FROM members 
                     WHERE member_id LIKE :year 
-                    ORDER BY member_id DESC 
-                    LIMIT 1";
+                    ORDER BY member_id DESC LIMIT 1";
             
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':year' => $year . '%']);
@@ -239,10 +172,10 @@ class Admin extends BaseModel
                 $sequence = 1;
             }
             
-            // Format: YYYYNNNN (e.g., 20250001)
+            // Format: YYYY0001
             return $year . str_pad($sequence, 4, '0', STR_PAD_LEFT);
             
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             error_log('Error generating member ID: ' . $e->getMessage());
             throw new \Exception('Failed to generate member ID');
         }

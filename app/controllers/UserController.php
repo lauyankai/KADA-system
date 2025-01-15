@@ -49,43 +49,4 @@ class UserController extends BaseController
             exit;
         }
     }
-
-    public function savingsDashboard()
-    {
-        try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses dashboard');
-            }
-
-            $memberId = $_SESSION['member_id'];
-            
-            // Get savings account details
-            $savingsAccount = $this->saving->getSavingsAccount($memberId);
-            if (!$savingsAccount) {
-                throw new \Exception('Akaun simpanan tidak dijumpai');
-            }
-
-            // Get recent transactions
-            $recentTransactions = $this->saving->getRecentTransactions($memberId, 10);
-            
-            // Get savings goals
-            $savingsGoals = $this->saving->getSavingsGoals($memberId);
-            
-            // Get recurring payments
-            $recurringPayments = $this->saving->getRecurringPayments($memberId);
-
-            $this->view('users/savings/page', [
-                'account' => $savingsAccount,
-                'transactions' => $recentTransactions,
-                'goals' => $savingsGoals,
-                'recurring' => $recurringPayments
-            ]);
-
-        } catch (\Exception $e) {
-            error_log('Error in savingsDashboard: ' . $e->getMessage());
-            $_SESSION['error'] = $e->getMessage();
-            header('Location: /users/dashboard');
-            exit;
-        }
-    }
 }
