@@ -107,6 +107,7 @@ class LoanController extends BaseController
                 'guarantor2_member_no' => $_POST['guarantor2_member_no']
             ];
 
+<<<<<<< HEAD
             if ($this->loan->createLoan($data)) {
                 $_SESSION['success'] = 'Permohonan pembiayaan berjaya dihantar';
                 header('Location: /loans/status');
@@ -114,6 +115,14 @@ class LoanController extends BaseController
             } else {
                 throw new \Exception('Gagal menghantar permohonan');
             }
+=======
+            // Create loan request 
+            $loanId = $this->loan->create($data);
+
+            $_SESSION['success'] = 'Permohonan pembiayaan berjaya dihantar. No Rujukan: ' . $reference;
+            header('Location: /loans/status');
+            exit;
+>>>>>>> upstream/main
 
         } catch (\Exception $e) {
             error_log('Error in submitRequest: ' . $e->getMessage());
