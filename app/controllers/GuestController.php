@@ -2,6 +2,7 @@
 namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\Guest;
+use PDOException;
 
 class GuestController extends BaseController
 {
@@ -20,8 +21,12 @@ class GuestController extends BaseController
     public function store()
     {
         try {
-            if ($this->guest->create($_POST)) {
-                $_SESSION['success_message'] = "Permohonan anda telah berjaya dihantar! Terima kasih.";
+            $createdGuest = $this->guest->create($_POST);
+            
+            if ($createdGuest) {
+                $_SESSION['success_message'] = '<div style="font-size: 18px;">Permohonan anda telah berjaya dihantar!<br>Nombor rujukan anda ialah: <strong>' . 
+                    $createdGuest['reference_no'] . 
+                    '</strong><br>Sila simpan nombor rujukan ini untuk semakan status permohonan anda pada masa hadapan. Terima kasih.</div>';
                 header('Location: /');
                 exit;
             }

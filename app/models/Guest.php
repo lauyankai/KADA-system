@@ -88,7 +88,11 @@ class Guest extends BaseModel
             // Store reference number in session for display
             $_SESSION['reference_no'] = $reference_no;
             
-            return true;
+            // Get the last inserted ID
+            $lastId = $this->getConnection()->lastInsertId();
+            
+            // Fetch and return the created record
+            return $this->find($lastId);
 
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
@@ -124,5 +128,13 @@ class Guest extends BaseModel
             // Return 1 as fallback
             return 1;
         }
+    }
+
+    public function find($id)
+    {
+        $query = "SELECT * FROM pendingmember WHERE id = ?";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
