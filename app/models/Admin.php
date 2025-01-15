@@ -11,165 +11,38 @@ class Admin extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            // Get member data from pending table
-            $member = $this->getMemberById($id);
-            if (!$member) {
-                throw new \Exception("Member not found");
-            }
-
             if ($status === 'Lulus') {
-                // Generate member_id
-                $member_id = $this->generateMemberId();
-                
-                // Insert into members table with all fields
-                $insertSql = "INSERT INTO members (
-                    member_id, 
-                    name, 
-                    ic_no, 
-                    gender,
-                    religion,
-                    race,
-                    marital_status,
-                    position,
-                    grade,
-                    monthly_salary,
-                    home_address,
-                    home_postcode,
-                    home_state,
-                    office_address,
-                    office_postcode,
-                    office_phone,
-                    home_phone,
-                    fax,
-                    registration_fee,
-                    share_capital,
-                    fee_capital,
-                    deposit_funds,
-                    welfare_fund,
-                    fixed_deposit,
-                    other_contributions,
-                    family_relationship,
-                    family_name,
-                    family_ic,
-                    status,
-                    created_at
-                ) VALUES (
-                    :member_id,
-                    :name,
-                    :ic_no,
-                    :gender,
-                    :religion,
-                    :race,
-                    :marital_status,
-                    :position,
-                    :grade,
-                    :monthly_salary,
-                    :home_address,
-                    :home_postcode,
-                    :home_state,
-                    :office_address,
-                    :office_postcode,
-                    :office_phone,
-                    :home_phone,
-                    :fax,
-                    :registration_fee,
-                    :share_capital,
-                    :fee_capital,
-                    :deposit_funds,
-                    :welfare_fund,
-                    :fixed_deposit,
-                    :other_contributions,
-                    :family_relationship,
-                    :family_name,
-                    :family_ic,
-                    'Active',
-                    NOW()
-                )";
-
-                $insertStmt = $this->getConnection()->prepare($insertSql);
-                $insertResult = $insertStmt->execute([
-                    ':member_id' => $member_id,
-                    ':name' => $member['name'],
-                    ':ic_no' => $member['ic_no'],
-                    ':gender' => $member['gender'],
-                    ':religion' => $member['religion'],
-                    ':race' => $member['race'],
-                    ':marital_status' => $member['marital_status'],
-                    ':position' => $member['position'],
-                    ':grade' => $member['grade'],
-                    ':monthly_salary' => $member['monthly_salary'],
-                    ':home_address' => $member['home_address'],
-                    ':home_postcode' => $member['home_postcode'],
-                    ':home_state' => $member['home_state'],
-                    ':office_address' => $member['office_address'],
-                    ':office_postcode' => $member['office_postcode'],
-                    ':office_phone' => $member['office_phone'],
-                    ':home_phone' => $member['home_phone'],
-                    ':fax' => $member['fax'],
-                    ':registration_fee' => $member['registration_fee'],
-                    ':share_capital' => $member['share_capital'],
-                    ':fee_capital' => $member['fee_capital'],
-                    ':deposit_funds' => $member['deposit_funds'],
-                    ':welfare_fund' => $member['welfare_fund'],
-                    ':fixed_deposit' => $member['fixed_deposit'],
-                    ':other_contributions' => $member['other_contributions'],
-                    ':family_relationship' => $member['family_relationship'],
-                    ':family_name' => $member['family_name'],
-                    ':family_ic' => $member['family_ic']
-                ]);
-
-                $newMemberId = $this->getConnection()->lastInsertId();
-
-                $account_number = 'SA' . date('Y') . str_pad($newMemberId, 6, '0', STR_PAD_LEFT);
-
-                $savingsAccountSql = "INSERT INTO savings_accounts (
-                    member_id,
-                    account_number,
-                    member_id,
-                    account_name,
-                    current_amount,
-                    status,
-                    display_main,
-                    created_at
-                ) VALUES (
-                    :member_id,
-                    :account_number,
-                    :member_id,
-                    'Akaun Utama',
-                    :initial_amount,
-                    'active',
-                    1,
-                    NOW()
-                )";
-
-                $savingsStmt = $this->getConnection()->prepare($savingsAccountSql);
-                $savingsResult = $savingsStmt->execute([
-                    ':member_id' => $newMemberId,
-                    ':initial_amount' => $member['deposit_funds'] ?? 0
-                ]);
-
-                // Debug log
-                error_log("New member created with ID: " . $newMemberId);
-                error_log("Savings account creation result: " . ($savingsResult ? "Success" : "Failed"));
-
-                if (!$savingsResult) {
-                    throw new \Exception("Failed to create savings account");
+                // Get member data from pending table
+                $memberData = $this->getMemberById($id);
+                if (!$memberData) {
+                    throw new \Exception("Member not found");
                 }
 
-                // Delete from pending
-                $deleteSql = "DELETE FROM pendingmember WHERE id = :id";
-                $deleteStmt = $this->getConnection()->prepare($deleteSql);
-                $deleteStmt->execute([':id' => $id]);
+                // Migrate to members table
+                $this->migrateToMembers($id, $memberData, false);
+
+                // Delete from pending table
+                $sql = "DELETE FROM pendingmember WHERE id = :id";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([':id' => $id]);
+            } else {
+                // For other status updates
+                $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([
+                    ':status' => $status,
+                    ':id' => $id
+                ]);
             }
 
             $this->getConnection()->commit();
             return true;
 
-        } catch (\Exception $e) {
+        } catch (\PDOException $e) {
             if ($this->getConnection()->inTransaction()) {
                 $this->getConnection()->rollBack();
             }
-            error_log('Error in updateStatus: ' . $e->getMessage());
+            error_log('Error updating status: ' . $e->getMessage());
             throw $e;
         }
     }

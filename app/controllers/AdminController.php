@@ -315,4 +315,29 @@ class AdminController extends BaseController {
         $writer->save('php://output');
         exit();
     }
+
+    public function updateStatus()
+    {
+        try {
+            $id = $_POST['id'] ?? null;
+            $status = $_POST['status'] ?? null;
+            
+            if (!$id || !$status) {
+                throw new \Exception("ID and status are required");
+            }
+
+            $result = $this->admin->updateStatus($id, $status);
+            if ($result) {
+                $_SESSION['success'] = "Status telah berjaya dikemaskini";
+            }
+            
+            header('Location: /admin');
+            exit;
+            
+        } catch (\Exception $e) {
+            $_SESSION['error'] = "Gagal mengemaskini status: " . $e->getMessage();
+            header('Location: /admin');
+            exit;
+        }
+    }
 }
