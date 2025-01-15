@@ -39,7 +39,7 @@ class Loan extends BaseModel
     public function getLoansByMemberId($memberId)
     {
         try {
-            $sql = "SELECT * FROM loan_applications WHERE member_id = :member_id ORDER BY created_at DESC";
+            $sql = "SELECT * FROM loans WHERE member_id = :member_id ORDER BY created_at DESC";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -48,6 +48,7 @@ class Loan extends BaseModel
             throw new \Exception('Gagal mendapatkan senarai pembiayaan');
         }
     }
+
 
     public function getLoanById($id)
     {
