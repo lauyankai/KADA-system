@@ -118,18 +118,12 @@ class Admin extends BaseModel
                     ':family_ic' => $member['family_ic']
                 ]);
 
-                if (!$insertResult) {
-                    throw new \Exception("Failed to create member record");
-                }
-
-                // Get the newly inserted member's ID
                 $newMemberId = $this->getConnection()->lastInsertId();
 
-                // Generate savings account number
-                $savingsAccountNumber = 'SAV-' . str_pad($newMemberId, 6, '0', STR_PAD_LEFT) . '-' . substr(str_shuffle('0123456789'), 0, 4);
+                $account_number = 'SA' . date('Y') . str_pad($newMemberId, 6, '0', STR_PAD_LEFT);
 
-                // Create savings account
-                $savingsSql = "INSERT INTO savings_accounts (
+                $savingsAccountSql = "INSERT INTO savings_accounts (
+                    member_id,
                     account_number,
                     member_id,
                     account_name,
@@ -138,6 +132,7 @@ class Admin extends BaseModel
                     display_main,
                     created_at
                 ) VALUES (
+                    :member_id,
                     :account_number,
                     :member_id,
                     'Akaun Utama',
@@ -147,12 +142,15 @@ class Admin extends BaseModel
                     NOW()
                 )";
 
-                $savingsStmt = $this->getConnection()->prepare($savingsSql);
+                $savingsStmt = $this->getConnection()->prepare($savingsAccountSql);
                 $savingsResult = $savingsStmt->execute([
-                    ':account_number' => $savingsAccountNumber,
                     ':member_id' => $newMemberId,
                     ':initial_amount' => $member['deposit_funds'] ?? 0
                 ]);
+
+                // Debug log
+                error_log("New member created with ID: " . $newMemberId);
+                error_log("Savings account creation result: " . ($savingsResult ? "Success" : "Failed"));
 
                 if (!$savingsResult) {
                     throw new \Exception("Failed to create savings account");
@@ -168,7 +166,9 @@ class Admin extends BaseModel
             return true;
 
         } catch (\Exception $e) {
-            $this->getConnection()->rollBack();
+            if ($this->getConnection()->inTransaction()) {
+                $this->getConnection()->rollBack();
+            }
             error_log('Error in updateStatus: ' . $e->getMessage());
             throw $e;
         }

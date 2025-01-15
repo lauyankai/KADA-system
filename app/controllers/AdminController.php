@@ -50,22 +50,18 @@ class AdminController extends BaseController {
                 throw new \Exception('Member not found');
             }
 
-            // Add additional data based on member type
             switch ($member->member_type) {
                 case 'Ahli':
-                    // Get additional member data like account details
                     $member->account_details = $this->getMemberAccountDetails($id);
                     $member->savings_info = $this->getMemberSavingsInfo($id);
                     $member->loan_info = $this->getMemberLoanInfo($id);
                     break;
 
                 case 'Pending':
-                    // Get submission date and other pending-specific info
                     $member->submission_date = $member->created_at;
                     break;
 
                 case 'Rejected':
-                    // Get rejection details if any
                     $member->rejection_date = $member->updated_at;
                     break;
             }
@@ -79,7 +75,6 @@ class AdminController extends BaseController {
         }
     }
 
-    // Helper methods for getting additional member data
     private function getMemberAccountDetails($id)
     {
         try {
@@ -135,14 +130,12 @@ class AdminController extends BaseController {
             $member = $admin->getMemberById($id);
 
             if ($member['member_type'] === 'Rejected') {
-                // If member is from rejected table, migrate to members
                 if ($admin->migrateFromRejected($id)) {
                     $_SESSION['success'] = "Ahli telah berjaya dipindahkan ke senarai ahli aktif";
                 } else {
                     throw new \Exception("Gagal memindahkan ahli");
                 }
             } else {
-                // Normal approval process for pending members
                 $admin->updateStatus($id, 'Lulus');
                 $_SESSION['success'] = "Status telah berjaya dikemaskini kepada Lulus";
             }
