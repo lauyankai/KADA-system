@@ -185,4 +185,46 @@ class Guest extends BaseModel
             throw new \Exception("Database error occurred");
         }
     }
+
+    public function checkStatusByReference($reference_no)
+    {
+        try {
+            // Check pending members
+            $sql = "SELECT status FROM pendingmember WHERE reference_no = ?";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([$reference_no]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return $result['status'];
+            }
+            
+            return 'not_found';
+            
+        } catch (\PDOException $e) {
+            error_log("Database error in checkStatusByReference: " . $e->getMessage());
+            throw new \Exception("Database error occurred");
+        }
+    }
+
+    public function checkStatusByPersonal($name, $ic_no)
+    {
+        try {
+            // Check pending members
+            $sql = "SELECT status FROM pendingmember WHERE name = ? AND ic_no = ?";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([$name, $ic_no]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return $result['status'];
+            }
+            
+            return 'not_found';
+            
+        } catch (\PDOException $e) {
+            error_log("Database error in checkStatusByPersonal: " . $e->getMessage());
+            throw new \Exception("Database error occurred");
+        }
+    }
 }

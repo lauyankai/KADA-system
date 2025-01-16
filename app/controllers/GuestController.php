@@ -39,42 +39,32 @@ class GuestController extends BaseController
         }
     }
 
-    public function checkStatus() {
+    public function checkStatusPage()
+    {
+        $this->view('guest/check-status');
+    }
+
+    public function checkStatus()
+    {
         header('Content-Type: application/json');
         try {
             $data = json_decode(file_get_contents('php://input'), true);
-            $name = trim($data['name'] ?? '');
             
-            // Debug log
-            error_log("Received name: " . $name);
-            
-            if (empty($name)) {
-                throw new \Exception("Name is required");
+            if (isset($data['reference_no'])) {
+                $status = $this->guest->checkStatusByReference($data['reference_no']);
+            } else if (isset($data['name']) && isset($data['ic_no'])) {
+                $status = $this->guest->checkStatusByPersonal($data['name'], $data['ic_no']);
+            } else {
+                throw new \Exception("Invalid request data");
             }
             
-            // Add route debugging
-            error_log("Request URI: " . $_SERVER['REQUEST_URI']);
-            error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-            
-            $status = $this->guest->checkApplicationStatus($name);
-            
-            // Debug log
-            error_log("Status returned: " . ($status ?? 'null'));
-            
-            $response = [
+            echo json_encode([
                 'success' => true,
                 'status' => $status,
                 'message' => $this->getStatusMessage($status)
-            ];
-            
-            // Debug log
-            error_log("Response: " . json_encode($response));
-            
-            echo json_encode($response);
+            ]);
             
         } catch (\Exception $e) {
-            error_log("Error in checkStatus: " . $e->getMessage());
-            error_log("Stack trace: " . $e->getTraceAsString());
             echo json_encode([
                 'success' => false,
                 'error' => $e->getMessage()

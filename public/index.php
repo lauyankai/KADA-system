@@ -150,6 +150,10 @@ $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDep
 // Add this route for showing receipts
 $router->addRoute('GET', '/users/savings/receipt/{referenceNo}', 'SavingController', 'showReceipt');
 
+// Add these routes for status checking
+$router->addRoute('GET', '/guest/check-status', 'GuestController', 'checkStatusPage');
+$router->addRoute('POST', '/guest/check-status', 'GuestController', 'checkStatus');
+
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
