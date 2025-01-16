@@ -26,14 +26,20 @@ class Router {
             $requestUri = $_SERVER['REQUEST_URI'];
             $requestMethod = $_SERVER['REQUEST_METHOD'];
 
+            // Remove query string for matching
+            $baseUri = preg_replace('/\?.*$/', '', $requestUri);
+            
             // Remove the base URL part of the URI
-            $requestUri = str_replace('/KADA-system', '', $requestUri);
+            $baseUri = str_replace('/KADA-system', '', $baseUri);
+
+            // Add debug logging
+            $this->debugRoute($requestUri, $requestMethod);
 
             foreach ($this->routes as $route) {
                 // Convert route pattern to regex
                 $pattern = $this->convertRouteToRegex($route['route']);
 
-                if ($route['method'] == $requestMethod && preg_match($pattern, $requestUri, $matches)) {
+                if ($route['method'] == $requestMethod && preg_match($pattern, $baseUri, $matches)) {
                     $controllerName = $route['controller'];
                     $action = $route['action'];
 
@@ -66,7 +72,9 @@ class Router {
 
     // Convert route pattern to regex
     private function convertRouteToRegex($route) {
-        $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '([^/]+)', $route);
+        // Remove query string for matching
+        $baseRoute = preg_replace('/\?.*$/', '', $route);
+        $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '([^/]+)', $baseRoute);
         return '#^' . $pattern . '$#';
     }
 
@@ -76,5 +84,30 @@ class Router {
         preg_match($pattern, $requestUri, $matches);
         array_shift($matches);
         return $matches;
+    }
+
+    // Add this method to your Router class
+    public function addRoutes() {
+        // Add your routes here
+        $this->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferPage');
+        $this->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
+        // ... other routes
+    }
+
+    // Add this method to help debug
+    public function debugRoute($requestUri, $requestMethod) {
+        error_log("Requested URI: " . $requestUri);
+        error_log("Request Method: " . $requestMethod);
+        foreach ($this->routes as $route) {
+            error_log("Checking route: " . $route['method'] . " " . $route['route']);
+        }
+    }
+
+    public function __construct() {
+        // Add the routes in constructor
+        $this->addRoute('POST', '/guest/checkStatus', 'GuestController', 'checkStatus');
+        
+        // Add the verify member route properly
+        $this->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
     }
 }

@@ -5,23 +5,19 @@
 
 <div class="container mt-4">
     <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i>
             <?= $_SESSION['success']; unset($_SESSION['success']); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+    <?php endif; ?>
 
-        <script>
-            // Auto-dismiss success alert after 3 seconds
-            document.addEventListener('DOMContentLoaded', function() {
-                const successAlert = document.getElementById('successAlert');
-                if (successAlert) {
-                    setTimeout(function() {
-                        const bsAlert = new bootstrap.Alert(successAlert);
-                        bsAlert.close();
-                    }, 3000); 
-                }
-            });
-        </script>
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     <?php endif; ?>
 
     <!-- Account Summary Card -->
@@ -39,7 +35,7 @@
                     <a href="/users/savings/deposit" class="btn btn-success">
                         <i class="bi bi-plus-lg me-2"></i>Deposit
                     </a>
-                    <a href="/users/savings/transfer" class="btn btn-primary">
+                    <a href="/KADA-system/users/savings/transfer?from_account=<?= $account['id'] ?>" class="btn btn-primary">
                         <i class="bi bi-arrow-left-right me-2"></i>Pindah
                     </a>
                 </div>
@@ -57,9 +53,9 @@
                         <h5 class="card-title mb-0">
                             <i class="bi bi-trophy me-2"></i>Sasaran Simpanan
                         </h5>
-                        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#newGoalModal">
+                        <a href="/users/savings/goals/create" class="btn btn-sm btn-outline-success">
                             <i class="bi bi-plus-lg me-2"></i>Tambah
-                        </button>
+                        </a>
                     </div>
 
                     <?php if (empty($goals)): ?>
@@ -71,12 +67,6 @@
                                     <div>
                                         <h6 class="mb-1">
                                             <span class="goal-name"><?= htmlspecialchars($goal['name']) ?></span>
-                                            <a href="#" class="edit-goal-btn ms-2 text-muted" 
-                                               data-goal-id="<?= $goal['id'] ?>"
-                                               data-bs-toggle="modal" 
-                                               data-bs-target="#editGoalModal-<?= $goal['id'] ?>">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
                                         </h6>
                                         <small class="text-muted">
                                             Sasaran: RM <?= number_format($goal['target_amount'], 2) ?>
@@ -84,24 +74,15 @@
                                             Tarikh: <?= date('d/m/Y', strtotime($goal['target_date'])) ?>
                                         </small>
                                     </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-link text-dark" data-bs-toggle="dropdown">
-                                            <i class="bi bi-three-dots-vertical"></i>
+                                    <div class="actions">
+                                        <a href="/users/savings/goals/edit/<?= $goal['id'] ?>" 
+                                           class="btn btn-sm btn-link text-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button onclick="confirmDeleteGoal(<?= $goal['id'] ?>)" 
+                                                class="btn btn-sm btn-link text-danger">
+                                            <i class="bi bi-trash"></i>
                                         </button>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <a class="dropdown-item" href="/users/savings/goals/edit_goal.php<?= $goal['id'] ?>">
-                                                    <i class="bi bi-pencil me-2"></i>Kemaskini
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item text-danger" href="#" 
-                                                   onclick="if(confirm('Adakah anda pasti untuk memadam sasaran ini?')) 
-                                                   window.location.href='/users/savings/goals/delete/<?= $goal['id'] ?>'">
-                                                    <i class="bi bi-trash me-2"></i>Padam
-                                                </a>
-                                            </li>
-                                        </ul>
                                     </div>
                                 </div>
                                 
@@ -114,7 +95,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
                                     <small class="text-muted">
-                                        RM <?= number_format($accountBalance ?? 0, 2) ?>
+                                        RM <?= number_format($goal['current_amount'] ?? 0, 2) ?>
                                     </small>
                                     <small class="text-muted">
                                         <?= number_format($goal['progress'], 1) ?>%
@@ -185,61 +166,59 @@
     <!-- Recent Transactions -->
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Transaksi Terkini</h5>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Tarikh</th>
-                            <th>Jenis</th>
-                            <th>Jumlah</th>
-                            <th>Baki</th>
-                            <th>Tindakan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($recentTransactions)): ?>
-                            <?php foreach ($recentTransactions as $transaction): ?>
+            <h5 class="card-title mb-3">
+                <i class="bi bi-clock-history me-2"></i>Transaksi Terkini
+            </h5>
+            <?php if (empty($transactions)): ?>
+                <p class="text-muted">Tiada transaksi</p>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tarikh</th>
+                                <th>Penerangan</th>
+                                <th>Jenis</th>
+                                <th>Kaedah</th>
+                                <th class="text-end">Jumlah (RM)</th>
+                                <th class="text-center">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($transactions as $transaction): ?>
                                 <tr>
-                                    <td><?= date('d/m/Y H:i', strtotime($transaction['created_at'])) ?></td>
+                                    <td><?= htmlspecialchars($transaction['formatted_date'] ?? date('d/m/Y H:i', strtotime($transaction['created_at']))) ?></td>
+                                    <td><?= htmlspecialchars($transaction['description']) ?></td>
                                     <td>
-                                        <?php
-                                            switch ($transaction['type']) {
-                                                case 'deposit':
-                                                    echo '<span class="badge bg-success">Deposit</span>';
-                                                    break;
-                                                case 'transfer_in':
-                                                    echo '<span class="badge bg-info">Terima</span>';
-                                                    break;
-                                                case 'transfer_out':
-                                                    echo '<span class="badge bg-warning">Pindah</span>';
-                                                    break;
-                                                default:
-                                                    echo '<span class="badge bg-secondary">Lain-lain</span>';
-                                            }
-                                        ?>
+                                        <?php if ($transaction['type'] === 'deposit'): ?>
+                                            <span class="badge bg-success">Deposit</span>
+                                        <?php elseif ($transaction['type'] === 'withdrawal'): ?>
+                                            <span class="badge bg-danger">Pengeluaran</span>
+                                        <?php elseif ($transaction['type'] === 'transfer_in'): ?>
+                                            <span class="badge bg-info">Pindah Masuk</span>
+                                        <?php elseif ($transaction['type'] === 'transfer_out'): ?>
+                                            <span class="badge bg-warning">Pindah Keluar</span>
+                                        <?php endif; ?>
                                     </td>
-                                    <td class="text-<?= in_array($transaction['type'], ['deposit', 'transfer_in']) ? 'success' : 'danger' ?>">
+                                    <td><?= htmlspecialchars(ucfirst($transaction['payment_method'] ?? '-')) ?></td>
+                                    <td class="text-end fw-bold <?= in_array($transaction['type'], ['deposit', 'transfer_in']) ? 'text-success' : 'text-danger' ?>">
                                         <?= in_array($transaction['type'], ['deposit', 'transfer_in']) ? '+' : '-' ?>
-                                        RM <?= number_format($transaction['amount'], 2) ?>
+                                        <?= number_format($transaction['amount'], 2) ?>
                                     </td>
-                                    <td>RM <?= number_format($transaction['current_amount'], 2) ?></td>
-                                    <td>
-                                        <a href="/users/receipt/<?= $transaction['reference_no'] ?>" 
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-receipt me-1"></i>Resit
-                                        </a>
+                                    <td class="text-center">
+                                        <?php if (isset($transaction['reference_no'])): ?>
+                                            <a href="/users/savings/receipt/<?= $transaction['reference_no'] ?>" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-receipt me-1"></i>Resit
+                                            </a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">Tiada transaksi dijumpai</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -252,7 +231,7 @@
                 <h5 class="modal-title">Tambah Deposit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/users/savings/deposit/index" method="POST" id="depositForm">
+            <form action="/users/savings/deposit" method="POST" id="depositForm">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Jumlah (RM)</label>
@@ -536,7 +515,7 @@ function confirmDeleteGoal(goalId) {
     if (confirm('Adakah anda pasti untuk memadam sasaran ini?')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/users/goal/delete/${goalId}`;
+        form.action = `/users/savings/goals/delete/${goalId}`;
         document.body.appendChild(form);
         form.submit();
     }

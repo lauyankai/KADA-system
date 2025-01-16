@@ -137,4 +137,52 @@ class Guest extends BaseModel
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function checkApplicationStatus($name) {
+        try {
+            $conn = $this->getConnection();
+            if (!$conn) {
+                throw new \Exception("Database connection failed");
+            }
+
+            // Convert name to uppercase
+            $name = strtoupper(trim($name));
+
+            // Check in pendingmember table
+            $sql = "SELECT name, status FROM pendingmember WHERE UPPER(name) = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$name]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return $result['status'];
+            }
+
+            // Check members table
+            $sql = "SELECT name, status FROM members WHERE UPPER(name) = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$name]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return $result['status'];
+            }
+
+            // Check rejected table
+            $sql = "SELECT name, status FROM rejectedmember WHERE UPPER(name) = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$name]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return $result['status'];
+            }
+
+            return 'not_found';
+            
+        } catch (\PDOException $e) {
+            error_log("Database error in checkApplicationStatus: " . $e->getMessage());
+            throw new \Exception("Database error occurred");
+        }
+    }
 }
