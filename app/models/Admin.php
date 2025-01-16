@@ -202,6 +202,42 @@ class Admin extends BaseModel
                 ':family_ic' => $memberData['family_ic']
             ]);
 
+            // Get the new member's ID
+            $newMemberId = $this->getConnection()->lastInsertId();
+            
+            // Generate account number
+            $accountNumber = 'SAV-' . str_pad($newMemberId, 6, '0', STR_PAD_LEFT) . '-' . rand(1000, 9999);
+            
+            // Create savings account
+            $sql = "INSERT INTO savings_accounts (
+                account_number,
+                member_id,
+                current_amount,
+                status,
+                display_main,
+                account_name,
+                created_at,
+                updated_at
+            ) VALUES (
+                :account_number,
+                :member_id,
+                0.00,
+                'active',
+                1,
+                'Akaun Utama',
+                NOW(),
+                NOW()
+            )";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':account_number' => $accountNumber,
+                ':member_id' => $newMemberId
+            ]);
+            
+            // Debug log
+            error_log('Created savings account for member: ' . $newMemberId);
+
             // Delete from source table (pendingmember)
             if (!$memberData) {
                 $sql = "DELETE FROM pendingmember WHERE id = :id";
@@ -218,6 +254,7 @@ class Admin extends BaseModel
             if ($useTransaction && $this->getConnection()->inTransaction()) {
                 $this->getConnection()->rollBack();
             }
+            error_log('Error in migrateToMembers: ' . $e->getMessage());
             throw $e;
         }
     }
