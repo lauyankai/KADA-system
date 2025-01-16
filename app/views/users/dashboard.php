@@ -31,7 +31,7 @@
                 <div class="card-body">
                     <h5 class="card-title mb-3">
                         <i class="bi bi-piggy-bank me-2"></i>Simpanan
-                    </h5>
+                        </h5>
                     <!-- Total Savings Amount -->
                     <h3 class="text-success mb-3">RM <?= number_format($totalSavings ?? 0, 2) ?></h3>
                     <div class="d-grid">
@@ -50,7 +50,7 @@
                 <div class="card-body">
                     <h5 class="card-title mb-3">
                         <i class="bi bi-cash-stack me-2"></i>Pinjaman
-                    </h5>
+                        </h5>
                     <!-- Loan Actions -->
                     <div class="d-grid gap-2">
                         <a href="/users/loans/status" class="btn btn-outline-primary">
@@ -60,9 +60,9 @@
                             <i class="bi bi-file-earmark-text me-2"></i>Mohon Pinjaman
                         </a>
                     </div>
-                </div>
-            </div>
-        </div>
+                            </div>
+                            </div>
+                        </div>
 
         <!-- Payments Section -->
         <div class="col-md-4 mb-4">
@@ -79,7 +79,7 @@
                         <a href="/users/savings/transfer" class="btn btn-secondary">
                             <i class="bi bi-cash me-2"></i>Buat Pembayaran
                         </a>
-                    </div>
+                        </div>
                 </div>
             </div>
         </div>
@@ -89,10 +89,10 @@
     <div class="row mb-4">
         <!-- Member Status -->
         <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-body">
+    <div class="card">
+        <div class="card-body">
                     <h5 class="card-title">Status Keahlian</h5>
-                    <div class="table-responsive">
+            <div class="table-responsive">
                         <table class="table table-borderless">
                             <tr>
                                 <td width="40%">Nama Penuh</td>
@@ -108,22 +108,22 @@
                                 <td>No. Akaun</td>
                                 <td>:</td>
                                 <td><?= htmlspecialchars($member->account_number ?? '-') ?></td>
-                            </tr>
+                        </tr>
                             <tr>
                                 <td>Status</td>
                                 <td>:</td>
                                 <td><span class="badge bg-success">Aktif</span></td>
-                            </tr>
+                                </tr>
                             <tr>
                                 <td>Tarikh Daftar</td>
                                 <td>:</td>
                                 <td><?= date('d/m/Y', strtotime($member->created_at ?? 'now')) ?></td>
                             </tr>
-                        </table>
-                    </div>
-                </div>
+                </table>
             </div>
         </div>
+    </div>
+</div>
 
         <!-- Recent Activities -->
         <div class="col-md-6 mb-4">
@@ -149,7 +149,7 @@
                         <p class="text-muted mb-0">Tiada aktiviti terkini</p>
                     <?php endif; ?>
                 </div>
-            </div>
+                </div>
         </div>
     </div>
 </div>
@@ -162,7 +162,7 @@
             <i class="bi bi-check-circle me-2"></i>
             <strong class="me-auto">Berjaya</strong>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
+</div>
         <div class="toast-body">
             <?= $_SESSION['success']; ?>
         </div>

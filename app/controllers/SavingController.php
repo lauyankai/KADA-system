@@ -1012,4 +1012,144 @@ class SavingController extends BaseController
             }
         }
 
+        public function showTransferPage()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                $memberId = $_SESSION['member_id'];
+                
+                // Initialize variables with default values
+                $currentAccount = null;
+                $otherAccounts = [];
+                $error = null;
+                
+                try {
+                    // Get member's main account
+                    $currentAccount = $this->saving->getCurrentAccount($memberId);
+                    
+                    // Get all accounts for dropdown (excluding current account)
+                    if ($currentAccount) {
+                        $allAccounts = $this->saving->getSavingsAccounts($memberId);
+                        $otherAccounts = array_filter($allAccounts, function($account) use ($currentAccount) {
+                            return $account['id'] != $currentAccount['id'];
+                        });
+                    }
+                    
+                } catch (\Exception $e) {
+                    $error = $e->getMessage();
+                    error_log('Error in showTransferPage: ' . $e->getMessage());
+                }
+                
+                // Always pass these variables to the view
+                $this->view('users/savings/transfer/index', [
+                    'currentAccount' => $currentAccount,
+                    'otherAccounts' => $otherAccounts,
+                    'error' => $error
+                ]);
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /KADA-system/users/savings/page');
+                exit;
+            }
+        }
+
+        public function processTransfer()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                $memberId = $_SESSION['member_id'];
+                $fromAccountId = $_POST['from_account_id'];
+                
+                // Verify account belongs to member
+                $account = $this->saving->getAccountById($fromAccountId);
+                if (!$account || $account['member_id'] != $memberId) {
+                    throw new \Exception('Akaun tidak sah');
+                }
+
+                // Rest of your transfer processing code...
+                
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /users/savings/transfer');
+                exit;
+            }
+        }
+
+        public function makeTransfer()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                $memberId = $_SESSION['member_id'];
+                $fromAccountId = $_POST['from_account_id'];
+                $amount = $_POST['amount'];
+                $description = $_POST['description'] ?? '';
+                $transferType = $_POST['transfer_type'];
+
+                // Validate amount
+                if (!is_numeric($amount) || $amount < 10) {
+                    throw new \Exception('Jumlah minimum pemindahan adalah RM10.00');
+                }
+
+                // Verify account belongs to member
+                $account = $this->saving->getAccountById($fromAccountId);
+                if (!$account || $account['member_id'] != $memberId) {
+                    throw new \Exception('Akaun tidak sah');
+                }
+
+                // Check sufficient balance
+                if ($account['current_amount'] < $amount) {
+                    throw new \Exception('Baki tidak mencukupi');
+                }
+
+                // Process based on transfer type
+                if ($transferType === 'member') {
+                    $recipientAccountNumber = $_POST['recipient_account_number'];
+                    if (empty($recipientAccountNumber)) {
+                        throw new \Exception('Sila masukkan nombor akaun penerima');
+                    }
+                    
+                    // Validate account number format
+                    if (!preg_match('/^SAV-\d{6}-\d{4}$/', $recipientAccountNumber)) {
+                        throw new \Exception('Format nombor akaun tidak sah');
+                    }
+                    
+                    $this->saving->transferToMember($fromAccountId, $recipientAccountNumber, $amount, $description);
+                } else {
+                    // Transfer to other bank account
+                    $bankName = $_POST['bank_name'];
+                    $bankAccountNumber = $_POST['bank_account_number'];
+                    $recipientName = $_POST['recipient_name'];
+                    
+                    if (empty($bankName) || empty($bankAccountNumber) || empty($recipientName)) {
+                        throw new \Exception('Sila lengkapkan maklumat bank');
+                    }
+
+                    $this->saving->transferToOther($fromAccountId, $amount, $description, [
+                        'bank_name' => $bankName,
+                        'account_number' => $bankAccountNumber,
+                        'recipient_name' => $recipientName
+                    ]);
+                }
+
+                $_SESSION['success'] = 'Pemindahan berjaya dilakukan';
+                header('Location: /KADA-system/users/savings/page');
+                exit;
+                
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /KADA-system/users/savings/transfer');
+                exit;
+            }
+        }
+
 }

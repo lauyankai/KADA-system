@@ -35,7 +35,7 @@
                     <a href="/users/savings/deposit" class="btn btn-success">
                         <i class="bi bi-plus-lg me-2"></i>Deposit
                     </a>
-                    <a href="/users/savings/transfer" class="btn btn-primary">
+                    <a href="/KADA-system/users/savings/transfer?from_account=<?= $account['id'] ?>" class="btn btn-primary">
                         <i class="bi bi-arrow-left-right me-2"></i>Pindah
                     </a>
                 </div>

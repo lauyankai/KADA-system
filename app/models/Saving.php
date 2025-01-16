@@ -30,10 +30,10 @@ class Saving extends BaseModel
         try {
             $sql = "SELECT * FROM savings_accounts 
                     WHERE member_id = :member_id 
-                    AND status = 'active' 
+                    AND status = 'active'
                     AND display_main = 1 
                     LIMIT 1";
-                    
+            
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -53,7 +53,7 @@ class Saving extends BaseModel
                     WHERE a.member_id = :member_id
                     ORDER BY t.created_at DESC
                     LIMIT :limit";
-                    
+            
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':member_id', $memberId, PDO::PARAM_INT);
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -432,17 +432,26 @@ class Saving extends BaseModel
     public function getSavingsAccounts($memberId)
     {
         try {
-            $sql = "SELECT * FROM savings_accounts WHERE member_id = :member_id";
+            // Get all active accounts for member
+            $sql = "SELECT sa.*, m.name as member_name 
+                    FROM savings_accounts sa
+                    INNER JOIN members m ON sa.member_id = m.id
+                    WHERE sa.member_id = :member_id 
+                    AND sa.status = 'active'
+                    AND m.status = 'Active'
+                    ORDER BY sa.display_main DESC, sa.id ASC";
+            
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan senarai akaun');
         }
     }
 
-    public function processDeposit($data)
+public function processDeposit($data)
     {
         try {
             $this->getConnection()->beginTransaction();
@@ -608,7 +617,7 @@ class Saving extends BaseModel
                     target_date = :target_date,
                     updated_at = NOW()
                     WHERE id = :id AND member_id = :member_id";
-
+            
             $stmt = $this->getConnection()->prepare($sql);
             return $stmt->execute([
                 ':id' => $data['id'],
@@ -652,7 +661,7 @@ class Saving extends BaseModel
                     sa.member_id,
                     m.name as member_name,
                     m.member_id as member_number  -- Using member_id instead of member_number
-                FROM savings_transactions t
+                    FROM savings_transactions t
                 INNER JOIN savings_accounts sa ON t.savings_account_id = sa.id
                 INNER JOIN members m ON sa.member_id = m.id
                 WHERE t.reference_no = :reference_no
@@ -705,9 +714,9 @@ class Saving extends BaseModel
             // Get the member's active savings account
             $sql = "SELECT id, current_amount FROM savings_accounts 
                     WHERE member_id = :member_id 
-                    AND status = 'active' 
+                    AND status = 'active'
                     LIMIT 1";
-                    
+            
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $data['member_id']]);
             $account = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -927,19 +936,19 @@ class Saving extends BaseModel
                         reference_no,
                         description,
                         payment_method,
-                        status,
+                status,
                         created_at
-                    ) VALUES (
+            ) VALUES (
                         :account_id,
                         :type,
                         :amount,
                         :reference_no,
                         :description,
                         :payment_method,
-                        :status,
+                :status,
                         NOW()
-                    )";
-
+            )";
+            
             $stmt = $this->getConnection()->prepare($sql);
             $success = $stmt->execute([
                 ':account_id' => $data['account_id'],
@@ -950,12 +959,12 @@ class Saving extends BaseModel
                 ':payment_method' => $data['payment_method'] ?? 'transfer',
                 ':status' => $data['status']
             ]);
-
+            
             if ($success) {
-                $this->getConnection()->commit();
+            $this->getConnection()->commit();
                 return true;
             }
-
+            
             throw new \Exception('Gagal merekod transaksi');
 
         } catch (\PDOException $e) {
@@ -985,7 +994,7 @@ class Saving extends BaseModel
                     WHERE member_id = :member_id 
                     AND status = 'active'
                     ORDER BY created_at DESC";
-                    
+            
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1019,6 +1028,411 @@ class Saving extends BaseModel
         } catch (\PDOException $e) {
             error_log('Database Error in getTransactionHistory: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan sejarah transaksi');
+        }
+    }
+
+    public function getMemberAccounts($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM savings_accounts 
+                    WHERE member_id = :member_id 
+                    AND status = 'active'
+                    ORDER BY display_main DESC";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai akaun');
+        }
+    }
+
+    public function getAllMembersWithAccounts($excludeMemberId)
+    {
+        try {
+            $sql = "SELECT m.id, m.name, sa.id as savings_account_id, sa.account_number 
+                    FROM members m
+                    INNER JOIN savings_accounts sa ON m.id = sa.member_id
+                    WHERE m.id != :exclude_id 
+                    AND m.status = 'Active'
+                    AND sa.status = 'active'
+                    ORDER BY m.name";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':exclude_id' => $excludeMemberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai ahli');
+        }
+    }
+
+    public function transferToMember($fromAccountId, $recipientAccountNumber, $amount, $description = '')
+    {
+        try {
+            // Start transaction
+            $this->getConnection()->beginTransaction();
+
+            // Get source account
+            $sourceAccount = $this->getAccountById($fromAccountId);
+            if (!$sourceAccount) {
+                throw new \Exception('Akaun pemindah tidak ditemui');
+            }
+
+            // Get recipient account
+            $sql = "SELECT * FROM savings_accounts 
+                    WHERE account_number = :account_number 
+                    AND status = 'active'";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':account_number' => $recipientAccountNumber]);
+            $recipientAccount = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$recipientAccount) {
+                throw new \Exception('Akaun penerima tidak ditemui');
+            }
+
+            // Check if trying to transfer to same account
+            if ($sourceAccount['id'] === $recipientAccount['id']) {
+                throw new \Exception('Tidak boleh pindah ke akaun yang sama');
+            }
+
+            // Check sufficient balance
+            if ($sourceAccount['current_amount'] < $amount) {
+                throw new \Exception('Baki tidak mencukupi');
+            }
+
+            // Deduct from source account
+            $updateSourceSql = "UPDATE savings_accounts 
+                               SET current_amount = current_amount - :amount,
+                                   updated_at = NOW()
+                               WHERE id = :account_id";
+            $stmt = $this->getConnection()->prepare($updateSourceSql);
+            $stmt->execute([
+                ':amount' => $amount,
+                ':account_id' => $sourceAccount['id']
+            ]);
+
+            // Add to recipient account
+            $updateRecipientSql = "UPDATE savings_accounts 
+                                  SET current_amount = current_amount + :amount,
+                                      updated_at = NOW()
+                                  WHERE id = :account_id";
+            $stmt = $this->getConnection()->prepare($updateRecipientSql);
+            $stmt->execute([
+                ':amount' => $amount,
+                ':account_id' => $recipientAccount['id']
+            ]);
+
+            // Record transaction for source account (debit)
+            $this->recordTransfer($sourceAccount['id'], 'debit', $amount, $description, [
+                'recipient_account' => $recipientAccount['account_number'],
+                'recipient_name' => $recipientAccount['account_name'],
+                'transfer_type' => 'member'
+            ]);
+
+            // Record transaction for recipient account (credit)
+            $this->recordTransfer($recipientAccount['id'], 'credit', $amount, $description, [
+                'source_account' => $sourceAccount['account_number'],
+                'source_name' => $sourceAccount['account_name'],
+                'transfer_type' => 'member'
+            ]);
+
+            $this->getConnection()->commit();
+            return true;
+
+        } catch (\Exception $e) {
+            $this->getConnection()->rollBack();
+            error_log('Transfer error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function transferToOther($fromAccountId, $amount, $description = '', $bankDetails = [])
+    {
+        try {
+            // Start transaction
+            $this->getConnection()->beginTransaction();
+
+            // Get source account
+            $sourceAccount = $this->getAccountById($fromAccountId);
+            if (!$sourceAccount) {
+                throw new \Exception('Akaun pemindah tidak ditemui');
+            }
+
+            // Check sufficient balance
+            if ($sourceAccount['current_amount'] < $amount) {
+                throw new \Exception('Baki tidak mencukupi');
+            }
+
+            // Deduct from source account
+            $updateSourceSql = "UPDATE savings_accounts 
+                               SET current_amount = current_amount - :amount,
+                                   updated_at = NOW()
+                               WHERE id = :account_id";
+            $stmt = $this->getConnection()->prepare($updateSourceSql);
+            $stmt->execute([
+                ':amount' => $amount,
+                ':account_id' => $sourceAccount['id']
+            ]);
+
+            // Record transaction
+            $this->recordTransfer($sourceAccount['id'], 'debit', $amount, $description, [
+                'bank_name' => $bankDetails['bank_name'],
+                'bank_account' => $bankDetails['account_number'],
+                'recipient_name' => $bankDetails['recipient_name'],
+                'transfer_type' => 'other'
+            ]);
+
+            $this->getConnection()->commit();
+            return true;
+
+        } catch (\Exception $e) {
+            $this->getConnection()->rollBack();
+            error_log('Transfer error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    private function recordTransfer($accountId, $type, $amount, $description, $details = [])
+    {
+        $sql = "INSERT INTO savings_transactions (
+            savings_account_id,
+            type,
+            amount,
+            description,
+            transfer_details,
+            created_at
+        ) VALUES (
+            :account_id,
+            :type,
+            :amount,
+            :description,
+            :transfer_details,
+            NOW()
+        )";
+
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute([
+            ':account_id' => $accountId,
+            ':type' => $type,
+            ':amount' => $amount,
+            ':description' => $description,
+            ':transfer_details' => json_encode($details)
+        ]);
+    }
+
+    public function getAccountByNumber($accountNumber) 
+    {
+        try {
+            $sql = "SELECT sa.*, m.name as member_name 
+                    FROM savings_accounts sa
+                    INNER JOIN members m ON sa.member_id = m.id
+                    WHERE sa.account_number = :account_number 
+                    AND sa.status = 'active'";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':account_number' => $accountNumber]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat akaun');
+        }
+    }
+
+    public function getCurrentAccount($memberId)
+    {
+        try {
+            // First check if member exists and is active
+            $memberSql = "SELECT * FROM members WHERE id = :member_id AND status = 'Active'";
+            $memberStmt = $this->getConnection()->prepare($memberSql);
+            $memberStmt->execute([':member_id' => $memberId]);
+            $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$member) {
+                throw new \Exception('Ahli tidak aktif');
+            }
+            
+            // Get member's main active account
+            $sql = "SELECT sa.*, m.name as member_name 
+                    FROM savings_accounts sa
+                    INNER JOIN members m ON sa.member_id = m.id
+                    WHERE sa.member_id = :member_id 
+                    AND sa.status = 'active'
+                    AND m.status = 'Active'
+                    ORDER BY sa.display_main DESC, sa.id ASC
+                    LIMIT 1";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$result) {
+                // Create new savings account if none exists
+                $accountNumber = 'SAV-' . str_pad($memberId, 6, '0', STR_PAD_LEFT) . '-' . rand(1000, 9999);
+                
+                $insertSql = "INSERT INTO savings_accounts (
+                    account_number,
+                    member_id,
+                    current_amount,
+                    status,
+                    display_main,
+                    account_name,
+                    created_at,
+                    updated_at
+                ) VALUES (
+                    :account_number,
+                    :member_id,
+                    :initial_amount,
+                    'active',
+                    1,
+                    'Akaun Utama',
+                    NOW(),
+                    NOW()
+                )";
+                
+                $this->getConnection()->beginTransaction();
+                
+                try {
+                    $insertStmt = $this->getConnection()->prepare($insertSql);
+                    $insertStmt->execute([
+                        ':account_number' => $accountNumber,
+                        ':member_id' => $memberId,
+                        ':initial_amount' => 0.00
+                    ]);
+                    
+                    // Get the newly created account
+                    $stmt = $this->getConnection()->prepare($sql);
+                    $stmt->execute([':member_id' => $memberId]);
+                    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    $this->getConnection()->commit();
+                    
+                } catch (\Exception $e) {
+                    $this->getConnection()->rollBack();
+                    error_log('Failed to create account: ' . $e->getMessage());
+                    throw new \Exception('Gagal membuat akaun baru');
+                }
+            }
+            
+            return $result;
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in getCurrentAccount: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat akaun');
+        }
+    }
+
+    public function getAccountById($accountId)
+    {
+        try {
+            // Get account with member details and ensure both account and member are active
+            $sql = "SELECT sa.*, m.name as member_name, m.id as member_id 
+                    FROM savings_accounts sa
+                    INNER JOIN members m ON sa.member_id = m.id
+                    WHERE sa.id = :account_id 
+                    AND sa.status = 'active'
+                    AND m.status = 'Active'";  // Removed display_main constraint
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':account_id' => $accountId]);
+            $account = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$account) {
+                error_log("Account not found or invalid - ID: $accountId");
+                throw new \Exception('Akaun tidak ditemui');
+            }
+            
+            return $account;
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in getAccountById: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat akaun');
+        }
+    }
+
+    public function getMemberAccount($memberId)
+    {
+        try {
+            // First check if member exists and is active
+            $memberSql = "SELECT * FROM members WHERE id = :member_id AND status = 'Active'";
+            $memberStmt = $this->getConnection()->prepare($memberSql);
+            $memberStmt->execute([':member_id' => $memberId]);
+            $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$member) {
+                throw new \Exception('Ahli tidak aktif');
+            }
+            
+            // Get any active savings account for the member
+            $sql = "SELECT sa.*, m.name as member_name 
+                    FROM savings_accounts sa
+                    INNER JOIN members m ON sa.member_id = m.id
+                    WHERE sa.member_id = :member_id 
+                    AND sa.status = 'active'
+                    ORDER BY sa.display_main DESC, sa.id ASC
+                    LIMIT 1";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$result) {
+                // Create new savings account
+                $accountNumber = 'SAV-' . str_pad($memberId, 6, '0', STR_PAD_LEFT) . '-' . rand(1000, 9999);
+                
+                $insertSql = "INSERT INTO savings_accounts (
+                    account_number,
+                    member_id,
+                    current_amount,
+                    status,
+                    display_main,
+                    account_name,
+                    created_at,
+                    updated_at
+                ) VALUES (
+                    :account_number,
+                    :member_id,
+                    :initial_amount,
+                    'active',
+                    1,
+                    'Akaun Utama',
+                    NOW(),
+                    NOW()
+                )";
+                
+                $this->getConnection()->beginTransaction();
+                
+                try {
+                    $insertStmt = $this->getConnection()->prepare($insertSql);
+                    $insertStmt->execute([
+                        ':account_number' => $accountNumber,
+                        ':member_id' => $memberId,
+                        ':initial_amount' => $member['deposit_funds'] ?? 0.00
+                    ]);
+                    
+                    // Get the newly created account
+                    $stmt = $this->getConnection()->prepare($sql);
+                    $stmt->execute([':member_id' => $memberId]);
+                    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    $this->getConnection()->commit();
+                    
+                } catch (\Exception $e) {
+                    $this->getConnection()->rollBack();
+                    error_log('Failed to create account: ' . $e->getMessage());
+                    throw new \Exception('Gagal membuat akaun baru');
+                }
+            }
+            
+            return $result;
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in getMemberAccount: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat akaun');
         }
     }
 }
