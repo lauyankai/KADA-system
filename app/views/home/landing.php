@@ -24,6 +24,100 @@
         background: rgba(0,0,0,0.5);
         z-index: 1040;
     }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(45deg, #0d47a1, #1976d2);
+    }
+    
+    .card {
+        transition: transform 0.2s;
+        border: none;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .alert {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .alert::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+    }
+    
+    .alert-success::before {
+        background-color: #2e7d32;
+    }
+    
+    .alert-warning::before {
+        background-color: #f57f17;
+    }
+    
+    .alert-danger::before {
+        background-color: #c62828;
+    }
+    
+    .alert-info::before {
+        background-color: #0288d1;
+    }
+    
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(25, 118, 210, 0.25);
+        border-color: #1976d2;
+    }
+    
+    .btn-primary {
+        background: #1976d2;
+        border: none;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        background: #1565c0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+    }
+    
+    .input-group-text {
+        border: 1px solid #e3e3e3;
+        border-right: none;
+        background-color: #f8f9fa;
+    }
+    
+    .form-control {
+        border: 1px solid #e3e3e3;
+    }
+    
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .shadow-lg {
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+    }
+    
+    .bg-warning-subtle {
+        background-color: #fff3e0 !important;
+    }
+    
+    .bg-success-subtle {
+        background-color: #e8f5e9 !important;
+    }
+    
+    .bg-danger-subtle {
+        background-color: #ffebee !important;
+    }
+    
+    .bg-info-subtle {
+        background-color: #e1f5fe !important;
+    }
 </style>
 
 <?php if (isset($_SESSION['success_message'])): ?>
@@ -190,6 +284,58 @@
     </div>
 </div> -->
 
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-gradient-primary py-3">
+                    <h5 class="card-title mb-0 text-center text-white">
+                        <i class="bi bi-search me-2"></i>
+                        Semakan Status Permohonan Menjadi Anggota
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <p class="text-muted">
+                            Sila masukkan nama penuh anda untuk menyemak status permohonan keahlian koperasi
+                        </p>
+                    </div>
+                    <form id="enquiryForm" onsubmit="checkStatus(event)">
+                        <div class="mb-4">
+                            <label for="name" class="form-label fw-bold">
+                                <i class="bi bi-person-badge me-2"></i>
+                                Nama Penuh (seperti dalam Kad Pengenalan)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control form-control-lg text-uppercase" 
+                                       id="name" 
+                                       name="name" 
+                                       style="text-transform: uppercase;" 
+                                       oninput="this.value = this.value.toUpperCase()" 
+                                       placeholder="Contoh: AHMAD BIN ABDULLAH"
+                                       required>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-search me-2"></i>
+                                Semak Status
+                            </button>
+                        </div>
+                    </form>
+                    <div id="statusResult" class="mt-4" style="display: none;">
+                        <div class="alert rounded-4 shadow-sm border-0" role="alert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const alert = document.querySelector('.alert-floating');
@@ -209,6 +355,63 @@
             });
         }
     });
+
+    function checkStatus(event) {
+        event.preventDefault();
+        
+        const name = document.getElementById('name').value.toUpperCase();
+        const statusResult = document.getElementById('statusResult');
+        const alertDiv = statusResult.querySelector('.alert');
+        
+        console.log('Sending request for name:', name); // Debug log
+        
+        fetch('/guest/checkStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: name })
+        })
+        .then(response => {
+            console.log('Response status:', response.status); // Debug log
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data); // Debug log
+            statusResult.style.display = 'block';
+            
+            if (data.success) {
+                alertDiv.className = `alert ${getAlertClass(data.status)}`;
+                alertDiv.textContent = data.message;
+            } else {
+                alertDiv.className = 'alert alert-danger';
+                alertDiv.textContent = data.error || 'An error occurred while checking the status.';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error); // Debug log
+            statusResult.style.display = 'block';
+            alertDiv.className = 'alert alert-danger';
+            alertDiv.textContent = 'An error occurred while checking the status.';
+        });
+    }
+
+    function getAlertClass(status) {
+        switch(status) {
+            case 'Pending':
+                return 'alert-warning bg-warning-subtle border-0';
+            case 'Lulus':
+            case 'Active':
+                return 'alert-success bg-success-subtle border-0';
+            case 'Tolak':
+            case 'Inactive':
+                return 'alert-danger bg-danger-subtle border-0';
+            case 'not_found':
+                return 'alert-info bg-info-subtle border-0';
+            default:
+                return 'alert-secondary bg-secondary-subtle border-0';
+        }
+    }
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 
