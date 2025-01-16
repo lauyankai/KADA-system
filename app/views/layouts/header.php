@@ -28,6 +28,35 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/guest/create"><i class="bi bi-person-plus me-2"></i>Daftar Anggota</a>
                     </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="/users/loans/details">
+                    <i class="bi bi-cash-stack me-2"></i>Pinjaman
+
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/savings/page">
+                    <i class="bi bi-piggy-bank me-2"></i> Simpanan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="users/savings/transfer">
+                    <i class="bi bi-credit-card me-2"></i>Pembayaran   
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pembiayaan">
+                    <i class="bi bi-receipt me-2"></i>Pembiayaan   
+                       
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/pembiayaan">
+                    <i class="bi bi-bar-chart me-2"></i>Pelaburan   
+                       
+                    </a>
+
                 </ul>
                 <div class="d-flex align-items-center">
                     <span class="me-3">Welcome, <?= htmlspecialchars($_SESSION['username'] ?? '') ?></span>
