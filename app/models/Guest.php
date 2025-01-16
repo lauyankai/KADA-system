@@ -107,7 +107,7 @@ class Guest extends BaseModel
             $today = date('Ymd');
             
             // Find the highest sequence number for today
-            $sql = "SELECT MAX(SUBSTRING(reference_no, 11)) as max_sequence 
+            $sql = "SELECT MAX(SUBSTRING(reference_no, 12)) as max_sequence 
                     FROM pendingmember 
                     WHERE reference_no LIKE :prefix";
             
