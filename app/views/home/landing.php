@@ -284,7 +284,7 @@
     </div>
 </div> -->
 
-<div class="container mt-5 mb-5">
+<!-- <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-lg border-0 rounded-lg">
@@ -334,7 +334,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -356,62 +356,62 @@
         }
     });
 
-    function checkStatus(event) {
-        event.preventDefault();
+    // function checkStatus(event) {
+    //     event.preventDefault();
         
-        const name = document.getElementById('name').value.toUpperCase();
-        const statusResult = document.getElementById('statusResult');
-        const alertDiv = statusResult.querySelector('.alert');
+    //     const name = document.getElementById('name').value.toUpperCase();
+    //     const statusResult = document.getElementById('statusResult');
+    //     const alertDiv = statusResult.querySelector('.alert');
         
-        console.log('Sending request for name:', name); // Debug log
+    //     console.log('Sending request for name:', name); // Debug log
         
-        fetch('/guest/checkStatus', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name: name })
-        })
-        .then(response => {
-            console.log('Response status:', response.status); // Debug log
-            return response.json();
-        })
-        .then(data => {
-            console.log('Response data:', data); // Debug log
-            statusResult.style.display = 'block';
+    //     fetch('/guest/checkStatus', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({ name: name })
+    //     })
+    //     .then(response => {
+    //         console.log('Response status:', response.status); // Debug log
+    //         return response.json();
+    //     })
+    //     .then(data => {
+    //         console.log('Response data:', data); // Debug log
+    //         statusResult.style.display = 'block';
             
-            if (data.success) {
-                alertDiv.className = `alert ${getAlertClass(data.status)}`;
-                alertDiv.textContent = data.message;
-            } else {
-                alertDiv.className = 'alert alert-danger';
-                alertDiv.textContent = data.error || 'An error occurred while checking the status.';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error); // Debug log
-            statusResult.style.display = 'block';
-            alertDiv.className = 'alert alert-danger';
-            alertDiv.textContent = 'An error occurred while checking the status.';
-        });
-    }
+    //         if (data.success) {
+    //             alertDiv.className = `alert ${getAlertClass(data.status)}`;
+    //             alertDiv.textContent = data.message;
+    //         } else {
+    //             alertDiv.className = 'alert alert-danger';
+    //             alertDiv.textContent = data.error || 'An error occurred while checking the status.';
+    //         }
+    //     })
+    //     .catch(error => {
+    //         console.error('Error:', error); // Debug log
+    //         statusResult.style.display = 'block';
+    //         alertDiv.className = 'alert alert-danger';
+    //         alertDiv.textContent = 'An error occurred while checking the status.';
+    //     });
+    // }
 
-    function getAlertClass(status) {
-        switch(status) {
-            case 'Pending':
-                return 'alert-warning bg-warning-subtle border-0';
-            case 'Lulus':
-            case 'Active':
-                return 'alert-success bg-success-subtle border-0';
-            case 'Tolak':
-            case 'Inactive':
-                return 'alert-danger bg-danger-subtle border-0';
-            case 'not_found':
-                return 'alert-info bg-info-subtle border-0';
-            default:
-                return 'alert-secondary bg-secondary-subtle border-0';
-        }
-    }
+    // function getAlertClass(status) {
+    //     switch(status) {
+    //         case 'Pending':
+    //             return 'alert-warning bg-warning-subtle border-0';
+    //         case 'Lulus':
+    //         case 'Active':
+    //             return 'alert-success bg-success-subtle border-0';
+    //         case 'Tolak':
+    //         case 'Inactive':
+    //             return 'alert-danger bg-danger-subtle border-0';
+    //         case 'not_found':
+    //             return 'alert-info bg-info-subtle border-0';
+    //         default:
+    //             return 'alert-secondary bg-secondary-subtle border-0';
+    //     }
+    // }
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 
