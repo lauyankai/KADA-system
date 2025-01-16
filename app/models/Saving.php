@@ -115,15 +115,14 @@ class Saving extends BaseModel
         }
     }
 
-    public function makeDeposit($accountId, $amount, $data)
+    public function makeDeposit($accountId, $amount)
     {
         try {
             $this->getConnection()->beginTransaction();
 
             // Update account balance
             $sql = "UPDATE savings_accounts 
-                    SET current_amount = current_amount + :amount,
-                        updated_at = NOW()
+                    SET current_amount = current_amount + :amount 
                     WHERE id = :account_id";
                     
             $stmt = $this->getConnection()->prepare($sql);
@@ -134,34 +133,23 @@ class Saving extends BaseModel
 
             // Record transaction
             $sql = "INSERT INTO savings_transactions (
-                        savings_account_id,
-                        type,
-                        amount,
-                        reference_no,
+                        savings_account_id, 
+                        transaction_type, 
+                        amount, 
                         description,
-                        payment_method,
-                        status,
                         created_at
                     ) VALUES (
                         :account_id,
-                        :type,
+                        'deposit',
                         :amount,
-                        :reference_no,
-                        :description,
-                        :payment_method,
-                        :status,
+                        'Deposit manual',
                         NOW()
                     )";
-
+                    
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([
                 ':account_id' => $accountId,
-                ':type' => $data['type'],
-                ':amount' => $amount,
-                ':reference_no' => $data['reference_no'],
-                ':description' => $data['description'],
-                ':payment_method' => $data['payment_method'],
-                ':status' => $data['status']
+                ':amount' => $amount
             ]);
 
             $this->getConnection()->commit();
@@ -170,7 +158,7 @@ class Saving extends BaseModel
         } catch (\PDOException $e) {
             $this->getConnection()->rollBack();
             error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal melakukan deposit');
+            throw new \Exception('Gagal membuat deposit');
         }
     }
 
@@ -250,40 +238,45 @@ class Saving extends BaseModel
     {
         try {
             $sql = "INSERT INTO savings_goals (
-                        member_id,
-                        name,
-                        target_amount,
-                        current_amount,
-                        target_date,
-                        description,
-                        status,
-                        created_at
-                    ) VALUES (
-                        :member_id,
-                        :name,
-                        :target_amount,
-                        :current_amount,
-                        :target_date,
-                        :description,
-                        :status,
-                        NOW()
-                    )";
-                    
+                member_id, 
+                name, 
+                target_amount, 
+                current_amount,
+                monthly_target,
+                target_date, 
+                status, 
+                created_at, 
+                updated_at
+            ) VALUES (
+                :member_id, 
+                :name, 
+                :target_amount, 
+                :current_amount,
+                :monthly_target,
+                :target_date,
+                :status, 
+                NOW(), 
+                NOW()
+            )";
+
             $stmt = $this->getConnection()->prepare($sql);
-            $result = $stmt->execute([
+            
+            $params = [
                 ':member_id' => $data['member_id'],
                 ':name' => $data['name'],
                 ':target_amount' => $data['target_amount'],
                 ':current_amount' => $data['current_amount'],
+                ':monthly_target' => $data['monthly_target'],
                 ':target_date' => $data['target_date'],
-                ':description' => $data['description'],
                 ':status' => $data['status']
-            ]);
+            ];
 
+            $result = $stmt->execute($params);
             return $result;
+
         } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal mencipta matlamat simpanan');
+            error_log('Database Error in createSavingsGoal: ' . $e->getMessage());
+            throw new \Exception('Gagal menyimpan sasaran simpanan: ' . $e->getMessage());
         }
     }
 
@@ -599,27 +592,35 @@ class Saving extends BaseModel
     public function updateSavingsGoal($data)
     {
         try {
+            // Verify ownership
+            $sql = "SELECT member_id FROM savings_goals WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $data['id']]);
+            $goal = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$goal || $goal['member_id'] != $data['member_id']) {
+                throw new \Exception('Unauthorized access');
+            }
+
             $sql = "UPDATE savings_goals SET 
                     name = :name,
                     target_amount = :target_amount,
                     target_date = :target_date,
-                    monthly_target = :monthly_target,
                     updated_at = NOW()
-                    WHERE id = :id 
-                    AND member_id = :member_id";
-            
+                    WHERE id = :id AND member_id = :member_id";
+
             $stmt = $this->getConnection()->prepare($sql);
             return $stmt->execute([
                 ':id' => $data['id'],
                 ':member_id' => $data['member_id'],
                 ':name' => $data['name'],
                 ':target_amount' => $data['target_amount'],
-                ':target_date' => $data['target_date'],
-                ':monthly_target' => $data['monthly_target']
+                ':target_date' => $data['target_date']
             ]);
+
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal mengemaskini sasaran simpanan');
+            throw new \Exception('Gagal mengemaskini sasaran');
         }
     }
 
@@ -642,19 +643,44 @@ class Saving extends BaseModel
         }
     }
 
-    public function getTransactionByReference($reference)
+    public function getTransactionByReference($referenceNo)
     {
         try {
-            $sql = "SELECT t.*, a.current_amount as new_balance, 
-                    (a.current_amount - t.amount) as previous_balance 
-                    FROM savings_transactions t
-                    JOIN savings_accounts a ON t.savings_account_id = a.id
-                    WHERE t.reference_no = :reference";
+            // Modified query to match actual database structure
+            $sql = "SELECT 
+                    t.*,
+                    sa.member_id,
+                    m.name as member_name,
+                    m.member_id as member_number  -- Using member_id instead of member_number
+                FROM savings_transactions t
+                INNER JOIN savings_accounts sa ON t.savings_account_id = sa.id
+                INNER JOIN members m ON sa.member_id = m.id
+                WHERE t.reference_no = :reference_no
+                LIMIT 1";
+                
             $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':reference' => $reference]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Debug log before execution
+            error_log('Searching for transaction with reference: ' . $referenceNo);
+            
+            $stmt->execute([':reference_no' => $referenceNo]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Debug log the result
+            error_log('Query result: ' . print_r($result, true));
+            
+            if (!$result) {
+                error_log('No transaction found for reference: ' . $referenceNo);
+                return null;
+            }
+            
+            return $result;
+            
         } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
+            error_log('Database Error in getTransactionByReference: ' . $e->getMessage());
+            error_log('SQL State: ' . $e->errorInfo[0]);
+            error_log('Error Code: ' . $e->errorInfo[1]);
+            error_log('Error Message: ' . $e->errorInfo[2]);
             throw new \Exception('Gagal mendapatkan maklumat transaksi');
         }
     }
@@ -676,63 +702,68 @@ class Saving extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            // Get current account balance
-            $sql = "SELECT current_amount FROM savings_accounts 
-                    WHERE id = :account_id AND status = 'active'";
+            // Get the member's active savings account
+            $sql = "SELECT id, current_amount FROM savings_accounts 
+                    WHERE member_id = :member_id 
+                    AND status = 'active' 
+                    LIMIT 1";
+                    
             $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':account_id' => $data['account_id']]);
+            $stmt->execute([':member_id' => $data['member_id']]);
             $account = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$account) {
-                throw new \Exception('Akaun simpanan tidak ditemui');
+                throw new \Exception('Akaun simpanan tidak dijumpai');
             }
 
-            // Calculate new balance
-            $newBalance = $account['current_amount'] + $data['amount'];
-
             // Update account balance
+            $newBalance = $account['current_amount'] + $data['amount'];
             $sql = "UPDATE savings_accounts 
-                    SET current_amount = :new_balance, 
-                        updated_at = NOW() 
+                    SET current_amount = :new_balance 
                     WHERE id = :account_id";
+                    
             $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([
+            $updateResult = $stmt->execute([
                 ':new_balance' => $newBalance,
-                ':account_id' => $data['account_id']
+                ':account_id' => $account['id']
             ]);
 
-            // Record transaction
+            // Record the transaction with explicit reference_no
             $sql = "INSERT INTO savings_transactions (
-                        savings_account_id, 
-                        type,
-                        amount,
-                        reference_no,
-                        description,
-                        payment_method,
-                        status,
-                        created_at
-                    ) VALUES (
-                        :account_id,
-                        'deposit',
-                        :amount,
-                        :reference_no,
-                        :description,
-                        :payment_method,
-                        :status,
-                        NOW()
-                    )";
+                savings_account_id,
+                amount,
+                type,
+                payment_method,
+                reference_no,
+                description,
+                created_at
+            ) VALUES (
+                :account_id,
+                :amount,
+                :type,
+                :payment_method,
+                :reference_no,
+                :description,
+                NOW()
+            )";
+
+            $params = [
+                ':account_id' => $account['id'],
+                ':amount' => $data['amount'],
+                ':type' => $data['type'],
+                ':payment_method' => $data['payment_method'],
+                ':reference_no' => $data['reference_no'],
+                ':description' => $data['description']
+            ];
+
+            // Debug log
+            error_log('Inserting transaction with reference: ' . $data['reference_no']);
+            error_log('Transaction parameters: ' . print_r($params, true));
 
             $stmt = $this->getConnection()->prepare($sql);
-            $success = $stmt->execute([
-                ':account_id' => $data['account_id'],
-                ':amount' => $data['amount'],
-                ':reference_no' => $data['reference_no'],
-                ':description' => $data['description'],
-                ':payment_method' => $data['payment_method'],
-                ':status' => $data['status']
-            ]);
+            $result = $stmt->execute($params);
 
-            if ($success) {
+            if ($result) {
                 $this->getConnection()->commit();
                 return true;
             }
@@ -741,8 +772,11 @@ class Saving extends BaseModel
 
         } catch (\PDOException $e) {
             $this->getConnection()->rollBack();
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal melakukan deposit');
+            error_log('Database Error in deposit: ' . $e->getMessage());
+            error_log('SQL State: ' . $e->errorInfo[0]);
+            error_log('Error Code: ' . $e->errorInfo[1]);
+            error_log('Error Message: ' . $e->errorInfo[2]);
+            throw new \Exception('Gagal merekod transaksi: ' . $e->getMessage());
         }
     }
 
@@ -928,6 +962,63 @@ class Saving extends BaseModel
             $this->getConnection()->rollBack();
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal merekod transaksi');
+        }
+    }
+
+    public function getSavingsGoalById($id)
+    {
+        try {
+            $sql = "SELECT * FROM savings_goals WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat sasaran');
+        }
+    }
+
+    public function getAllSavingsGoals($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM savings_goals 
+                    WHERE member_id = :member_id 
+                    AND status = 'active'
+                    ORDER BY created_at DESC";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai sasaran simpanan');
+        }
+    }
+
+    public function getTransactionHistory($accountId, $limit = 10)
+    {
+        try {
+            $sql = "SELECT 
+                    t.*,
+                    DATE_FORMAT(t.created_at, '%d/%m/%Y %H:%i') as formatted_date,
+                    sa.current_amount as balance
+                FROM savings_transactions t
+                INNER JOIN savings_accounts sa ON t.savings_account_id = sa.id
+                WHERE t.savings_account_id = :account_id
+                ORDER BY t.created_at DESC
+                LIMIT :limit";
+                
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':account_id', $accountId, PDO::PARAM_INT);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in getTransactionHistory: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan sejarah transaksi');
         }
     }
 }

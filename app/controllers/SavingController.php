@@ -108,28 +108,28 @@ class SavingController extends BaseController
     {
         try {
             if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
+                header('Location: /login');
+                exit;
             }
 
-            $memberId = $_SESSION['member_id'];
+            $account = $this->saving->getAccountByMemberId($_SESSION['member_id']);
+            $goals = $this->saving->getAllSavingsGoals($_SESSION['member_id']);
             
-            // Get recurring payment data first
-            $recurringPayments = $this->saving->getRecurringPayments($memberId);
-            
-            // Get all required data for the page
-            $data = [
-                'account' => $this->saving->getSavingsAccount($memberId),
-                'goals' => $this->saving->getSavingsGoals($memberId),
-                'recurring' => $recurringPayments,
-                'transactions' => $this->saving->getRecentTransactions($memberId, 5),
-                'recurringPayment' => !empty($recurringPayments) ? $recurringPayments[0] : null
-            ];
+            // Get transaction history
+            $transactions = [];
+            if ($account) {
+                $transactions = $this->saving->getTransactionHistory($account['id']);
+            }
 
-            $this->view('users/savings/page', $data);
+            $this->view('users/savings/page', [
+                'account' => $account,
+                'goals' => $goals,
+                'transactions' => $transactions
+            ]);
 
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /users/dashboard');
+            header('Location: /dashboard');
             exit;
         }
     }
@@ -235,13 +235,12 @@ class SavingController extends BaseController
                 $reference = 'DEP' . date('YmdHis') . rand(100, 999);
 
                 $data = [
-                    'account_id' => $account['id'],
+                    'member_id' => $memberId,
                     'amount' => $amount,
                     'payment_method' => $paymentMethod,
-                    'description' => 'Deposit ke akaun simpanan',
-                    'reference_no' => $reference,
                     'type' => 'deposit',
-                    'status' => 'completed'
+                    'reference_no' => $reference,
+                    'description' => 'Deposit ke akaun simpanan'
                 ];
 
                 if ($this->saving->recordTransaction($data)) {
@@ -676,25 +675,26 @@ class SavingController extends BaseController
                     throw new \Exception('Sila log masuk untuk mengakses');
                 }
 
-                $memberId = $_SESSION['member_id'];
-                $goal = $this->saving->getSavingsGoal($id);
-                
-                if (!$goal || $goal['member_id'] != $memberId) {
-                    throw new \Exception('Sasaran tidak ditemui');
+                // Verify ownership before deletion
+                $goal = $this->saving->getSavingsGoalById($id);
+                if (!$goal || $goal['member_id'] != $_SESSION['member_id']) {
+                    throw new \Exception('Sasaran simpanan tidak dijumpai');
                 }
 
                 if ($this->saving->deleteSavingsGoal($id)) {
-                    $_SESSION['success'] = 'Sasaran berjaya dipadam';
+                    $_SESSION['success'] = 'Sasaran simpanan berjaya dipadam';
                 } else {
-                    throw new \Exception('Gagal memadam sasaran');
+                    throw new \Exception('Gagal memadam sasaran simpanan');
                 }
+
+                header('Location: /users/savings/page');
+                exit;
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
+                header('Location: /users/savings/page');
+                exit;
             }
-
-            header('Location: /users/savings/page');
-            exit;
         }
 
         public function storeAccount()
@@ -725,41 +725,45 @@ class SavingController extends BaseController
         public function showReceipt($referenceNo)
         {
             try {
-                if (isset($_SESSION['receipt'])) {
-                    $receipt = $_SESSION['receipt'];
-                    unset($_SESSION['receipt']);
-                    $this->view('payment/receipt', ['receipt' => $receipt]);
-                    return;
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
                 }
 
-                $transaction = $this->user->getTransactionByReference($referenceNo);
+                // Debug log
+                error_log('Looking for receipt with reference: ' . $referenceNo);
+                error_log('Current member ID: ' . $_SESSION['member_id']);
+
+                // Get transaction details
+                $transaction = $this->saving->getTransactionByReference($referenceNo);
+                
                 if (!$transaction) {
-                    throw new \Exception('Transaksi tidak ditemui');
+                    throw new \Exception('Resit tidak dijumpai');
                 }
 
-                // Format receipt data
-                $receipt = [
-                    'type' => $transaction['type'],
-                    'reference_no' => $transaction['reference_no'],
-                    'amount' => $transaction['amount'],
-                    'payment_method' => $transaction['payment_method'],
-                    'previous_balance' => $transaction['previous_balance'],
-                    'new_balance' => $transaction['new_balance'],
-                    'created_at' => $transaction['created_at'],
-                    'description' => $transaction['description']
+                // Debug log
+                error_log('Transaction found: ' . print_r($transaction, true));
+
+                // Verify ownership
+                if ($transaction['member_id'] != $_SESSION['member_id']) {
+                    throw new \Exception('Anda tidak mempunyai akses kepada resit ini');
+                }
+
+                // Get member details (already included in transaction now)
+                $member = [
+                    'name' => $transaction['member_name'],
+                    'member_number' => $transaction['member_number']
                 ];
 
-                // For debugging
-                error_log('Receipt Data: ' . print_r($receipt, true));
-
-                $this->view('payment/receipt', ['receipt' => $receipt]);
+                $this->view('users/savings/receipt', [
+                    'transaction' => $transaction,
+                    'member' => $member
+                ]);
 
             } catch (\Exception $e) {
                 error_log('Error in showReceipt: ' . $e->getMessage());
-                error_log('Transaction data: ' . print_r($transaction ?? null, true));
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users');
-                exit();
+                header('Location: /users/savings/page');
+                exit;
             }
         }
 
@@ -805,6 +809,203 @@ class SavingController extends BaseController
                 ]);
 
             } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /users/savings/page');
+                exit;
+            }
+        }
+
+        public function editGoal($id)
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                $goal = $this->saving->getSavingsGoalById($id);
+                
+                if (!$goal || $goal['member_id'] != $_SESSION['member_id']) {
+                    throw new \Exception('Sasaran simpanan tidak dijumpai');
+                }
+
+                $this->view('users/savings/goals/edit_goal', ['goal' => $goal]);
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /users/savings/page');
+                exit;
+            }
+        }
+
+        public function updateGoal($id)
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                // Validate input
+                if (empty($_POST['name']) || empty($_POST['target_amount']) || empty($_POST['target_date'])) {
+                    throw new \Exception('Sila lengkapkan semua maklumat');
+                }
+
+                $data = [
+                    'id' => $id,
+                    'member_id' => $_SESSION['member_id'],
+                    'name' => $_POST['name'],
+                    'target_amount' => $_POST['target_amount'],
+                    'target_date' => $_POST['target_date']
+                ];
+
+                if ($this->saving->updateSavingsGoal($data)) {
+                    $_SESSION['success'] = 'Sasaran simpanan berjaya dikemaskini';
+                } else {
+                    throw new \Exception('Gagal mengemaskini sasaran simpanan');
+                }
+
+                header('Location: /users/savings/page');
+                exit;
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /users/savings/goals/edit/' . $id);
+                exit;
+            }
+        }
+
+        public function createGoal()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                $this->view('users/savings/goals/create_goal');
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /users/savings/page');
+                exit;
+            }
+        }
+
+        public function storeGoal()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                // Validate input
+                if (empty($_POST['name']) || empty($_POST['target_amount']) || empty($_POST['target_date'])) {
+                    throw new \Exception('Sila lengkapkan semua maklumat');
+                }
+
+                // Calculate monthly target
+                $targetDate = new \DateTime($_POST['target_date']);
+                $today = new \DateTime();
+                $monthsDiff = ($targetDate->diff($today)->y * 12) + $targetDate->diff($today)->m;
+                $monthlyTarget = $monthsDiff > 0 ? $_POST['target_amount'] / $monthsDiff : $_POST['target_amount'];
+
+                $data = [
+                    'member_id' => $_SESSION['member_id'],
+                    'name' => $_POST['name'],
+                    'target_amount' => $_POST['target_amount'],
+                    'current_amount' => 0,
+                    'monthly_target' => $monthlyTarget,
+                    'target_date' => $_POST['target_date'],
+                    'status' => 'active'
+                ];
+
+                if ($this->saving->createSavingsGoal($data)) {
+                    $_SESSION['success'] = 'Sasaran simpanan berjaya ditambah';
+                    header('Location: /users/savings/page');
+                    exit;
+                }
+
+                throw new \Exception('Gagal menambah sasaran simpanan');
+
+            } catch (\Exception $e) {
+                error_log('Error in storeGoal: ' . $e->getMessage());
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /users/savings/goals/create');
+                exit;
+            }
+        }
+
+        public function showSavingsPage()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                $memberId = $_SESSION['member_id'];
+                $account = $this->saving->getSavingsAccount($memberId);
+                $goals = $this->saving->getAllSavingsGoals($memberId);
+                
+                // Get transaction history if account exists
+                $transactions = [];
+                if ($account) {
+                    $transactions = $this->saving->getTransactionHistory($account['id']);
+                }
+                
+                $this->view('users/savings/page', [
+                    'account' => $account,
+                    'goals' => $goals,
+                    'transactions' => $transactions
+                ]);
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /users/dashboard');
+                exit;
+            }
+        }
+
+        public function makeDeposit()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                // Debug: Log session data
+                error_log('Session member_id: ' . $_SESSION['member_id']);
+
+                // Validate input
+                if (empty($_POST['amount']) || empty($_POST['payment_method'])) {
+                    throw new \Exception('Sila lengkapkan semua maklumat');
+                }
+
+                $amount = filter_var($_POST['amount'], FILTER_VALIDATE_FLOAT);
+                if ($amount === false || $amount < 10 || $amount > 1000) {
+                    throw new \Exception('Jumlah deposit tidak sah. Minimum: RM10, Maksimum: RM1,000');
+                }
+
+                $referenceNo = 'DEP' . time() . rand(1000, 9999);
+                
+                $data = [
+                    'member_id' => $_SESSION['member_id'],
+                    'amount' => $amount,
+                    'payment_method' => $_POST['payment_method'],
+                    'type' => 'deposit',
+                    'reference_no' => $referenceNo,
+                    'description' => 'Deposit ke akaun simpanan'
+                ];
+
+                // Debug: Log deposit data
+                error_log('Attempting deposit with data: ' . print_r($data, true));
+
+                if ($this->saving->deposit($data)) {
+                    header('Location: /users/savings/receipt/' . $referenceNo);
+                    exit;
+                }
+
+                throw new \Exception('Gagal memproses deposit');
+
+            } catch (\Exception $e) {
+                error_log('Error in makeDeposit: ' . $e->getMessage());
                 $_SESSION['error'] = $e->getMessage();
                 header('Location: /users/savings/page');
                 exit;

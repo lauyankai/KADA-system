@@ -260,27 +260,27 @@
 
                         <div class="step-content" data-step="3">
                             <!-- Section 3: Pengakuan content -->
-                            <div class="mb-4">
+                        <div class="mb-4">
                                 <h4 class="mt-3 mb-4 text-success">
                                     <i class="bi bi-file-text me-2"></i>Pengakuan
                                 </h4>
                                 <div class="card bg-white p-4 shadow-sm">
                                     <h5 class="card-title mb-4">Pengakuan Pemohon</h5>
-                                    <div class="row g-3">
-                                        <div class="col-12">
-                                            <div class="declaration-text p-3 bg-light rounded">
-                                                Saya <span class="fw-bold"><?= htmlspecialchars($member->name ?? '') ?></span> 
-                                                No.K/P: <span class="fw-bold"><?= htmlspecialchars($member->ic_no ?? '') ?></span> 
-                                                dengan ini memberi kuasa kepada KOPERASI KAKITANGAN KADA KELANTAN BHD atau wakilnya yang sah 
-                                                untuk mendapat apa-apa maklumat yang diperlukan dan juga mendapatakan bayaran balik dari 
-                                                potongan gaji dan emolumen saya sebagaimana amaun yang dipinjamkan. Saya juga bersetuju 
-                                                menerima sebarang keputusan dari KOPERASI ini untuk menolak pemohonan tanpa memberi sebarang alasan.
-                                            </div>
-                                            <div class="form-check mt-3">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="declaration-text p-3 bg-light rounded">
+                                        Saya <span class="fw-bold"><?= htmlspecialchars($member->name ?? '') ?></span> 
+                                        No.K/P: <span class="fw-bold"><?= htmlspecialchars($member->ic_no ?? '') ?></span> 
+                                        dengan ini memberi kuasa kepada KOPERASI KAKITANGAN KADA KELANTAN BHD atau wakilnya yang sah 
+                                        untuk mendapat apa-apa maklumat yang diperlukan dan juga mendapatakan bayaran balik dari 
+                                        potongan gaji dan emolumen saya sebagaimana amaun yang dipinjamkan. Saya juga bersetuju 
+                                        menerima sebarang keputusan dari KOPERASI ini untuk menolak pemohonan tanpa memberi sebarang alasan.
+                                    </div>
+                                    <div class="form-check mt-3">
                                                 <input type="checkbox" class="form-check-input" id="confirmationCheckbox" name="declaration_confirmed" value="1" required>
                                                 <label class="form-check-label" for="confirmationCheckbox">
                                                     Saya mengesah pengakuan di atas
-                                                </label>
+                                        </label>
                                             </div>
                                         </div>
                                     </div>
@@ -361,9 +361,9 @@
                                     <label class="form-label">Gaji Bersih Sebulan (RM)</label>
                                     <input type="number" name="net_salary" class="form-control" required
                                            min="0" max="99999.99" step="0.01" placeholder="0.00">
-                                    </div>
                                 </div>
                             </div>
+                        </div>
                         </div>
 
                         

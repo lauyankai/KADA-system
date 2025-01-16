@@ -133,6 +133,23 @@ $router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDash
 $router->addRoute('POST', '/admin/export-pdf', 'AdminController', 'exportPdf');
 $router->addRoute('POST', '/admin/export-excel', 'AdminController', 'exportExcel');
 
+// Add these routes for savings goals
+$router->addRoute('GET', '/users/savings/goals/edit/{id}', 'SavingController', 'editGoal');
+$router->addRoute('POST', '/users/savings/goals/update/{id}', 'SavingController', 'updateGoal');
+
+// Add these routes for savings goals
+$router->addRoute('GET', '/users/savings/goals/create', 'SavingController', 'createGoal');
+$router->addRoute('POST', '/users/savings/goals/store', 'SavingController', 'storeGoal');
+
+// Add this route for deleting savings goals
+$router->addRoute('POST', '/users/savings/goals/delete/{id}', 'SavingController', 'deleteGoal');
+
+// Add this route for handling deposits
+$router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
+
+// Add this route for showing receipts
+$router->addRoute('GET', '/users/savings/receipt/{referenceNo}', 'SavingController', 'showReceipt');
+
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
