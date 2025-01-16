@@ -26,10 +26,10 @@ class GuestController extends BaseController
             $createdGuest = $this->guest->create($_POST);
             
             if ($createdGuest) {
-                $_SESSION['success_message'] = '<div style="font-size: 18px;">Permohonan anda telah berjaya dihantar!<br>Nombor rujukan anda ialah: <strong>' . 
-                    $createdGuest['reference_no'] . 
-                    '</strong><br>Sila simpan nombor rujukan ini untuk semakan status permohonan anda pada masa hadapan. Terima kasih.</div>';
-                header('Location: /');
+                // Pass the reference number to the success view
+                $this->view('guest/success', [
+                    'reference_no' => $createdGuest['reference_no']
+                ]);
                 exit;
             }
         } catch (PDOException $e) {
