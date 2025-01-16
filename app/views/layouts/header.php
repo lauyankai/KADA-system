@@ -11,8 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <?php if (isset($_SESSION['user_id'])): ?>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
                 <i class="bi bi-shield-check me-2"></i>KADA System
@@ -22,53 +21,45 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/users"><i class="bi bi-people me-2"></i>Anggota</a>
+                    <!-- Tentang Kami -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="tentangKamiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-info-circle me-2"></i>Tentang Kami
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="tentangKamiDropdown">
+                            <li><a class="dropdown-item" href="/about/vision"><i class="bi bi-eye"></i>Visi & Misi</a></li>
+                            <li><a class="dropdown-item" href="/about/history"><i class="bi bi-book"></i>Sejarah</a></li>
+                            <li><a class="dropdown-item" href="/about/facts"><i class="bi bi-bar-chart"></i>Fakta & Angka</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/guest/create"><i class="bi bi-people me-2"></i>Penambahan Anggota</a>
+
+                    <!-- Perkhidmatan -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="perkhidmatanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-wrench me-2"></i>Perkhidmatan
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="perkhidmatanDropdown">
+                            <li><a class="dropdown-item" href="/users/loans/details"><i class="bi bi-cash"></i>Pinjaman</a></li>
+                            <li><a class="dropdown-item" href="/users/"><i class="bi bi-graph-up"></i>Pelaburan</a></li>
+                            <li><a class="dropdown-item" href="/users/savings"><i class="bi bi-piggy-bank"></i>Tabung</a></li>
+                            <li><a class="dropdown-item" href="/users"><i class="bi bi-credit-card"></i>Pembiayaan</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                    <a class="nav-link" href="/users/loans/details">
-                    <i class="bi bi-cash-stack me-2"></i>Pinjaman
 
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/users/savings/page">
-                    <i class="bi bi-piggy-bank me-2"></i> Simpanan
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="users/savings/transfer">
-                    <i class="bi bi-credit-card me-2"></i>Pembayaran   
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/pembiayaan">
-                    <i class="bi bi-receipt me-2"></i>Pembiayaan   
-                       
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/pembiayaan">
-                    <i class="bi bi-bar-chart me-2"></i>Pelaburan   
-                    </a>
-
-
-
-                    
-
+                    <!-- Hubungi Kami -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="hubungiKamiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-envelope"></i>Hubungi Kami
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="hubungiKamiDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-geo-alt"></i>Alamat</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-telephone"></i>Telefon</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-envelope"></i>E-mel</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-clock"></i>Waktu Operasi</a></li>
+                        </ul>
+                    </li>
                 </ul>
-                <div class="d-flex align-items-center">
-                    <span class="me-3">Welcome, <?= htmlspecialchars($_SESSION['username'] ?? '') ?></span>
-                    <a href="/auth/logout" class="btn btn-outline-danger">
-                        <i class="bi bi-box-arrow-right me-2"></i>Keluar
-                    </a>
-                </div>
             </div>
         </div>
     </nav>
-    <?php endif; ?>
 </body>
