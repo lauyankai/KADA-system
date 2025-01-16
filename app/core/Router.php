@@ -26,6 +26,9 @@ class Router {
             $requestUri = $_SERVER['REQUEST_URI'];
             $requestMethod = $_SERVER['REQUEST_METHOD'];
 
+            // Add debug logging
+            $this->debugRoute($requestUri, $requestMethod);
+
             // Remove the base URL part of the URI
             $requestUri = str_replace('/KADA-system', '', $requestUri);
 
@@ -76,5 +79,26 @@ class Router {
         preg_match($pattern, $requestUri, $matches);
         array_shift($matches);
         return $matches;
+    }
+
+    // Add this method to your Router class
+    public function addRoutes() {
+        // Add your routes here
+        $this->addRoute('POST', '/guest/checkStatus', 'GuestController', 'checkStatus');
+        // ... other routes
+    }
+
+    // Add this method to help debug
+    public function debugRoute($requestUri, $requestMethod) {
+        error_log("Requested URI: " . $requestUri);
+        error_log("Request Method: " . $requestMethod);
+        foreach ($this->routes as $route) {
+            error_log("Checking route: " . $route['method'] . " " . $route['route']);
+        }
+    }
+
+    public function __construct() {
+        // Add the route in constructor
+        $this->addRoute('POST', '/guest/checkStatus', 'GuestController', 'checkStatus');
     }
 }
