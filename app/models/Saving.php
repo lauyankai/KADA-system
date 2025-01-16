@@ -1002,8 +1002,8 @@ public function processDeposit($data)
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan senarai sasaran simpanan');
-        }
     }
+}
 
     public function getTransactionHistory($accountId, $limit = 10)
     {
@@ -1038,7 +1038,7 @@ public function processDeposit($data)
                     WHERE member_id = :member_id 
                     AND status = 'active'
                     ORDER BY display_main DESC";
-            
+
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1076,77 +1076,132 @@ public function processDeposit($data)
             // Start transaction
             $this->getConnection()->beginTransaction();
 
-            // Get source account
-            $sourceAccount = $this->getAccountById($fromAccountId);
-            if (!$sourceAccount) {
-                throw new \Exception('Akaun pemindah tidak ditemui');
+            // Get sender account details first
+            $senderSql = "SELECT * FROM savings_accounts WHERE id = :account_id AND status = 'active'";
+            $senderStmt = $this->getConnection()->prepare($senderSql);
+            $senderStmt->execute([':account_id' => $fromAccountId]);
+            $senderAccount = $senderStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$senderAccount) {
+                throw new \Exception('Akaun pengirim tidak sah atau tidak aktif');
             }
 
             // Get recipient account
-            $sql = "SELECT * FROM savings_accounts 
-                    WHERE account_number = :account_number 
-                    AND status = 'active'";
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':account_number' => $recipientAccountNumber]);
-            $recipientAccount = $stmt->fetch(PDO::FETCH_ASSOC);
+            $recipientSql = "SELECT * FROM savings_accounts 
+                            WHERE account_number = :account_number 
+                            AND status = 'active'";
+            $recipientStmt = $this->getConnection()->prepare($recipientSql);
+            $recipientStmt->execute([':account_number' => $recipientAccountNumber]);
+            $recipientAccount = $recipientStmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$recipientAccount) {
-                throw new \Exception('Akaun penerima tidak ditemui');
+                throw new \Exception('Akaun penerima tidak sah atau tidak aktif');
             }
 
-            // Check if trying to transfer to same account
-            if ($sourceAccount['id'] === $recipientAccount['id']) {
-                throw new \Exception('Tidak boleh pindah ke akaun yang sama');
-            }
+            // Generate reference number
+            $reference = 'TRF' . date('YmdHis') . rand(100, 999);
 
-            // Check sufficient balance
-            if ($sourceAccount['current_amount'] < $amount) {
+            // Deduct from sender account
+            $deductSql = "UPDATE savings_accounts 
+                          SET current_amount = current_amount - :amount,
+                              updated_at = NOW() 
+                          WHERE id = :account_id 
+                          AND current_amount >= :check_amount";
+            $deductStmt = $this->getConnection()->prepare($deductSql);
+            $deductStmt->execute([
+                ':amount' => $amount,
+                ':account_id' => $fromAccountId,
+                ':check_amount' => $amount
+            ]);
+
+            if ($deductStmt->rowCount() == 0) {
                 throw new \Exception('Baki tidak mencukupi');
             }
 
-            // Deduct from source account
-            $updateSourceSql = "UPDATE savings_accounts 
-                               SET current_amount = current_amount - :amount,
-                                   updated_at = NOW()
-                               WHERE id = :account_id";
-            $stmt = $this->getConnection()->prepare($updateSourceSql);
-            $stmt->execute([
-                ':amount' => $amount,
-                ':account_id' => $sourceAccount['id']
-            ]);
-
             // Add to recipient account
-            $updateRecipientSql = "UPDATE savings_accounts 
-                                  SET current_amount = current_amount + :amount,
-                                      updated_at = NOW()
-                                  WHERE id = :account_id";
-            $stmt = $this->getConnection()->prepare($updateRecipientSql);
-            $stmt->execute([
+            $addSql = "UPDATE savings_accounts 
+                       SET current_amount = current_amount + :amount,
+                           updated_at = NOW() 
+                       WHERE id = :account_id";
+            $addStmt = $this->getConnection()->prepare($addSql);
+            $addStmt->execute([
                 ':amount' => $amount,
                 ':account_id' => $recipientAccount['id']
             ]);
 
-            // Record transaction for source account (debit)
-            $this->recordTransfer($sourceAccount['id'], 'debit', $amount, $description, [
-                'recipient_account' => $recipientAccount['account_number'],
-                'recipient_name' => $recipientAccount['account_name'],
-                'transfer_type' => 'member'
+            // Record transaction for sender
+            $senderTransactionSql = "INSERT INTO savings_transactions (
+                savings_account_id, 
+                type,
+                amount,
+                description,
+                reference_no,
+                recipient_account_number,
+                sender_account_number,
+                payment_method,
+                created_at
+            ) VALUES (
+                :account_id,
+                'transfer_out',
+                :amount,
+                :description,
+                :reference_no,
+                :recipient_account_number,
+                :sender_account_number,
+                'fpx',
+                NOW()
+            )";
+
+            $senderStmt = $this->getConnection()->prepare($senderTransactionSql);
+            $senderStmt->execute([
+                ':account_id' => $fromAccountId,
+                ':amount' => $amount,
+                ':description' => $description ?: 'Pemindahan ke ' . $recipientAccountNumber,
+                ':reference_no' => $reference,
+                ':recipient_account_number' => $recipientAccountNumber,
+                ':sender_account_number' => $senderAccount['account_number']  // Use sender's account number
             ]);
 
-            // Record transaction for recipient account (credit)
-            $this->recordTransfer($recipientAccount['id'], 'credit', $amount, $description, [
-                'source_account' => $sourceAccount['account_number'],
-                'source_name' => $sourceAccount['account_name'],
-                'transfer_type' => 'member'
+            // Record transaction for recipient
+            $recipientTransactionSql = "INSERT INTO savings_transactions (
+                savings_account_id,
+                type,
+                amount,
+                description,
+                reference_no,
+                recipient_account_number,
+                sender_account_number,
+                payment_method,
+                created_at
+            ) VALUES (
+                :account_id,
+                'transfer_in',
+                :amount,
+                :description,
+                :reference_no,
+                :recipient_account_number,
+                :sender_account_number,
+                'fpx',
+                NOW()
+            )";
+
+            $recipientStmt = $this->getConnection()->prepare($recipientTransactionSql);
+            $recipientStmt->execute([
+                ':account_id' => $recipientAccount['id'],
+                ':amount' => $amount,
+                ':description' => $description ?: 'Pemindahan dari ' . $senderAccount['account_number'],
+                ':reference_no' => $reference,
+                ':recipient_account_number' => $recipientAccountNumber,
+                ':sender_account_number' => $senderAccount['account_number']  // Use sender's account number
             ]);
 
             $this->getConnection()->commit();
-            return true;
+            return $reference;
 
         } catch (\Exception $e) {
             $this->getConnection()->rollBack();
-            error_log('Transfer error: ' . $e->getMessage());
-            throw $e;
+            error_log('Transfer Error: ' . $e->getMessage());
+            throw new \Exception('Gagal melakukan pemindahan: ' . $e->getMessage());
         }
     }
 
@@ -1156,34 +1211,60 @@ public function processDeposit($data)
             // Start transaction
             $this->getConnection()->beginTransaction();
 
-            // Get source account
-            $sourceAccount = $this->getAccountById($fromAccountId);
-            if (!$sourceAccount) {
-                throw new \Exception('Akaun pemindah tidak ditemui');
-            }
+            // Generate reference number
+            $reference = 'TRF' . date('YmdHis') . rand(100, 999);
 
-            // Check sufficient balance
-            if ($sourceAccount['current_amount'] < $amount) {
+            // Deduct from sender account
+            $deductSql = "UPDATE savings_accounts 
+                          SET current_amount = current_amount - :amount,
+                              updated_at = NOW() 
+                          WHERE id = :account_id 
+                          AND current_amount >= :check_amount";
+            $deductStmt = $this->getConnection()->prepare($deductSql);
+            $deductStmt->execute([
+                ':amount' => $amount,
+                ':account_id' => $fromAccountId,
+                ':check_amount' => $amount
+            ]);
+
+            if ($deductStmt->rowCount() == 0) {
                 throw new \Exception('Baki tidak mencukupi');
             }
 
-            // Deduct from source account
-            $updateSourceSql = "UPDATE savings_accounts 
-                               SET current_amount = current_amount - :amount,
-                                   updated_at = NOW()
-                               WHERE id = :account_id";
-            $stmt = $this->getConnection()->prepare($updateSourceSql);
-            $stmt->execute([
-                ':amount' => $amount,
-                ':account_id' => $sourceAccount['id']
-            ]);
-
             // Record transaction
-            $this->recordTransfer($sourceAccount['id'], 'debit', $amount, $description, [
-                'bank_name' => $bankDetails['bank_name'],
-                'bank_account' => $bankDetails['account_number'],
-                'recipient_name' => $bankDetails['recipient_name'],
-                'transfer_type' => 'other'
+            $transactionSql = "INSERT INTO savings_transactions (
+                savings_account_id,
+                type,
+                amount,
+                description,
+                reference_no,
+                bank_name,
+                bank_account_number,
+                recipient_name,
+                status,
+                created_at
+            ) VALUES (
+                :account_id,
+                'transfer_bank',
+                :amount,
+                :description,
+                :reference_no,
+                :bank_name,
+                :bank_account_number,
+                :recipient_name,
+                'completed',
+                NOW()
+            )";
+
+            $stmt = $this->getConnection()->prepare($transactionSql);
+            $stmt->execute([
+                ':account_id' => $fromAccountId,
+                ':amount' => $amount,
+                ':description' => $description ?: 'Pemindahan ke bank lain',
+                ':reference_no' => $reference,
+                ':bank_name' => $bankDetails['bank_name'],
+                ':bank_account_number' => $bankDetails['account_number'],
+                ':recipient_name' => $bankDetails['recipient_name']
             ]);
 
             $this->getConnection()->commit();
@@ -1191,8 +1272,8 @@ public function processDeposit($data)
 
         } catch (\Exception $e) {
             $this->getConnection()->rollBack();
-            error_log('Transfer error: ' . $e->getMessage());
-            throw $e;
+            error_log('Transfer Error: ' . $e->getMessage());
+            throw new \Exception('Gagal melakukan pemindahan: ' . $e->getMessage());
         }
     }
 
@@ -1256,65 +1337,36 @@ public function processDeposit($data)
                 throw new \Exception('Ahli tidak aktif');
             }
             
-            // Get member's main active account
+            // Get member's active savings account
             $sql = "SELECT sa.*, m.name as member_name 
                     FROM savings_accounts sa
                     INNER JOIN members m ON sa.member_id = m.id
                     WHERE sa.member_id = :member_id 
                     AND sa.status = 'active'
-                    AND m.status = 'Active'
-                    ORDER BY sa.display_main DESC, sa.id ASC
+                    ORDER BY sa.id ASC
                     LIMIT 1";
             
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Debug log
+            error_log("Member ID: $memberId");
+            error_log("SQL Query: " . $sql);
+            error_log("Query Result: " . print_r($result, true));
             
             if (!$result) {
-                // Create new savings account if none exists
-                $accountNumber = 'SAV-' . str_pad($memberId, 6, '0', STR_PAD_LEFT) . '-' . rand(1000, 9999);
-                
-                $insertSql = "INSERT INTO savings_accounts (
-                    account_number,
-                    member_id,
-                    current_amount,
-                    status,
-                    display_main,
-                    account_name,
-                    created_at,
-                    updated_at
-                ) VALUES (
-                    :account_number,
-                    :member_id,
-                    :initial_amount,
-                    'active',
-                    1,
-                    'Akaun Utama',
-                    NOW(),
-                    NOW()
-                )";
-                
-                $this->getConnection()->beginTransaction();
-                
-                try {
-                    $insertStmt = $this->getConnection()->prepare($insertSql);
-                    $insertStmt->execute([
-                        ':account_number' => $accountNumber,
-                        ':member_id' => $memberId,
-                        ':initial_amount' => 0.00
-                    ]);
-                    
-                    // Get the newly created account
-                    $stmt = $this->getConnection()->prepare($sql);
-                    $stmt->execute([':member_id' => $memberId]);
-                    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                    
-                    $this->getConnection()->commit();
-                    
-                } catch (\Exception $e) {
-                    $this->getConnection()->rollBack();
-                    error_log('Failed to create account: ' . $e->getMessage());
-                    throw new \Exception('Gagal membuat akaun baru');
+                // Check if member has any savings account
+                $checkSql = "SELECT COUNT(*) as count FROM savings_accounts 
+                            WHERE member_id = :member_id";
+                $checkStmt = $this->getConnection()->prepare($checkSql);
+                $checkStmt->execute([':member_id' => $memberId]);
+                $count = $checkStmt->fetch(PDO::FETCH_ASSOC)['count'];
+
+                if ($count == 0) {
+                    throw new \Exception('Tiada akaun simpanan. Sila hubungi admin.');
+                } else {
+                    throw new \Exception('Akaun tidak aktif. Sila hubungi admin.');
                 }
             }
             
@@ -1322,7 +1374,7 @@ public function processDeposit($data)
             
         } catch (\PDOException $e) {
             error_log('Database Error in getCurrentAccount: ' . $e->getMessage());
-            throw new \Exception('Gagal mendapatkan maklumat akaun');
+            throw new \Exception('Ralat sistem. Sila cuba sebentar lagi.');
         }
     }
 
@@ -1433,6 +1485,45 @@ public function processDeposit($data)
         } catch (\PDOException $e) {
             error_log('Database Error in getMemberAccount: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan maklumat akaun');
+        }
+    }
+
+    public function verifyMemberAccount($memberId, $accountNumber)
+    {
+        try {
+            // First check if member exists and is active
+            $memberSql = "SELECT * FROM members WHERE id = :member_id AND status = 'Active'";
+            $memberStmt = $this->getConnection()->prepare($memberSql);
+            $memberStmt->execute([':member_id' => $memberId]);
+            $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$member) {
+                throw new \Exception('Ahli tidak aktif');
+            }
+
+            // Then verify the account
+            $sql = "SELECT * FROM savings_accounts 
+                    WHERE member_id = :member_id 
+                    AND account_number = :account_number
+                    AND status = 'active'";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':member_id' => $memberId,
+                ':account_number' => $accountNumber
+            ]);
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$result) {
+                throw new \Exception('Nombor akaun tidak sah atau tidak aktif');
+            }
+            
+            return $result;
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mengesahkan akaun');
         }
     }
 }

@@ -37,43 +37,72 @@
                     </div>
 
                     <!-- Transaction Info -->
-                    <div class="bg-light p-3 rounded mb-4">
-                        <div class="row">
-                            <div class="col-6">
-                                <p class="mb-1">Jenis Transaksi:</p>
+                    <?php if ($transaction['type'] === 'deposit'): ?>
+                        <!-- Deposit Style -->
+                        <div class="bg-light p-3 rounded mb-4">
+                            <div class="row">
+                                <div class="col-6">
+                                    <p class="mb-1">Jenis Transaksi:</p>
+                                    <p class="fw-bold">Deposit</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1">Jumlah:</p>
+                                    <h4 class="mb-0 text-success">
+                                        + RM <?= number_format($transaction['amount'], 2) ?>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <!-- Transfer Style -->
+                        <div class="bg-light p-3 rounded mb-4">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <p class="mb-1">Jenis Transaksi:</p>
+                                    <p class="fw-bold">
+                                        <?= $transaction['type'] === 'transfer_out' ? 'Pindahan Keluar' : 'Pindahan Masuk' ?>
+                                    </p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1">Jumlah:</p>
+                                    <h4 class="mb-0 <?= $transaction['type'] === 'transfer_in' ? 'text-success' : 'text-danger' ?>">
+                                        <?= $transaction['type'] === 'transfer_in' ? '+' : '-' ?>
+                                        RM <?= number_format($transaction['amount'], 2) ?>
+                                    </h4>
+                                </div>
+                            </div>
+                            <div class="border-top pt-3">
+                                <p class="mb-1">Dari Akaun:</p>
                                 <p class="fw-bold">
                                     <?php
-                                    switch($transaction['type']) {
-                                        case 'deposit':
-                                            echo 'Deposit';
-                                            break;
-                                        case 'transfer_in':
-                                            echo 'Pindahan Masuk';
-                                            break;
-                                        case 'transfer_out':
-                                            echo 'Pindahan Keluar';
-                                            break;
-                                        default:
-                                            echo ucfirst($transaction['type']);
-                                    }
+                                    $senderAcc = $transaction['sender_account_number'];
+                                    echo substr($senderAcc, 0, 7) . str_repeat('X', 6) . substr($senderAcc, -4);
+                                    ?>
+                                </p>
+                                <p class="mb-1">Kepada Akaun:</p>
+                                <p class="fw-bold mb-0">
+                                    <?php
+                                    $recipientAcc = $transaction['recipient_account_number'];
+                                    echo substr($recipientAcc, 0, 7) . str_repeat('X', 6) . substr($recipientAcc, -4);
                                     ?>
                                 </p>
                             </div>
-                            <div class="col-6 text-end">
-                                <p class="mb-1">Jumlah:</p>
-                                <h4 class="mb-0 <?= in_array($transaction['type'], ['deposit', 'transfer_in']) ? 'text-success' : 'text-danger' ?>">
-                                    <?= in_array($transaction['type'], ['deposit', 'transfer_in']) ? '+' : '-' ?>
-                                    RM <?= number_format($transaction['amount'], 2) ?>
-                                </h4>
-                            </div>
                         </div>
-                    </div>
+                    <?php endif; ?>
 
                     <!-- Additional Details -->
                     <div class="row mb-4">
                         <div class="col-6">
                             <p class="mb-1">Kaedah Pembayaran:</p>
-                            <p class="fw-bold"><?= htmlspecialchars(ucfirst($transaction['payment_method'] ?? '-')) ?></p>
+                            <p class="fw-bold">
+                                <?php 
+                                if ($transaction['type'] === 'deposit') {
+                                    echo htmlspecialchars(ucfirst($transaction['payment_method'] ?? '-'));
+                                } else {
+                                    echo 'FPX';
+                                }
+                                ?>
+                            </p>
                         </div>
                         <div class="col-6 text-end">
                             <p class="mb-1">Status:</p>
@@ -102,7 +131,7 @@
                         <button onclick="window.print()" class="btn btn-primary">
                             <i class="bi bi-printer me-2"></i>Cetak
                         </button>
-                        <a href="/users/savings/page" class="btn btn-outline-secondary">
+                        <a href="/KADA-system/users/savings/page" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>
@@ -112,7 +141,6 @@
     </div>
 </div>
 
-<!-- Print Styles -->
 <style>
 @media print {
     body * {

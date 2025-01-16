@@ -104,7 +104,10 @@ class Router {
     }
 
     public function __construct() {
-        // Add the route in constructor
+        // Add the routes in constructor
         $this->addRoute('POST', '/guest/checkStatus', 'GuestController', 'checkStatus');
+        
+        // Add the verify member route properly
+        $this->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
     }
 }

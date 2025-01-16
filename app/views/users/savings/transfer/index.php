@@ -29,109 +29,86 @@
                         </div>
                     <?php endif; ?>
 
-                    <?php if (isset($currentAccount) && $currentAccount): ?>
-                        <form action="/KADA-system/users/savings/transfer" method="POST" class="needs-validation" novalidate>
-                            <!-- From Account Display -->
-                            <div class="mb-3">
-                                <label class="form-label">Dari Akaun</label>
-                                <div class="form-control bg-light">
-                                    <?= htmlspecialchars($currentAccount['account_number']) ?>
-                                    (RM <?= number_format($currentAccount['current_amount'], 2) ?>)
-                                </div>
-                                <input type="hidden" name="from_account_id" value="<?= $currentAccount['id'] ?>">
-                            </div>
-
-                            <?php if (!empty($otherAccounts)): ?>
-                            <div class="mb-3">
-                                <label class="form-label">Pilih Akaun Lain</label>
-                                <select name="from_account_id" class="form-select">
-                                    <option value="<?= $currentAccount['id'] ?>" selected>
-                                        <?= htmlspecialchars($currentAccount['account_number']) ?> - 
-                                        <?= htmlspecialchars($currentAccount['account_name'] ?? '') ?>
-                                        (RM <?= number_format($currentAccount['current_amount'], 2) ?>)
-                                    </option>
-                                    <?php foreach ($otherAccounts as $account): ?>
-                                    <option value="<?= $account['id'] ?>">
-                                        <?= htmlspecialchars($account['account_number']) ?> - 
-                                        <?= htmlspecialchars($account['account_name'] ?? '') ?>
-                                        (RM <?= number_format($account['current_amount'], 2) ?>)
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <?php endif; ?>
-
-                            <!-- Transfer Type Selection -->
-                            <div class="mb-3">
-                                <label class="form-label">Jenis Pemindahan</label>
-                                <select name="transfer_type" id="transferType" class="form-select" required>
-                                    <option value="">Pilih jenis pemindahan</option>
-                                    <option value="member">Akaun Ahli</option>
-                                    <option value="other">Akaun Lain</option>
-                                </select>
-                            </div>
-
-                            <!-- Member Account Transfer Fields -->
-                            <div id="memberFields" class="mb-3" style="display: none;">
-                                <label class="form-label">Nombor Akaun Ahli Penerima</label>
-                                <input type="text" 
-                                       name="recipient_account_number" 
-                                       class="form-control" 
-                                       placeholder="Contoh: SAV-000001-1234"
-                                       pattern="SAV-\d{6}-\d{4}"
-                                       title="Format: SAV-XXXXXX-XXXX">
-                                <div class="form-text">Masukkan nombor akaun ahli penerima</div>
-                            </div>
-
-                            <!-- Other Account Transfer Fields -->
-                            <div id="otherFields" style="display: none;">
-                                <div class="mb-3">
-                                    <label class="form-label">Nama Bank</label>
-                                    <select name="bank_name" class="form-select">
-                                        <option value="">Pilih bank</option>
-                                        <option value="maybank">Maybank</option>
-                                        <option value="cimb">CIMB Bank</option>
-                                        <option value="rhb">RHB Bank</option>
-                                        <option value="bankislam">Bank Islam</option>
-                                        <option value="bsn">Bank Simpanan Nasional</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Nombor Akaun</label>
-                                    <input type="text" name="bank_account_number" class="form-control" 
-                                           placeholder="Contoh: 1234567890">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Nama Penerima</label>
-                                    <input type="text" name="recipient_name" class="form-control" 
-                                           placeholder="Nama penuh penerima">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Jumlah (RM)</label>
-                                <input type="number" name="amount" class="form-control" 
-                                       min="10" step="0.01" required>
-                                <div class="form-text">Minimum: RM10.00</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Keterangan (Pilihan)</label>
-                                <input type="text" name="description" class="form-control" 
-                                       placeholder="cth: Pemindahan ke ahli">
-                            </div>
-
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-check-circle me-2"></i>Pindah
-                                </button>
-                            </div>
-                        </form>
-                    <?php else: ?>
-                        <div class="alert alert-warning">
-                            Tiada akaun aktif ditemui. Sila hubungi admin untuk bantuan.
+                    <form action="/KADA-system/users/savings/transfer" method="POST" class="needs-validation" novalidate>
+                        <!-- Sender Account Verification -->
+                        <div class="mb-3">
+                            <label class="form-label">Nombor Akaun Anda</label>
+                            <input type="text" 
+                                   name="sender_account_number" 
+                                   class="form-control" 
+                                   placeholder="Contoh: SAV-000001-1234"
+                                   pattern="SAV-\d{6}-\d{4}"
+                                   title="Format: SAV-XXXXXX-XXXX"
+                                   required>
+                            <div class="form-text">Masukkan nombor akaun anda untuk pengesahan</div>
                         </div>
-                    <?php endif; ?>
+
+                        <!-- Transfer Type Selection -->
+                        <div class="mb-3">
+                            <label class="form-label">Jenis Pemindahan</label>
+                            <select name="transfer_type" id="transferType" class="form-select" required>
+                                <option value="">Pilih jenis pemindahan</option>
+                                <option value="member">Akaun Ahli</option>
+                                <option value="other">Akaun Bank Lain</option>
+                            </select>
+                        </div>
+
+                        <!-- Member Account Transfer Fields -->
+                        <div id="memberFields" class="mb-3" style="display: none;">
+                            <label class="form-label">Nombor Akaun Penerima</label>
+                            <input type="text" 
+                                   name="recipient_account_number" 
+                                   class="form-control" 
+                                   placeholder="Contoh: SAV-000001-1234"
+                                   pattern="SAV-\d{6}-\d{4}"
+                                   title="Format: SAV-XXXXXX-XXXX">
+                            <div class="form-text">Masukkan nombor akaun ahli penerima</div>
+                        </div>
+
+                        <!-- Other Account Transfer Fields -->
+                        <div id="otherFields" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">Nama Bank</label>
+                                <select name="bank_name" class="form-select">
+                                    <option value="">Pilih bank</option>
+                                    <option value="maybank">Maybank</option>
+                                    <option value="cimb">CIMB Bank</option>
+                                    <option value="rhb">RHB Bank</option>
+                                    <option value="bankislam">Bank Islam</option>
+                                    <option value="bsn">Bank Simpanan Nasional</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombor Akaun</label>
+                                <input type="text" name="bank_account_number" class="form-control" 
+                                       placeholder="Contoh: 1234567890">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nama Penerima</label>
+                                <input type="text" name="recipient_name" class="form-control" 
+                                       placeholder="Nama penuh penerima">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Jumlah (RM)</label>
+                            <input type="number" name="amount" class="form-control" 
+                                   min="10" step="0.01" required>
+                            <div class="form-text">Minimum: RM10.00</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Keterangan (Pilihan)</label>
+                            <input type="text" name="description" class="form-control" 
+                                   placeholder="cth: Pemindahan ke ahli">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-primary" onclick="confirmTransfer(this.form)">
+                                <i class="bi bi-check-circle me-2"></i>Pindah
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -155,9 +132,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-</script>
 
-<?php require_once '../app/views/layouts/footer.php'; ?> 
+function confirmTransfer(form) {
+    // Get form values
+    const amount = form.amount.value;
+    const senderAccount = form.sender_account_number.value;
+    const transferType = form.transfer_type.value;
+    let recipientInfo = '';
+
+    if (transferType === 'member') {
+        recipientInfo = form.recipient_account_number.value;
+    } else {
+        const bank = form.bank_name.value;
+        const accountNumber = form.bank_account_number.value;
+        const recipientName = form.recipient_name.value;
+        recipientInfo = `${bank}\n${recipientName}\n${accountNumber}`;
+    }
+
+    // Create confirmation message
+    const message = `Adakah anda pasti untuk membuat pemindahan berikut?\n\n` +
+                   `Dari Akaun: ${senderAccount}\n` +
+                   `Jumlah: RM${parseFloat(amount).toFixed(2)}\n` +
+                   `Kepada:\n${recipientInfo}`;
+
+    // Show confirmation dialog
+    if (confirm(message)) {
+        form.submit();
+    }
+}
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 
