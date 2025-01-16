@@ -835,7 +835,6 @@ select.form-select.is-invalid {
     font-size: 1.5rem;
 }
 
-
 .section-title {
     font-size: 2rem;
     font-weight: 600;
@@ -2008,4 +2007,166 @@ select.form-select.is-invalid {
 .invalid-feedback {
     display: none;
     color: #dc3545;
+}
+
+/* Landing Page Styles */
+.animated-hero {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.hero-shapes .shape {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #007bff, #00bcd4);
+    opacity: 0.1;
+}
+
+.hero-shapes .shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -150px;
+}
+
+.hero-shapes .shape-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: -100px;
+}
+
+.hero-shapes .shape-3 {
+    width: 150px;
+    height: 150px;
+    bottom: 50%;
+    right: 10%;
+}
+
+.hero-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #e3f2fd;
+    color: #0d6efd;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, #0d6efd, #00bcd4);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.btn-gradient {
+    background: linear-gradient(45deg, #0d6efd, #00bcd4);
+    border: none;
+    color: white;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(45deg, #0b5ed7, #00acc1);
+    color: white;
+}
+
+.quick-links {
+    padding: 2rem 0;
+    background-color: #f8f9fa;
+}
+
+.quick-link-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+    color: #495057;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.quick-link-item:hover {
+    transform: translateY(-5px);
+    color: #0d6efd;
+}
+
+.quick-link-item i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.services-section {
+    padding: 4rem 0;
+    background-color: #fff;
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.feature-item i {
+    font-size: 2rem;
+    color: #0d6efd;
+}
+
+.feature-item h4 {
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.feature-item p {
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+/* Landing Page Button Styles */
+.btn-lg {
+    padding: 15px 30px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+.btn-outline-primary {
+    border-width: 2px;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* Alert Styles */
+.alert-floating {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    min-width: 400px;
+    text-align: center;
+}
+
+.alert-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+}
+
+.bg-light-subtle {
+    background-color: #e1f5fe !important;
 }

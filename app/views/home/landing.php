@@ -3,123 +3,6 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
-<style>
-    .alert-floating {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1050;
-        min-width: 300px;
-        text-align: center;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    }
-    
-    .alert-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 1040;
-    }
-    
-    .bg-gradient-primary {
-        background: linear-gradient(45deg, #0d47a1, #1976d2);
-    }
-    
-    .card {
-        transition: transform 0.2s;
-        border: none;
-    }
-    
-    .card:hover {
-        transform: translateY(-3px);
-    }
-    
-    .alert {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .alert::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 4px;
-        height: 100%;
-    }
-    
-    .alert-success::before {
-        background-color: #2e7d32;
-    }
-    
-    .alert-warning::before {
-        background-color: #f57f17;
-    }
-    
-    .alert-danger::before {
-        background-color: #c62828;
-    }
-    
-    .alert-info::before {
-        background-color: #0288d1;
-    }
-    
-    .form-control:focus {
-        box-shadow: 0 0 0 0.25rem rgba(25, 118, 210, 0.25);
-        border-color: #1976d2;
-    }
-    
-    .btn-primary {
-        background: #1976d2;
-        border: none;
-        transition: all 0.3s;
-    }
-    
-    .btn-primary:hover {
-        background: #1565c0;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
-    }
-    
-    .input-group-text {
-        border: 1px solid #e3e3e3;
-        border-right: none;
-        background-color: #f8f9fa;
-    }
-    
-    .form-control {
-        border: 1px solid #e3e3e3;
-    }
-    
-    .card-header {
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .shadow-lg {
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
-    }
-    
-    .bg-warning-subtle {
-        background-color: #fff3e0 !important;
-    }
-    
-    .bg-success-subtle {
-        background-color: #e8f5e9 !important;
-    }
-    
-    .bg-danger-subtle {
-        background-color: #ffebee !important;
-    }
-    
-    .bg-info-subtle {
-        background-color: #e1f5fe !important;
-    }
-</style>
-
 <?php if (isset($_SESSION['success_message'])): ?>
     <div class="alert-backdrop"></div>
     <div class="alert alert-success alert-dismissible fade show alert-floating" role="alert">
@@ -150,6 +33,9 @@
                         <i class="bi bi-box-arrow-in-right me-2"></i>Log Masuk
                     </a>
                     <a href="/guest/create" class="btn btn-outline-primary btn-lg">Daftar Sekarang</a>
+                    <a href="/guest/check-status" class="btn btn-primary btn-lg px-4">
+                    <i class="bi bi-search me-2"></i>Semak Status
+                </a>
                 </div>
             </div>
             <div class="col-lg-6 position-relative d-none d-lg-block">
