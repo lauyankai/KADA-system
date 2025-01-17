@@ -49,7 +49,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-2">
-                <a href="#" class="quick-link-item">
+                <a href="#" class="quick-link-item" data-bs-toggle="modal" data-bs-target="#calculatorModal">
                     <i class="bi bi-calculator"></i>
                     <span>Kalkulator</span>
                 </a>
