@@ -61,7 +61,7 @@
                 </a>
             </div>
             <div class="col-md-2">
-                <a href="#" class="quick-link-item">
+                <a href="/loans/info" class="quick-link-item">
                     <i class="bi bi-person-badge"></i>
                     <span>Pinjaman</span>
                 </a>
@@ -237,7 +237,7 @@
                     <form id="loanCalculatorForm">
                         <div class="mb-3">
                             <label class="form-label">Amaun Dipohon (RM)</label>
-                            <input type="number" id="loanAmount" class="form-control" required step="100">
+                            <input type="number" id="loanAmount" class="form-control" required step="1">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Tempoh Pembiayaan (Bulan)</label>
