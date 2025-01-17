@@ -219,6 +219,26 @@ class Guest extends BaseModel
             if ($result) {
                 return $result['status'];
             }
+
+            // Check members table
+            $sql = "SELECT status FROM members WHERE name = ? AND ic_no = ?";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([$name, $ic_no]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return $result['status'];
+            }
+
+            // Check rejected members
+            $sql = "SELECT status FROM rejectedmember WHERE name = ? AND ic_no = ?";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([$name, $ic_no]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result) {
+                return $result['status'];
+            }
             
             return 'not_found';
             
