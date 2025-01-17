@@ -69,18 +69,41 @@ class LoanController extends BaseController
 
             // Prepare loan data
             $data = [
-                'user_id' => $_SESSION['member_id'],
                 'reference_no' => $reference,
                 'loan_type' => $_POST['loan_type'],
                 'other_loan_type' => $_POST['other_loan_type'] ?? null,
                 'amount' => $_POST['amount'],
                 'duration' => $_POST['duration'],
-                'monthly_payment' => $_POST['amount'] / $_POST['duration'],
+                'monthly_payment' => $_POST['monthly_payment'],
+                'name' => $_POST['name'],
+                'ic_no' => $_POST['ic_no'],
+                'birth_date' => $_POST['birth_date'],
+                'age' => $_POST['age'],
+                'gender' => $_POST['gender'],
+                'religion' => $_POST['religion'],
+                'race' => $_POST['race'],
+                'member_no' => $_POST['member_no'],
+                'phone' => $_POST['phone'],
+                'position' => $_POST['position'],
+                'home_address' => $_POST['address_line1'] . ' ' . $_POST['address_line2'],
+                'home_postcode' => $_POST['postcode'],
+                'home_city' => $_POST['city'],
+                'home_states' => $_POST['state'],
+                'office_address' => $_POST['office_address'],
+                'office_phone_fax' => $_POST['office_phone'],
+                'bank_name' => $_POST['bank_name'],
+                'bank_account' => $_POST['bank_account'],
+                'guarantor1_name' => $_POST['guarantor1_name'],
+                'guarantor1_ic' => $_POST['guarantor1_ic'],
+                'guarantor1_member_no' => $_POST['guarantor1_member_no'],
+                'guarantor2_name' => $_POST['guarantor2_name'],
+                'guarantor2_ic' => $_POST['guarantor2_ic'],
+                'guarantor2_member_no' => $_POST['guarantor2_member_no'],
                 'status' => 'pending'
             ];
 
-            // Create loan request 
-            $loanId = $this->loan->create($data);
+            // Create loan request
+            $loanId = $this->loan->createLoan($data);
 
             $_SESSION['success'] = 'Permohonan pembiayaan berjaya dihantar. No Rujukan: ' . $reference;
             header('Location: /loans/status');
