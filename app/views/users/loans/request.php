@@ -289,52 +289,53 @@
                         </div>
 
                         <div class="step-content" data-step="4">
-                            <!-- Section 4: Butir-butir Penjamin content -->
-<div class="mb-4">
-                            <h5 class="border-bottom pb-2">Butir-butir Penjamin</h5>
-                            
-                            <!-- Penjamin 1 -->
-                            <div class="row g-3 mb-3">
-                                <div class="col-12">
-                                    <h6>Penjamin 1</h6>
+                            <div class="mb-4">
+                                <h4 class="mt-3 mb-4 text-success">
+                                    <i class="bi bi-people me-2"></i>Butir-butir Penjamin
+                                </h4>
+                                
+                                <!-- Penjamin 1 -->
+                                <div class="card bg-white p-4 shadow-sm mb-4">
+                                    <h5 class="card-title mb-4">Penjamin 1</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">Nama</label>
+                                            <input type="text" name="guarantor1_name" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">No. K/P</label>
+                                            <input type="text" name="guarantor1_ic" class="form-control" required
+                                                   pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">No. Anggota</label>
+                                            <input type="text" name="guarantor1_member_no" class="form-control" required
+                                                   pattern="\d{5}" placeholder="00000">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Nama</label>
-                                    <input type="text" name="guarantor1_name" class="form-control" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">No. K/P</label>
-                                    <input type="text" name="guarantor1_ic" class="form-control" required
-                                           pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">No. Anggota</label>
-                                    <input type="text" name="guarantor1_member_no" class="form-control" required
-                                           pattern="\d{5}" placeholder="00000">
-                                </div>
-                            </div>
 
-                            <!-- Penjamin 2 -->
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <h6>Penjamin 2</h6>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Nama</label>
-                                    <input type="text" name="guarantor2_name" class="form-control" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">No. K/P</label>
-                                    <input type="text" name="guarantor2_ic" class="form-control" required
-                                           pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">No. Anggota</label>
-                                    <input type="text" name="guarantor2_member_no" class="form-control" required
-                                           pattern="\d{5}" placeholder="00000">
+                                <!-- Penjamin 2 -->
+                                <div class="card bg-white p-4 shadow-sm">
+                                    <h5 class="card-title mb-4">Penjamin 2</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">Nama</label>
+                                            <input type="text" name="guarantor2_name" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">No. K/P</label>
+                                            <input type="text" name="guarantor2_ic" class="form-control" required
+                                                   pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">No. Anggota</label>
+                                            <input type="text" name="guarantor2_member_no" class="form-control" required
+                                                   pattern="\d{5}" placeholder="00000">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         </div>
 
                         <div class="step-content" data-step="5">
