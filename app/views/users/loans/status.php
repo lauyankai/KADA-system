@@ -39,7 +39,7 @@
                                             <td><?= $loan['reference_no'] ?></td>
                                             <td><?= $loan['loan_type'] ?></td>
                                             <td>RM <?= number_format($loan['amount'], 2) ?></td>
-                                            <td><?= date('d/m/Y', strtotime($loan['created_at'])) ?></td>
+                                            <td><?= date('d/m/Y', strtotime($loan['date_received'])) ?></td>
                                             <td>
                                                 <?php
                                                     $statusClass = '';

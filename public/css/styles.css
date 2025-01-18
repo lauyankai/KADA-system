@@ -54,7 +54,6 @@ body {
 .card-title {
     color: #198754;
     font-weight: bold;
-    font-style: italic;
 }
 
 /* Border utilities */
@@ -79,7 +78,6 @@ body {
 .form-wizard .pageTitle {
     color: #198754;
     font-weight: bold;
-    font-style: italic;
 }
 
 .form-wizard .step-content {

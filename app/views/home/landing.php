@@ -61,7 +61,7 @@
                 </a>
             </div>
             <div class="col-md-2">
-                <a href="#" class="quick-link-item">
+                <a href="/info/loantype" class="quick-link-item">
                     <i class="bi bi-person-badge"></i>
                     <span>Pinjaman</span>
                 </a>
@@ -111,7 +111,7 @@
                         </div>
                         <h3>Pinjaman</h3>
                         <p>Mohon pinjaman dengan kadar faedah yang kompetitif dan proses kelulusan yang cepat.</p>
-                        <a href="/loans/info" class="service-link">
+                        <a href="/info/loantype" class="service-link">
                             Ketahui Lebih Lanjut <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
@@ -237,7 +237,7 @@
                     <form id="loanCalculatorForm">
                         <div class="mb-3">
                             <label class="form-label">Amaun Dipohon (RM)</label>
-                            <input type="number" id="loanAmount" class="form-control" required step="100">
+                            <input type="number" id="loanAmount" class="form-control" required step="1">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Tempoh Pembiayaan (Bulan)</label>

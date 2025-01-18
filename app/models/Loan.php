@@ -10,38 +10,45 @@ class Loan extends BaseModel
     {
         try {
             $sql = "INSERT INTO loans (
-                reference_no, loan_type, other_loan_type, amount, duration, 
-                monthly_payment, name, ic_no, birth_date, age, gender, 
-                religion, race, member_no, phone, position, 
-                home_address, home_postcode, home_city, home_states,
-                office_address, office_phone_fax, bank_name, bank_account,
-                guarantor1_name, guarantor1_ic, guarantor1_member_no,
-                guarantor2_name, guarantor2_ic, guarantor2_member_no,
-                status, created_at
+                reference_no, member_id, loan_type, amount, duration, 
+                monthly_payment, status, bank_name, bank_account, date_received
             ) VALUES (
-                :reference_no, :loan_type, :other_loan_type, :amount, :duration,
-                :monthly_payment, :name, :ic_no, :birth_date, :age, :gender,
-                :religion, :race, :member_no, :phone, :position,
-                :home_address, :home_postcode, :home_city, :home_states,
-                :office_address, :office_phone_fax, :bank_name, :bank_account,
-                :guarantor1_name, :guarantor1_ic, :guarantor1_member_no,
-                :guarantor2_name, :guarantor2_ic, :guarantor2_member_no,
-                'pending', NOW()
+                :reference_no, :member_id, :loan_type, :amount, :duration,
+                :monthly_payment, :status, :bank_name, :bank_account, :date_received
             )";
 
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute($data);
-            return $this->db->lastInsertId();
+            $stmt = $this->getConnection()->prepare($sql);
+            
+            $result = $stmt->execute([
+                ':reference_no' => $data['reference_no'],
+                ':member_id' => $data['member_id'],
+                ':loan_type' => $data['loan_type'],
+                ':amount' => $data['amount'],
+                ':duration' => $data['duration'],
+                ':monthly_payment' => $data['monthly_payment'],
+                ':bank_name' => $data['bank_name'],
+                ':bank_account' => $data['bank_account'],
+                ':status' => $data['status'],
+                ':date_received' => $data['date_received']
+            ]);
+            
+            if (!$result) {
+                error_log('Execute failed: ' . print_r($stmt->errorInfo(), true));
+                throw new \PDOException('Execute failed: ' . implode(', ', $stmt->errorInfo()));
+            }
+            
+            return true;
+
         } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal membuat permohonan pembiayaan');
+            error_log('Database Error in createLoan: ' . $e->getMessage());
+            throw new \Exception('Gagal membuat permohonan pembiayaan: ' . $e->getMessage());
         }
     }
 
     public function getLoansByMemberId($memberId)
     {
         try {
-            $sql = "SELECT * FROM loans WHERE member_id = :member_id ORDER BY created_at DESC";
+            $sql = "SELECT * FROM loans WHERE member_id = :member_id ORDER BY date_received DESC";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
