@@ -346,7 +346,6 @@
                                     <span class="d-block">GrabPay</span>
                                 </label>
                             </div>
-                            <!-- Add other e-wallets similarly -->
                         </div>
                     </div>
                 </div>

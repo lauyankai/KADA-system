@@ -62,9 +62,7 @@ class Router {
             throw new \Exception("404 Not Found");
 
         } catch (\Exception $e) {
-            // Log the error
             error_log($e->getMessage());
-            // Display user-friendly error message
             echo $e->getMessage();
             return;
         }
@@ -86,28 +84,11 @@ class Router {
         return $matches;
     }
 
-    // Add this method to your Router class
-    public function addRoutes() {
-        // Add your routes here
-        $this->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferPage');
-        $this->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
-        // ... other routes
-    }
-
-    // Add this method to help debug
     public function debugRoute($requestUri, $requestMethod) {
         error_log("Requested URI: " . $requestUri);
         error_log("Request Method: " . $requestMethod);
         foreach ($this->routes as $route) {
             error_log("Checking route: " . $route['method'] . " " . $route['route']);
         }
-    }
-
-    public function __construct() {
-        // Add the routes in constructor
-        $this->addRoute('POST', '/guest/checkStatus', 'GuestController', 'checkStatus');
-        
-        // Add the verify member route properly
-        $this->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
     }
 }

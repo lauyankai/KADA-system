@@ -32,8 +32,8 @@
                     <!-- Member Details -->
                     <div class="mb-4">
                         <p class="mb-1">Ahli:</p>
-                        <p class="fw-bold mb-1"><?= htmlspecialchars($member['name']) ?></p>
-                        <p class="text-muted mb-0">No. Ahli: <?= htmlspecialchars($member['member_number']) ?></p>
+                        <p class="fw-bold mb-1"><?= htmlspecialchars($transaction['member_name'] ?? '') ?></p>
+                        <p class="text-muted mb-0">No. Ahli: <?= htmlspecialchars($transaction['member_id'] ?? '') ?></p>
                     </div>
 
                     <!-- Transaction Info -->
