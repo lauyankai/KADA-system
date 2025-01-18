@@ -116,23 +116,36 @@ class StatementController extends BaseController
             }
 
             $memberId = $_SESSION['member_id'];
-            $account = $this->saving->getSavingsAccount($memberId);
+            $accountType = $_GET['account_type'] ?? 'savings';
             
-            if (!$account) {
-                throw new \Exception('Akaun simpanan tidak dijumpai');
+            if ($accountType === 'savings') {
+                $account = $this->saving->getSavingsAccount($memberId);
+                if (!$account) {
+                    throw new \Exception('Akaun simpanan tidak dijumpai');
+                }
+            } else {
+                $accounts = $this->loan->getLoansByMemberId($memberId);
+                if (empty($accounts)) {
+                    throw new \Exception('Akaun pembiayaan tidak dijumpai');
+                }
+                $selectedLoanId = $_GET['loan_id'] ?? $accounts[0]['id'];
+                foreach ($accounts as $loan) {
+                    if ($loan['id'] == $selectedLoanId) {
+                        $account = $loan;
+                        break;
+                    }
+                }
             }
 
-            $startDate = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 month'));
+            $startDate = $_GET['start_date'] ?? date('Y-m-d');
             $endDate = $_GET['end_date'] ?? date('Y-m-d');
 
-            $transactions = $this->saving->getTransactionsByDateRange(
-                $account['id'], 
-                $startDate, 
-                $endDate
-            );
+            $transactions = $accountType === 'savings' 
+                ? $this->saving->getTransactionsByDateRange($account['id'], $startDate, $endDate)
+                : $this->loan->getTransactionsByDateRange($account['id'], $startDate, $endDate);
 
             // Generate PDF statement
-            $this->generatePDF($account, $transactions, $startDate, $endDate);
+            $this->generatePDF($account, $transactions, $startDate, $endDate, $accountType);
 
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
@@ -141,62 +154,108 @@ class StatementController extends BaseController
         }
     }
 
-    private function generatePDF($account, $transactions, $startDate, $endDate)
+    private function generatePDF($account, $transactions, $startDate, $endDate, $accountType)
     {
         require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
         
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8');
         
-        // Set document information
         $pdf->SetCreator('KADA System');
         $pdf->SetAuthor('Koperasi KADA');
-        $pdf->SetTitle('Penyata Akaun');
+        $pdf->SetTitle('Penyata Akaun - ' . ($accountType === 'savings' ? 'Simpanan' : 'Pembiayaan'));
 
-        // Remove default header/footer
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
-
-        // Add a page
+        $pdf->SetMargins(15, 15, 15);
         $pdf->AddPage();
-
-        // Set font
         $pdf->SetFont('helvetica', '', 10);
+        $logoPath = dirname(dirname(__DIR__)) . '/public/img/logo-kada.png';
+        if (file_exists($logoPath)) {
+            $pdf->Image($logoPath, 15, 10, 40);
+        }
 
-        // Add content
-        $html = $this->generateStatementHTML($account, $transactions, $startDate, $endDate);
-        
-        $pdf->writeHTML($html, true, false, true, false, '');
+        // Add header
+        $pdf->SetY(10);
+        $pdf->SetFont('helvetica', 'B', 16);
+        $pdf->Cell(0, 10, 'KOPERASI KAKITANGAN KADA KELANTAN', 0, 1, 'C');
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(0, 6, 'D/A Lembaga Kemajuan Pertanian Kemubu', 0, 1, 'C');
+        $pdf->Cell(0, 6, 'P/S 127, 15710 Kota Bharu, Kelantan', 0, 1, 'C');
+        $pdf->Cell(0, 6, 'Tel: 09-7447088', 0, 1, 'C');
+
+        // Add statement title
+        $pdf->Ln(10);
+        $pdf->SetFont('helvetica', 'B', 14);
+        $pdf->Cell(0, 10, 'PENYATA ' . ($accountType === 'savings' ? 'SIMPANAN' : 'PEMBIAYAAN'), 0, 1, 'C');
+
+        // Add account information
+        $pdf->Ln(5);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(40, 6, 'No. Akaun:', 0);
+        $pdf->Cell(0, 6, $accountType === 'savings' ? $account['account_number'] : $account['reference_no'], 0, 1);
+        $pdf->Cell(40, 6, 'Tempoh:', 0);
+        $pdf->Cell(0, 6, date('d/m/Y', strtotime($startDate)) . ' hingga ' . date('d/m/Y', strtotime($endDate)), 0, 1);
+
+        // Add transaction table
+        $pdf->Ln(5);
+        $pdf->SetFont('helvetica', 'B', 10);
+
+        // Table header
+        if ($accountType === 'savings') {
+            $header = ['Tarikh', 'Penerangan', 'Debit (RM)', 'Kredit (RM)', 'Baki (RM)'];
+            $widths = [30, 70, 30, 30, 30];
+        } else {
+            $header = ['Tarikh', 'Penerangan', 'Bayaran (RM)', 'Baki Pinjaman (RM)', 'Baki (RM)'];
+            $widths = [30, 70, 30, 30, 30];
+        }
+
+        // Draw header
+        $pdf->SetFillColor(240, 240, 240);
+        for($i = 0; $i < count($header); $i++) {
+            $pdf->Cell($widths[$i], 7, $header[$i], 1, 0, 'C', true);
+        }
+        $pdf->Ln();
+
+        // Table data
+        $pdf->SetFont('helvetica', '', 9);
+        $balance = $account['current_amount'] ?? 0;
+
+        // Sort transactions by date
+        usort($transactions, function($a, $b) {
+            return strtotime($a['created_at']) - strtotime($b['created_at']);
+        });
+
+        foreach ($transactions as $trans) {
+            if ($accountType === 'savings') {
+                $isDebit = in_array($trans['type'], ['transfer_out', 'withdrawal']);
+                $isCredit = in_array($trans['type'], ['deposit', 'transfer_in']);
+                $balance += ($isCredit ? $trans['amount'] : -$trans['amount']);
+
+                $pdf->Cell($widths[0], 6, date('d/m/Y', strtotime($trans['created_at'])), 1);
+                $pdf->Cell($widths[1], 6, $trans['description'], 1);
+                $pdf->Cell($widths[2], 6, $isDebit ? number_format($trans['amount'], 2) : '-', 1, 0, 'R');
+                $pdf->Cell($widths[3], 6, $isCredit ? number_format($trans['amount'], 2) : '-', 1, 0, 'R');
+                $pdf->Cell($widths[4], 6, number_format($balance, 2), 1, 0, 'R');
+            } else {
+                $balance = $trans['remaining_balance'];
+                $pdf->Cell($widths[0], 6, date('d/m/Y', strtotime($trans['created_at'])), 1);
+                $pdf->Cell($widths[1], 6, $trans['description'], 1);
+                $pdf->Cell($widths[2], 6, number_format($trans['payment_amount'], 2), 1, 0, 'R');
+                $pdf->Cell($widths[3], 6, number_format($trans['remaining_balance'], 2), 1, 0, 'R');
+                $pdf->Cell($widths[4], 6, number_format($balance, 2), 1, 0, 'R');
+            }
+            $pdf->Ln();
+        }
+
+        // Add footer
+        $pdf->Ln(10);
+        $pdf->SetFont('helvetica', 'I', 8);
+        $pdf->Cell(0, 6, 'Dokumen ini dijana secara automatik. Tandatangan tidak diperlukan.', 0, 1, 'C');
+        $pdf->Cell(0, 6, 'Dicetak pada: ' . date('d/m/Y H:i:s'), 0, 1, 'C');
 
         // Output PDF
-        $pdf->Output('penyata_' . date('Ymd') . '.pdf', 'D');
+        $filename = 'penyata_' . ($accountType === 'savings' ? 'simpanan' : 'pembiayaan') . '_' . date('Ymd') . '.pdf';
+        $pdf->Output($filename, 'D');
         exit;
-    }
-
-    private function generateStatementHTML($account, $transactions, $startDate, $endDate)
-    {
-        // Generate HTML content for PDF
-        $html = '<h1>Penyata Akaun</h1>';
-        $html .= '<p>No. Akaun: ' . $account['account_number'] . '</p>';
-        $html .= '<p>Tempoh: ' . date('d/m/Y', strtotime($startDate)) . 
-                 ' hingga ' . date('d/m/Y', strtotime($endDate)) . '</p>';
-        
-        // Add transaction table
-        $html .= '<table border="1" cellpadding="5">';
-        $html .= '<tr><th>Tarikh</th><th>Penerangan</th><th>Debit</th><th>Kredit</th><th>Baki</th></tr>';
-        
-        $balance = $account['opening_balance'] ?? 0;
-        foreach ($transactions as $trans) {
-            $balance += ($trans['type'] === 'credit' ? $trans['amount'] : -$trans['amount']);
-            $html .= '<tr>';
-            $html .= '<td>' . date('d/m/Y', strtotime($trans['created_at'])) . '</td>';
-            $html .= '<td>' . $trans['description'] . '</td>';
-            $html .= '<td>' . ($trans['type'] === 'debit' ? number_format($trans['amount'], 2) : '') . '</td>';
-            $html .= '<td>' . ($trans['type'] === 'credit' ? number_format($trans['amount'], 2) : '') . '</td>';
-            $html .= '<td>' . number_format($balance, 2) . '</td>';
-            $html .= '</tr>';
-        }
-        $html .= '</table>';
-        
-        return $html;
     }
 }

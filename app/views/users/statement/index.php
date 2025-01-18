@@ -14,6 +14,9 @@
                     <input type="hidden" name="account_type" value="<?= $accountType ?>">
                     <input type="hidden" name="start_date" value="<?= $startDate ?>">
                     <input type="hidden" name="end_date" value="<?= $endDate ?>">
+                    <?php if ($accountType === 'loans' && isset($account['id'])): ?>
+                        <input type="hidden" name="loan_id" value="<?= $account['id'] ?>">
+                    <?php endif; ?>
                     <button type="submit" class="btn btn-success btn-sm">
                         <i class="bi bi-download me-2"></i>Muat Turun PDF
                     </button>
@@ -66,7 +69,7 @@
                                 <option value="today" <?= ($period === 'today') ? 'selected' : '' ?>>Hari Ini</option>
                                 <option value="current" <?= ($period === 'current') ? 'selected' : '' ?>>Bulan Ini</option>
                                 <option value="last" <?= ($period === 'last') ? 'selected' : '' ?>>Bulan Sebelumnya</option>
-                                <option value="custom" <?= ($period === 'custom') ? 'selected' : '' ?>>Tarikh Peribadi</option>
+                                <option value="custom" <?= ($period === 'custom') ? 'selected' : '' ?>>Tarikh</option>
                             </select>
                         </div>
                     </div>
@@ -119,23 +122,33 @@
                     </thead>
                     <tbody>
                         <?php 
-                        $balance = $account['opening_balance'] ?? 0;
+                        // Get the current balance from savings_accounts
+                        $balance = $account['current_amount'] ?? 0;
+                        
+                        // Sort transactions by date in ascending order
+                        usort($transactions, function($a, $b) {
+                            return strtotime($a['created_at']) - strtotime($b['created_at']);
+                        });
+                        
                         foreach ($transactions as $trans): 
+                            // Determine transaction type and amount
+                            $isDebit = in_array($trans['type'], ['transfer_out', 'withdrawal']);
+                            $isCredit = in_array($trans['type'], ['deposit', 'transfer_in']);
+                            
+                            // Calculate running balance
                             if ($accountType === 'savings') {
-                                $balance += ($trans['type'] === 'credit' ? $trans['amount'] : -$trans['amount']);
-                            } else {
-                                $balance = $trans['remaining_balance'];
+                                $balance += ($isCredit ? $trans['amount'] : -$trans['amount']);
                             }
                         ?>
                             <tr>
                                 <td class="small"><?= date('d/m/Y', strtotime($trans['created_at'])) ?></td>
                                 <td><?= htmlspecialchars($trans['description']) ?></td>
                                 <?php if ($accountType === 'savings'): ?>
-                                    <td class="text-end <?= $trans['type'] === 'debit' ? 'text-danger' : '' ?>">
-                                        <?= $trans['type'] === 'debit' ? number_format($trans['amount'], 2) : '-' ?>
+                                    <td class="text-end <?= $isDebit ? 'text-danger' : '' ?>">
+                                        <?= $isDebit ? number_format($trans['amount'], 2) : '-' ?>
                                     </td>
-                                    <td class="text-end <?= $trans['type'] === 'credit' ? 'text-success' : '' ?>">
-                                        <?= $trans['type'] === 'credit' ? number_format($trans['amount'], 2) : '-' ?>
+                                    <td class="text-end <?= $isCredit ? 'text-success' : '' ?>">
+                                        <?= $isCredit ? number_format($trans['amount'], 2) : '-' ?>
                                     </td>
                                 <?php else: ?>
                                     <td class="text-end text-danger"><?= number_format($trans['payment_amount'], 2) ?></td>

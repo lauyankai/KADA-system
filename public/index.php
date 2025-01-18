@@ -152,6 +152,7 @@ $router->addRoute('GET', '/info/loantype', 'InfoController', 'showLoanTypes');
 $router->addRoute('GET', '/users/statements', 'StatementController', 'index');
 $router->addRoute('GET', '/users/statements/generate', 'StatementController', 'generate');
 $router->addRoute('GET', '/users/statements/download/{id}', 'StatementController', 'download');
+$router->addRoute('GET', '/users/statements/download', 'StatementController', 'download');
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
