@@ -30,8 +30,6 @@ class Saving extends BaseModel
         try {
             $sql = "SELECT * FROM savings_accounts 
                     WHERE member_id = :member_id 
-                    AND status = 'active'
-                    AND display_main = 1 
                     LIMIT 1";
             
             $stmt = $this->getConnection()->prepare($sql);
@@ -1281,25 +1279,6 @@ public function processDeposit($data)
         ]);
     }
 
-    public function getAccountByNumber($accountNumber) 
-    {
-        try {
-            $sql = "SELECT sa.*, m.name as member_name 
-                    FROM savings_accounts sa
-                    INNER JOIN members m ON sa.member_id = m.id
-                    WHERE sa.account_number = :account_number 
-                    AND sa.status = 'active'";
-                    
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':account_number' => $accountNumber]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-            
-        } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal mendapatkan maklumat akaun');
-        }
-    }
-
     public function getCurrentAccount($memberId)
     {
         try {
@@ -1417,8 +1396,6 @@ public function processDeposit($data)
                     member_id,
                     current_amount,
                     status,
-                    display_main,
-                    account_name,
                     created_at,
                     updated_at
                 ) VALUES (
@@ -1426,8 +1403,6 @@ public function processDeposit($data)
                     :member_id,
                     :initial_amount,
                     'active',
-                    1,
-                    'Akaun Utama',
                     NOW(),
                     NOW()
                 )";
@@ -1442,7 +1417,6 @@ public function processDeposit($data)
                         ':initial_amount' => $member['deposit_funds'] ?? 0.00
                     ]);
                     
-                    // Get the newly created account
                     $stmt = $this->getConnection()->prepare($sql);
                     $stmt->execute([':member_id' => $memberId]);
                     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1455,9 +1429,7 @@ public function processDeposit($data)
                     throw new \Exception('Gagal membuat akaun baru');
                 }
             }
-            
             return $result;
-            
         } catch (\PDOException $e) {
             error_log('Database Error in getMemberAccount: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan maklumat akaun');

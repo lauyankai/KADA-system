@@ -59,13 +59,11 @@ class UserController extends BaseController
 
             $memberId = $_SESSION['member_id'];
             
-            // Get savings account details
             $savingsAccount = $this->saving->getSavingsAccount($memberId);
             if (!$savingsAccount) {
                 throw new \Exception('Akaun simpanan tidak dijumpai');
             }
 
-            // Get recent transactions
             $recentTransactions = $this->saving->getRecentTransactions($memberId, 10);
             
             // Get savings goals
