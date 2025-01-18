@@ -127,17 +127,13 @@ class User extends BaseModel
     public function getUserById($id)
     {
         try {
-            $sql = "SELECT m.* 
-                    FROM members m
+            $sql = "SELECT m.*, sa.account_number 
+                    FROM members m 
+                    LEFT JOIN savings_accounts sa ON m.id = sa.member_id 
                     WHERE m.id = :id";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':id' => $id]);
-            
             $result = $stmt->fetch(PDO::FETCH_OBJ);
-            
-            // Debug log
-            error_log('getUserById Result: ' . print_r($result, true));
-            
             return $result;
         } catch (\PDOException $e) {
             error_log('Database Error in getUserById: ' . $e->getMessage());

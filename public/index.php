@@ -126,33 +126,22 @@ $router->addRoute('POST', '/users/savings/recurring', 'SavingController', 'creat
     $router->addRoute('GET', '/director/add', 'DirectorController', 'showAddDirector');
     $router->addRoute('POST', '/director/store', 'DirectorController', 'store');
 
-// Add this route
 $router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
-
-// Add these routes BEFORE the dispatch() call
 $router->addRoute('POST', '/admin/export-pdf', 'AdminController', 'exportPdf');
 $router->addRoute('POST', '/admin/export-excel', 'AdminController', 'exportExcel');
-
-// Add these routes for savings goals
 $router->addRoute('GET', '/users/savings/goals/edit/{id}', 'SavingController', 'editGoal');
 $router->addRoute('POST', '/users/savings/goals/update/{id}', 'SavingController', 'updateGoal');
-
-// Add these routes for savings goals
 $router->addRoute('GET', '/users/savings/goals/create', 'SavingController', 'createGoal');
 $router->addRoute('POST', '/users/savings/goals/store', 'SavingController', 'storeGoal');
-
-// Add this route for deleting savings goals
 $router->addRoute('POST', '/users/savings/goals/delete/{id}', 'SavingController', 'deleteGoal');
-
-// Add this route for handling deposits
 $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
-
-// Add this route for showing receipts
 $router->addRoute('GET', '/users/savings/receipt/{referenceNo}', 'SavingController', 'showReceipt');
-
-// Add these routes for status checking
 $router->addRoute('GET', '/guest/check-status', 'GuestController', 'checkStatusPage');
 $router->addRoute('POST', '/guest/check-status', 'GuestController', 'checkStatus');
+$router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferPage');
+$router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
+$router->addRoute('POST', '/guest/checkStatus', 'GuestController', 'checkStatus');
+$router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

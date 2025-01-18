@@ -747,36 +747,22 @@ class SavingController extends BaseController
                     throw new \Exception('Sila log masuk untuk mengakses');
                 }
 
-                // Debug log
-                error_log('Looking for receipt with reference: ' . $referenceNo);
-                error_log('Current member ID: ' . $_SESSION['member_id']);
-
-                // Get transaction details
                 $transaction = $this->saving->getTransactionByReference($referenceNo);
                 
                 if (!$transaction) {
                     throw new \Exception('Resit tidak dijumpai');
                 }
 
-                // Debug log
-                error_log('Transaction found: ' . print_r($transaction, true));
-
-                // Verify ownership
-                if ($transaction['member_id'] != $_SESSION['member_id']) {
+                $transactionMemberId = $transaction['member_id'] ?? null;
+                
+                if (!$transactionMemberId || (string)$transactionMemberId !== (string)$_SESSION['member_id']) {
+                    error_log('Access denied - IDs do not match');
                     throw new \Exception('Anda tidak mempunyai akses kepada resit ini');
                 }
 
-                // Get member details (already included in transaction now)
-                $member = [
-                    'name' => $transaction['member_name'],
-                    'member_number' => $transaction['member_number']
-                ];
-
                 $this->view('users/savings/receipt', [
-                    'transaction' => $transaction,
-                    'member' => $member
+                    'transaction' => $transaction
                 ]);
-
             } catch (\Exception $e) {
                 error_log('Error in showReceipt: ' . $e->getMessage());
                 $_SESSION['error'] = $e->getMessage();

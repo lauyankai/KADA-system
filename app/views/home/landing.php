@@ -49,7 +49,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-2">
-                <a href="#" class="quick-link-item">
+                <a href="#" class="quick-link-item" data-bs-toggle="modal" data-bs-target="#calculatorModal">
                     <i class="bi bi-calculator"></i>
                     <span>Kalkulator</span>
                 </a>
@@ -111,7 +111,7 @@
                         </div>
                         <h3>Pinjaman</h3>
                         <p>Mohon pinjaman dengan kadar faedah yang kompetitif dan proses kelulusan yang cepat.</p>
-                        <a href="#" class="service-link">
+                        <a href="/loans/info" class="service-link">
                             Ketahui Lebih Lanjut <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
@@ -222,6 +222,45 @@
     </div>
 </div> -->
 
+<!-- Calculator Modal -->
+<div class="modal fade" id="calculatorModal" tabindex="-1" aria-labelledby="calculatorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-white">
+                    <h5 class="modal-title" id="calculatorModalLabel">
+                        <i class="bi bi-calculator me-2"></i>Kalkulator Ansuran
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loanCalculatorForm">
+                        <div class="mb-3">
+                            <label class="form-label">Amaun Dipohon (RM)</label>
+                            <input type="number" id="loanAmount" class="form-control" required step="100">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tempoh Pembiayaan (Bulan)</label>
+                            <input type="number" id="loanDuration" class="form-control" required step="1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kadar Keuntungan</label>
+                            <input type="text" class="form-control" value="4.2% setahun" readonly>
+                        </div>
+                        <div class="calculated-result p-3 rounded bg-light mb-3" style="display: none;">
+                            <h6 class="text-muted mb-2">Ansuran Bulanan:</h6>
+                            <h3 class="text-primary mb-0">RM <span id="monthlyPayment">0.00</span></h3>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-calculator me-2"></i>Kira Ansuran
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const alert = document.querySelector('.alert-floating');
@@ -298,6 +337,23 @@
     //             return 'alert-secondary bg-secondary-subtle border-0';
     //     }
     // }
+
+    document.getElementById('loanCalculatorForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const amount = parseFloat(document.getElementById('loanAmount').value);
+        const duration = parseInt(document.getElementById('loanDuration').value);
+        const annualRate = 4.2 / 100; // 4.2%
+        const monthlyRate = annualRate / 12;
+        
+        // Monthly Payment Formula: P * r * (1 + r)^n / ((1 + r)^n - 1)
+        // Where: P = Principal, r = Monthly Interest Rate, n = Number of Payments
+        const monthlyPayment = amount * monthlyRate * Math.pow(1 + monthlyRate, duration) 
+                              / (Math.pow(1 + monthlyRate, duration) - 1);
+        
+        document.querySelector('.calculated-result').style.display = 'block';
+        document.getElementById('monthlyPayment').textContent = monthlyPayment.toFixed(2);
+    });
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 
