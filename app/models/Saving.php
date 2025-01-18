@@ -655,41 +655,17 @@ public function processDeposit($data)
     public function getTransactionByReference($referenceNo)
     {
         try {
-            // Modified query to match actual database structure
-            $sql = "SELECT 
-                    t.*,
-                    sa.member_id,
-                    m.name as member_name,
-                    m.member_id as member_number  -- Using member_id instead of member_number
+            $sql = "SELECT t.*, sa.*, m.name as member_name
                     FROM savings_transactions t
-                INNER JOIN savings_accounts sa ON t.savings_account_id = sa.id
-                INNER JOIN members m ON sa.member_id = m.id
-                WHERE t.reference_no = :reference_no
-                LIMIT 1";
-                
+                    INNER JOIN savings_accounts sa ON t.savings_account_id = sa.id 
+                    INNER JOIN members m ON sa.member_id = m.id
+                    WHERE t.reference_no = :reference_no";
+            
             $stmt = $this->getConnection()->prepare($sql);
-            
-            // Debug log before execution
-            error_log('Searching for transaction with reference: ' . $referenceNo);
-            
-            $stmt->execute([':reference_no' => $referenceNo]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            // Debug log the result
-            error_log('Query result: ' . print_r($result, true));
-            
-            if (!$result) {
-                error_log('No transaction found for reference: ' . $referenceNo);
-                return null;
-            }
-            
-            return $result;
-            
+            $stmt->bindParam(':reference_no', $referenceNo);
+            return $stmt->execute() ? $stmt->fetch(PDO::FETCH_ASSOC) : false;
         } catch (\PDOException $e) {
             error_log('Database Error in getTransactionByReference: ' . $e->getMessage());
-            error_log('SQL State: ' . $e->errorInfo[0]);
-            error_log('Error Code: ' . $e->errorInfo[1]);
-            error_log('Error Message: ' . $e->errorInfo[2]);
             throw new \Exception('Gagal mendapatkan maklumat transaksi');
         }
     }
