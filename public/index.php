@@ -118,7 +118,7 @@ $router->addRoute('POST', '/users/savings/recurring', 'SavingController', 'creat
 
     // User routes --Loans
     $router->addRoute('GET', '/users/loans/request', 'LoanController', 'showRequest');
-    $router->addRoute('POST', '/users/loans/submit', 'LoanController', 'submitRequest');
+    $router->addRoute('POST', '/users/loans/submitRequest', 'LoanController', 'submitRequest');
     $router->addRoute('GET', '/users/loans/status', 'LoanController', 'showStatus');
     $router->addRoute('GET', '/users/loans/details/{id}', 'LoanController', 'showDetails');
 

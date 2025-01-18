@@ -25,21 +25,13 @@ class LoanController extends BaseController
 
             $memberId = $_SESSION['member_id'];
             
-            // Get member details
             $member = $this->user->getUserById($memberId);
             if (!$member) {
                 throw new \Exception('Maklumat ahli tidak dijumpai');
             }
 
-            // Debug log to check member data
-            error_log('Member Data: ' . print_r($member, true));
-
-            // Generate reference number
-            $referenceNo = 'LOAN' . date('Ymd') . rand(1000, 9999);
-
             $this->view('users/loans/request', [
                 'member' => $member,
-                'referenceNo' => $referenceNo,
                 'defaultData' => [
                     'name' => $member->name,
                     'ic_number' => $member->ic_no,
@@ -48,7 +40,6 @@ class LoanController extends BaseController
                     'address' => $member->home_address
                 ]
             ]);
-
         } catch (\Exception $e) {
             error_log('Error in showRequest: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
@@ -61,57 +52,51 @@ class LoanController extends BaseController
     {
         try {
             if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk membuat permohonan');
+                throw new \Exception('Sila log masuk untuk mengakses');
             }
 
             // Generate reference number
             $reference = 'LOAN' . date('Ymd') . rand(1000, 9999);
 
-            // Prepare loan data
-            $data = [
+            // Get member details
+            $member = $this->user->getUserById($_SESSION['member_id']);
+            if (!$member) {
+                throw new \Exception('Maklumat ahli tidak dijumpai');
+            }
+
+            // Validate required fields
+            $requiredFields = ['loan_type', 'amount', 'duration', 'monthly_payment'];
+            foreach ($requiredFields as $field) {
+                if (empty($_POST[$field])) {
+                    throw new \Exception('Sila isi semua maklumat yang diperlukan');
+                }
+            }
+
+            $loanData = [
                 'reference_no' => $reference,
+                'member_id' => $_SESSION['member_id'],
                 'loan_type' => $_POST['loan_type'],
-                'other_loan_type' => $_POST['other_loan_type'] ?? null,
                 'amount' => $_POST['amount'],
                 'duration' => $_POST['duration'],
                 'monthly_payment' => $_POST['monthly_payment'],
-                'name' => $_POST['name'],
-                'ic_no' => $_POST['ic_no'],
-                'birth_date' => $_POST['birth_date'],
-                'age' => $_POST['age'],
-                'gender' => $_POST['gender'],
-                'religion' => $_POST['religion'],
-                'race' => $_POST['race'],
-                'member_no' => $_POST['member_no'],
-                'phone' => $_POST['phone'],
-                'position' => $_POST['position'],
-                'home_address' => $_POST['address_line1'] . ' ' . $_POST['address_line2'],
-                'home_postcode' => $_POST['postcode'],
-                'home_city' => $_POST['city'],
-                'home_states' => $_POST['state'],
-                'office_address' => $_POST['office_address'],
-                'office_phone_fax' => $_POST['office_phone'],
-                'bank_name' => $_POST['bank_name'],
-                'bank_account' => $_POST['bank_account'],
-                'guarantor1_name' => $_POST['guarantor1_name'],
-                'guarantor1_ic' => $_POST['guarantor1_ic'],
-                'guarantor1_member_no' => $_POST['guarantor1_member_no'],
-                'guarantor2_name' => $_POST['guarantor2_name'],
-                'guarantor2_ic' => $_POST['guarantor2_ic'],
-                'guarantor2_member_no' => $_POST['guarantor2_member_no'],
-                'status' => 'pending'
+                'bank_name' => $_POST['bank_name'] ?? null,
+                'bank_account' => $_POST['bank_account'] ?? null,
+                'status' => 'pending',
+                'date_received' => date('Y-m-d H:i:s')
             ];
 
-            // Create loan request
-            $loanId = $this->loan->createLoan($data);
+            if ($this->loan->createLoan($loanData)) {
+                $_SESSION['success'] = 'Permohonan pembiayaan berjaya dihantar. No Rujukan: ' . $reference;
+                header('Location: /users/loans/status');
+                exit;
+            }
 
-            $_SESSION['success'] = 'Permohonan pembiayaan berjaya dihantar. No Rujukan: ' . $reference;
-            header('Location: /loans/status');
-            exit;
+            throw new \Exception('Gagal menghantar permohonan');
 
         } catch (\Exception $e) {
+            error_log('Error in submitRequest: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /loans/request');
+            header('Location: /users/loans/request');
             exit;
         }
     }
@@ -124,8 +109,9 @@ class LoanController extends BaseController
             exit;
         }
 
-        $loans = $this->loan->getByUserId($_SESSION['member_id']);
-        $this->view('loans/status', [
+        $loans = $this->loan->getLoansByMemberId($_SESSION['member_id']);
+        
+        $this->view('users/loans/status', [
             'loans' => $loans
         ]);
     }
