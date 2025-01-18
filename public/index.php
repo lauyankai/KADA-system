@@ -39,6 +39,7 @@ require_once '../app/Controllers/AdminController.php';
 require_once '../app/Controllers/LoanController.php';
 require_once '../app/Controllers/SavingController.php';
 require_once '../app/Controllers/DirectorController.php';
+require_once '../app/Controllers/InfoController.php';
 
 // Include middleware
 require_once '../app/Middleware/AuthMiddleware.php';
@@ -142,6 +143,9 @@ $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTra
 $router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
 $router->addRoute('POST', '/guest/checkStatus', 'GuestController', 'checkStatus');
 $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
+
+//Loan Type info Route 
+$router->addRoute('GET', '/info/loantype', 'InfoController', 'showLoanTypes');
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
