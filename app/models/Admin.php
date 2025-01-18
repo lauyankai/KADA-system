@@ -214,8 +214,6 @@ class Admin extends BaseModel
                 member_id,
                 current_amount,
                 status,
-                display_main,
-                account_name,
                 created_at,
                 updated_at
             ) VALUES (
@@ -223,8 +221,6 @@ class Admin extends BaseModel
                 :member_id,
                 0.00,
                 'active',
-                1,
-                'Akaun Utama',
                 NOW(),
                 NOW()
             )";
