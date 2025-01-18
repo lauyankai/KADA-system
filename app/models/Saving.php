@@ -449,7 +449,7 @@ class Saving extends BaseModel
         }
     }
 
-public function processDeposit($data)
+    public function processDeposit($data)
     {
         try {
             $this->getConnection()->beginTransaction();
@@ -976,8 +976,8 @@ public function processDeposit($data)
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan senarai sasaran simpanan');
+        }
     }
-}
 
     public function getTransactionHistory($accountId, $limit = 10)
     {
@@ -1472,6 +1472,29 @@ public function processDeposit($data)
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mengesahkan akaun');
+        }
+    }
+
+    public function getTransactionsByDateRange($accountId, $startDate, $endDate)
+    {
+        try {
+            $sql = "SELECT * FROM savings_transactions 
+                    WHERE savings_account_id = :account_id 
+                    AND created_at BETWEEN :start_date AND :end_date
+                    ORDER BY created_at ASC";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':account_id' => $accountId,
+                ':start_date' => $startDate,
+                ':end_date' => $endDate . ' 23:59:59'
+            ]);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan sejarah transaksi');
         }
     }
 }
