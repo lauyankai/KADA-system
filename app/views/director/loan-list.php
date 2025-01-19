@@ -23,7 +23,7 @@
                 <h4 class="card-title mb-0">
                     <i class="bi bi-file-text me-2"></i>Senarai Permohonan Pembiayaan
                 </h4>
-                <a href="/director/dashboard" class="btn btn-outline-secondary">
+                <a href="/director" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-2"></i>Kembali
                 </a>
             </div>
