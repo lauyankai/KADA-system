@@ -1,3 +1,7 @@
+<?php
+error_log('Current session data: ' . print_r($_SESSION, true));
+?>
+
 <?php 
     $title = 'Dashboard Pengarah';
     require_once '../app/views/layouts/header.php';
@@ -66,12 +70,9 @@
                             </div>
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="card-subtitle text-muted">Jumlah Simpanan</h6>
+                            <h6 class="card-subtitle text-muted">Jumlah Keseluruhan Simpanan</h6>
                             <h2 class="card-title mb-0"><?= "RM " . number_format($metrics['total_savings'] ?? 0, 2) ?></h2>
                         </div>
-                    </div>
-                    <div class="progress" style="height: 4px;">
-                        <div class="progress-bar bg-primary" style="width: 70%"></div>
                     </div>
                 </div>
             </div>

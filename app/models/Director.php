@@ -196,9 +196,6 @@ class Director extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            // Debug: Log the SQL and data
-            error_log('Creating director with data: ' . print_r($data, true));
-
             $sql = "INSERT INTO directors (
                 director_id,
                 username,
@@ -305,39 +302,6 @@ class Director extends BaseModel
         }
     }
 
-    public function checkRequiredTables()
-    {
-        try {
-            // Check if fees table exists, if not create it
-            $sql = "CREATE TABLE IF NOT EXISTS fees (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                amount DECIMAL(10,2) NOT NULL,
-                member_id INT NOT NULL,
-                description VARCHAR(255),
-                status ENUM('pending', 'paid', 'cancelled') DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )";
-            $this->getConnection()->exec($sql);
-
-            // Check if other_transactions table exists, if not create it
-            $sql = "CREATE TABLE IF NOT EXISTS other_transactions (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                amount DECIMAL(10,2) NOT NULL,
-                description VARCHAR(255),
-                status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )";
-            $this->getConnection()->exec($sql);
-
-        } catch (\PDOException $e) {
-            error_log('Error creating tables: ' . $e->getMessage());
-            return false;
-        }
-        return true;
-    }
-
     public function getMembershipStats()
     {
         try {
@@ -362,6 +326,83 @@ class Director extends BaseModel
                 'pendingCount' => 0,
                 'rejectedCount' => 0
             ];
+        }
+    }
+
+    public function updateLoanStatus($loanId, $status, $remarks)
+    {
+        try {
+            $this->getConnection()->beginTransaction();
+
+            $sql = "UPDATE loans 
+                    SET status = :status,
+                        reviewed_by = :director_id,
+                        remarks = :remarks,
+                        reviewed_at = NOW()
+                    WHERE id = :loan_id";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            $result = $stmt->execute([
+                ':status' => $status,
+                ':director_id' => $_SESSION['director_id'],
+                ':remarks' => $remarks,
+                ':loan_id' => $loanId
+            ]);
+
+            if ($result) {
+                $this->getConnection()->commit();
+                return true;
+            }
+
+            $this->getConnection()->rollBack();
+            return false;
+
+        } catch (\PDOException $e) {
+            if ($this->getConnection()->inTransaction()) {
+                $this->getConnection()->rollBack();
+            }
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mengemaskini status pembiayaan');
+        }
+    }
+
+    public function getPendingLoans()
+    {
+        try {
+            // Debug connection
+            error_log('Database connection status: ' . ($this->getConnection() ? 'Connected' : 'Not connected'));
+            
+            $sql = "SELECT l.*, m.name as member_name, m.ic_no 
+                    FROM loans l
+                    JOIN members m ON l.member_id = m.id
+                    WHERE l.status = 'pending'
+                    ORDER BY l.date_created DESC";
+            
+            error_log('Executing SQL: ' . $sql);
+            
+            // Try preparing and executing separately to catch specific errors
+            $stmt = $this->getConnection()->prepare($sql);
+            if (!$stmt) {
+                error_log('Prepare failed: ' . print_r($this->getConnection()->errorInfo(), true));
+                throw new \PDOException('Failed to prepare statement');
+            }
+            
+            $success = $stmt->execute();
+            if (!$success) {
+                error_log('Execute failed: ' . print_r($stmt->errorInfo(), true));
+                throw new \PDOException('Failed to execute statement');
+            }
+            
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            error_log('Query results count: ' . count($results));
+            
+            return $results;
+
+        } catch (\PDOException $e) {
+            error_log('Database Error in getPendingLoans: ' . $e->getMessage());
+            error_log('Error code: ' . $e->getCode());
+            error_log('Error info: ' . print_r($e->errorInfo, true));
+            throw new \Exception('Gagal mendapatkan senarai pembiayaan: ' . $e->getMessage());
         }
     }
 } 

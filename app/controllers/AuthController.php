@@ -41,7 +41,7 @@ class AuthController extends BaseController
                     // Update last login
                     $this->director->updateLastLogin($director['id']);
                     
-                    header('Location: /director/dashboard');
+                    header('Location: /director');
                     exit;
                 }
                 throw new \Exception('ID Pengarah atau kata laluan tidak sah');
