@@ -117,32 +117,61 @@ class StatementController extends BaseController
 
             $memberId = $_SESSION['member_id'];
             $accountType = $_GET['account_type'] ?? 'savings';
+            $period = $_GET['period'] ?? 'today';
+            
+            // Calculate dates based on period - same logic as index method
+            $today = date('Y-m-d');
+            switch ($period) {
+                case 'today':
+                    $startDate = $today;
+                    $endDate = $today;
+                    break;
+                case 'current':
+                    $startDate = date('Y-m-01'); // First day of current month
+                    $endDate = $today;
+                    break;
+                case 'last':
+                    $startDate = date('Y-m-01', strtotime('last month'));
+                    $endDate = date('Y-m-t', strtotime('last month'));
+                    break;
+                case 'custom':
+                    $startDate = $_GET['start_date'] ?? $today;
+                    $endDate = $_GET['end_date'] ?? $today;
+                    break;
+                default:
+                    $startDate = $today;
+                    $endDate = $today;
+            }
             
             if ($accountType === 'savings') {
                 $account = $this->saving->getSavingsAccount($memberId);
                 if (!$account) {
                     throw new \Exception('Akaun simpanan tidak dijumpai');
                 }
+                $accountId = isset($_GET['account_id']) ? $_GET['account_id'] : $account['id'];
+                $transactions = $this->saving->getTransactionsByDateRange($accountId, $startDate, $endDate);
+                
+                // Calculate opening balance
+                $runningBalance = $account['current_amount'] ?? 0;
+                foreach ($transactions as $t) {
+                    $isCredit = in_array($t['type'], ['deposit', 'transfer_in']);
+                    $runningBalance -= ($isCredit ? $t['amount'] : -$t['amount']);
+                }
+                $account['opening_balance'] = $runningBalance;
+                
             } else {
-                $accounts = $this->loan->getLoansByMemberId($memberId);
-                if (empty($accounts)) {
+                $loanId = $_GET['loan_id'] ?? null;
+                if (!$loanId) {
+                    throw new \Exception('ID pembiayaan tidak ditemui');
+                }
+                
+                $account = $this->loan->getLoanById($loanId);
+                if (!$account || $account['member_id'] != $memberId) {
                     throw new \Exception('Akaun pembiayaan tidak dijumpai');
                 }
-                $selectedLoanId = $_GET['loan_id'] ?? $accounts[0]['id'];
-                foreach ($accounts as $loan) {
-                    if ($loan['id'] == $selectedLoanId) {
-                        $account = $loan;
-                        break;
-                    }
-                }
+                
+                $transactions = $this->loan->getTransactionsByDateRange($loanId, $startDate, $endDate);
             }
-
-            $startDate = $_GET['start_date'] ?? date('Y-m-d');
-            $endDate = $_GET['end_date'] ?? date('Y-m-d');
-
-            $transactions = $accountType === 'savings' 
-                ? $this->saving->getTransactionsByDateRange($account['id'], $startDate, $endDate)
-                : $this->loan->getTransactionsByDateRange($account['id'], $startDate, $endDate);
 
             // Generate PDF statement
             $this->generatePDF($account, $transactions, $startDate, $endDate, $accountType);
@@ -218,7 +247,13 @@ class StatementController extends BaseController
 
         // Table data
         $pdf->SetFont('helvetica', '', 9);
-        $balance = $account['current_amount'] ?? 0;
+        
+        // Initialize balance with opening balance for savings
+        if ($accountType === 'savings') {
+            $balance = $account['opening_balance'];
+        } else {
+            $balance = $account['current_amount'] ?? 0;
+        }
 
         // Sort transactions by date
         usort($transactions, function($a, $b) {

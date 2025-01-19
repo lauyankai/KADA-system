@@ -14,8 +14,11 @@
                     <input type="hidden" name="account_type" value="<?= $accountType ?>">
                     <input type="hidden" name="start_date" value="<?= $startDate ?>">
                     <input type="hidden" name="end_date" value="<?= $endDate ?>">
-                    <?php if ($accountType === 'loans' && isset($account['id'])): ?>
+                    <input type="hidden" name="period" value="<?= $period ?>">
+                    <?php if ($accountType === 'loans'): ?>
                         <input type="hidden" name="loan_id" value="<?= $account['id'] ?>">
+                    <?php else: ?>
+                        <input type="hidden" name="account_id" value="<?= $account['id'] ?>">
                     <?php endif; ?>
                     <button type="submit" class="btn btn-success btn-sm">
                         <i class="bi bi-download me-2"></i>Muat Turun PDF
