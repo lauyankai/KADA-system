@@ -1016,32 +1016,6 @@ class SavingController extends BaseController
             }
         }
 
-        public function showTransferPage()
-        {
-            try {
-                if (!isset($_SESSION['member_id'])) {
-                    throw new \Exception('Sila log masuk untuk mengakses');
-                }
-
-                $memberId = $_SESSION['member_id'];
-                
-                // Get member's main account
-                $currentAccount = $this->saving->getMemberAccount($memberId);
-                if (!$currentAccount) {
-                    throw new \Exception('Akaun tidak ditemui');
-                }
-
-                $this->view('users/savings/transfer/index', [
-                    'currentAccount' => $currentAccount
-                ]);
-
-            } catch (\Exception $e) {
-                $_SESSION['error'] = $e->getMessage();
-                header('Location: /KADA-system/users/savings/page');
-                exit;
-            }
-        }
-
         public function processTransfer()
         {
             try {
