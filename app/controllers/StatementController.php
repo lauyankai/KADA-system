@@ -117,32 +117,61 @@ class StatementController extends BaseController
 
             $memberId = $_SESSION['member_id'];
             $accountType = $_GET['account_type'] ?? 'savings';
+            $period = $_GET['period'] ?? 'today';
+            
+            // Calculate dates based on period - same logic as index method
+            $today = date('Y-m-d');
+            switch ($period) {
+                case 'today':
+                    $startDate = $today;
+                    $endDate = $today;
+                    break;
+                case 'current':
+                    $startDate = date('Y-m-01'); // First day of current month
+                    $endDate = $today;
+                    break;
+                case 'last':
+                    $startDate = date('Y-m-01', strtotime('last month'));
+                    $endDate = date('Y-m-t', strtotime('last month'));
+                    break;
+                case 'custom':
+                    $startDate = $_GET['start_date'] ?? $today;
+                    $endDate = $_GET['end_date'] ?? $today;
+                    break;
+                default:
+                    $startDate = $today;
+                    $endDate = $today;
+            }
             
             if ($accountType === 'savings') {
                 $account = $this->saving->getSavingsAccount($memberId);
                 if (!$account) {
                     throw new \Exception('Akaun simpanan tidak dijumpai');
                 }
+                $accountId = isset($_GET['account_id']) ? $_GET['account_id'] : $account['id'];
+                $transactions = $this->saving->getTransactionsByDateRange($accountId, $startDate, $endDate);
+                
+                // Calculate opening balance
+                $runningBalance = $account['current_amount'] ?? 0;
+                foreach ($transactions as $t) {
+                    $isCredit = in_array($t['type'], ['deposit', 'transfer_in']);
+                    $runningBalance -= ($isCredit ? $t['amount'] : -$t['amount']);
+                }
+                $account['opening_balance'] = $runningBalance;
+                
             } else {
-                $accounts = $this->loan->getLoansByMemberId($memberId);
-                if (empty($accounts)) {
+                $loanId = $_GET['loan_id'] ?? null;
+                if (!$loanId) {
+                    throw new \Exception('ID pembiayaan tidak ditemui');
+                }
+                
+                $account = $this->loan->getLoanById($loanId);
+                if (!$account || $account['member_id'] != $memberId) {
                     throw new \Exception('Akaun pembiayaan tidak dijumpai');
                 }
-                $selectedLoanId = $_GET['loan_id'] ?? $accounts[0]['id'];
-                foreach ($accounts as $loan) {
-                    if ($loan['id'] == $selectedLoanId) {
-                        $account = $loan;
-                        break;
-                    }
-                }
+                
+                $transactions = $this->loan->getTransactionsByDateRange($loanId, $startDate, $endDate);
             }
-
-            $startDate = $_GET['start_date'] ?? date('Y-m-d');
-            $endDate = $_GET['end_date'] ?? date('Y-m-d');
-
-            $transactions = $accountType === 'savings' 
-                ? $this->saving->getTransactionsByDateRange($account['id'], $startDate, $endDate)
-                : $this->loan->getTransactionsByDateRange($account['id'], $startDate, $endDate);
 
             // Generate PDF statement
             $this->generatePDF($account, $transactions, $startDate, $endDate, $accountType);
@@ -216,9 +245,29 @@ class StatementController extends BaseController
         }
         $pdf->Ln();
 
+        // Calculate opening balance
+        $runningBalance = $account['current_amount'] ?? 0;
+        foreach ($transactions as $t) {
+            if ($accountType === 'savings') {
+                $isCredit = in_array($t['type'], ['deposit', 'transfer_in']);
+                $runningBalance -= ($isCredit ? $t['amount'] : -$t['amount']);
+            }
+        }
+        $openingBalance = $runningBalance;
+
+        // Add opening balance row
+        $pdf->SetFont('helvetica', 'B', 9);
+        $pdf->SetFillColor(245, 245, 245);
+        $pdf->Cell($widths[0], 6, '-', 1, 0, 'C', true);
+        $pdf->Cell($widths[1], 6, 'Baki Awal', 1, 0, 'L', true);
+        $pdf->Cell($widths[2], 6, '-', 1, 0, 'R', true);
+        $pdf->Cell($widths[3], 6, '-', 1, 0, 'R', true);
+        $pdf->Cell($widths[4], 6, number_format($openingBalance, 2), 1, 0, 'R', true);
+        $pdf->Ln();
+
         // Table data
         $pdf->SetFont('helvetica', '', 9);
-        $balance = $account['current_amount'] ?? 0;
+        $pdf->SetFillColor(255, 255, 255);
 
         // Sort transactions by date
         usort($transactions, function($a, $b) {
@@ -229,23 +278,33 @@ class StatementController extends BaseController
             if ($accountType === 'savings') {
                 $isDebit = in_array($trans['type'], ['transfer_out', 'withdrawal']);
                 $isCredit = in_array($trans['type'], ['deposit', 'transfer_in']);
-                $balance += ($isCredit ? $trans['amount'] : -$trans['amount']);
+                $runningBalance += ($isCredit ? $trans['amount'] : -$trans['amount']);
 
                 $pdf->Cell($widths[0], 6, date('d/m/Y', strtotime($trans['created_at'])), 1);
                 $pdf->Cell($widths[1], 6, $trans['description'], 1);
                 $pdf->Cell($widths[2], 6, $isDebit ? number_format($trans['amount'], 2) : '-', 1, 0, 'R');
                 $pdf->Cell($widths[3], 6, $isCredit ? number_format($trans['amount'], 2) : '-', 1, 0, 'R');
-                $pdf->Cell($widths[4], 6, number_format($balance, 2), 1, 0, 'R');
+                $pdf->Cell($widths[4], 6, number_format($runningBalance, 2), 1, 0, 'R');
             } else {
-                $balance = $trans['remaining_balance'];
+                $runningBalance = $trans['remaining_balance'];
                 $pdf->Cell($widths[0], 6, date('d/m/Y', strtotime($trans['created_at'])), 1);
                 $pdf->Cell($widths[1], 6, $trans['description'], 1);
                 $pdf->Cell($widths[2], 6, number_format($trans['payment_amount'], 2), 1, 0, 'R');
                 $pdf->Cell($widths[3], 6, number_format($trans['remaining_balance'], 2), 1, 0, 'R');
-                $pdf->Cell($widths[4], 6, number_format($balance, 2), 1, 0, 'R');
+                $pdf->Cell($widths[4], 6, number_format($runningBalance, 2), 1, 0, 'R');
             }
             $pdf->Ln();
         }
+
+        // Add closing balance row
+        $pdf->SetFont('helvetica', 'B', 9);
+        $pdf->SetFillColor(245, 245, 245);
+        $pdf->Cell($widths[0], 6, '-', 1, 0, 'C', true);
+        $pdf->Cell($widths[1], 6, 'Baki Akhir', 1, 0, 'L', true);
+        $pdf->Cell($widths[2], 6, '-', 1, 0, 'R', true);
+        $pdf->Cell($widths[3], 6, '-', 1, 0, 'R', true);
+        $pdf->Cell($widths[4], 6, number_format($runningBalance, 2), 1, 0, 'R', true);
+        $pdf->Ln();
 
         // Add footer
         $pdf->Ln(10);

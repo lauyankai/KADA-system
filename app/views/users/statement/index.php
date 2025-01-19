@@ -14,8 +14,11 @@
                     <input type="hidden" name="account_type" value="<?= $accountType ?>">
                     <input type="hidden" name="start_date" value="<?= $startDate ?>">
                     <input type="hidden" name="end_date" value="<?= $endDate ?>">
-                    <?php if ($accountType === 'loans' && isset($account['id'])): ?>
+                    <input type="hidden" name="period" value="<?= $period ?>">
+                    <?php if ($accountType === 'loans'): ?>
                         <input type="hidden" name="loan_id" value="<?= $account['id'] ?>">
+                    <?php else: ?>
+                        <input type="hidden" name="account_id" value="<?= $account['id'] ?>">
                     <?php endif; ?>
                     <button type="submit" class="btn btn-success btn-sm">
                         <i class="bi bi-download me-2"></i>Muat Turun PDF
@@ -122,10 +125,33 @@
                     </thead>
                     <tbody>
                         <?php 
-                        // Get the current balance from savings_accounts
-                        $balance = $account['current_amount'] ?? 0;
+                        // Calculate opening balance
+                        $runningBalance = $account['current_amount'] ?? 0;
+                        foreach ($transactions as $t) {
+                            if ($accountType === 'savings') {
+                                $isCredit = in_array($t['type'], ['deposit', 'transfer_in']);
+                                $runningBalance -= ($isCredit ? $t['amount'] : -$t['amount']);
+                            }
+                        }
+                        $openingBalance = $runningBalance;
                         
-                        // Sort transactions by date in ascending order
+                        // Add opening balance row
+                        ?>
+                        <tr class="table-light">
+                            <td class="small">-</td>
+                            <td><strong>Baki Awal</strong></td>
+                            <?php if ($accountType === 'savings'): ?>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                            <?php else: ?>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                            <?php endif; ?>
+                            <td class="text-end fw-bold"><?= number_format($openingBalance, 2) ?></td>
+                        </tr>
+
+                        <?php
+                        // Sort transactions by date in ascending order (oldest first)
                         usort($transactions, function($a, $b) {
                             return strtotime($a['created_at']) - strtotime($b['created_at']);
                         });
@@ -135,9 +161,9 @@
                             $isDebit = in_array($trans['type'], ['transfer_out', 'withdrawal']);
                             $isCredit = in_array($trans['type'], ['deposit', 'transfer_in']);
                             
-                            // Calculate running balance
+                            // Calculate running balance going forward
                             if ($accountType === 'savings') {
-                                $balance += ($isCredit ? $trans['amount'] : -$trans['amount']);
+                                $runningBalance += ($isCredit ? $trans['amount'] : -$trans['amount']);
                             }
                         ?>
                             <tr>
@@ -154,9 +180,24 @@
                                     <td class="text-end text-danger"><?= number_format($trans['payment_amount'], 2) ?></td>
                                     <td class="text-end"><?= number_format($trans['remaining_balance'], 2) ?></td>
                                 <?php endif; ?>
-                                <td class="text-end fw-bold"><?= number_format($balance, 2) ?></td>
+                                <td class="text-end fw-bold"><?= number_format($runningBalance, 2) ?></td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php endforeach; 
+                        
+                        // Add closing balance row
+                        ?>
+                        <tr class="table-light">
+                            <td class="small">-</td>
+                            <td><strong>Baki Akhir</strong></td>
+                            <?php if ($accountType === 'savings'): ?>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                            <?php else: ?>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                            <?php endif; ?>
+                            <td class="text-end fw-bold"><?= number_format($runningBalance, 2) ?></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -224,6 +265,15 @@
 
 .bg-light {
     background-color: #f8f9fa !important;
+}
+
+.table tr.table-light {
+    background-color: #f8f9fa;
+}
+
+.table tr.table-light td {
+    border-top: 2px solid #dee2e6;
+    border-bottom: 2px solid #dee2e6;
 }
 </style>
 
