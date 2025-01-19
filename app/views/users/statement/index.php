@@ -122,10 +122,16 @@
                     </thead>
                     <tbody>
                         <?php 
-                        // Get the current balance from savings_accounts
-                        $balance = $account['current_amount'] ?? 0;
+                        // Start with the opening balance (current amount minus all transaction amounts)
+                        $runningBalance = $account['current_amount'] ?? 0;
+                        foreach ($transactions as $t) {
+                            if ($accountType === 'savings') {
+                                $isCredit = in_array($t['type'], ['deposit', 'transfer_in']);
+                                $runningBalance -= ($isCredit ? $t['amount'] : -$t['amount']);
+                            }
+                        }
                         
-                        // Sort transactions by date in ascending order
+                        // Sort transactions by date in ascending order (oldest first)
                         usort($transactions, function($a, $b) {
                             return strtotime($a['created_at']) - strtotime($b['created_at']);
                         });
@@ -135,9 +141,9 @@
                             $isDebit = in_array($trans['type'], ['transfer_out', 'withdrawal']);
                             $isCredit = in_array($trans['type'], ['deposit', 'transfer_in']);
                             
-                            // Calculate running balance
+                            // Calculate running balance going forward
                             if ($accountType === 'savings') {
-                                $balance += ($isCredit ? $trans['amount'] : -$trans['amount']);
+                                $runningBalance += ($isCredit ? $trans['amount'] : -$trans['amount']);
                             }
                         ?>
                             <tr>
@@ -154,7 +160,7 @@
                                     <td class="text-end text-danger"><?= number_format($trans['payment_amount'], 2) ?></td>
                                     <td class="text-end"><?= number_format($trans['remaining_balance'], 2) ?></td>
                                 <?php endif; ?>
-                                <td class="text-end fw-bold"><?= number_format($balance, 2) ?></td>
+                                <td class="text-end fw-bold"><?= number_format($runningBalance, 2) ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
