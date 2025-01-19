@@ -49,7 +49,7 @@
 
         <div class="row align-items-center footer-bottom g-2">
             <div class="col-md-6">
-                <p class="copyright mb-md-0">© <?php echo date('Y'); ?> Koperasi KADA. Hak Cipta Terpelihara. Dibangunkan oleh <a href="https://github.com/lauyankai/KADA-system" class="text-reset">Tech EcoPioneer</a></p>
+                <p class="copyright mb-md-0">© <?php echo date('Y'); ?> Koperasi KADA. Hak Cipta Terpelihara. Dibangunkan oleh <a href="https://github.com/lauyankai/KADA-system" class="text-reset">satu Kumpulan Pelajar UTM</a></p>
             </div>
             <div class="col-md-6">
                 <div class="d-flex flex-wrap justify-content-md-end align-items-center gap-3">

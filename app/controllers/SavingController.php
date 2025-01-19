@@ -1052,14 +1052,10 @@ class SavingController extends BaseController
                 $memberId = $_SESSION['member_id'];
                 $fromAccountId = $_POST['from_account_id'];
                 
-                // Verify account belongs to member
                 $account = $this->saving->getAccountById($fromAccountId);
                 if (!$account || $account['member_id'] != $memberId) {
                     throw new \Exception('Akaun tidak sah');
                 }
-
-                // Rest of your transfer processing code...
-                
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 header('Location: /users/savings/transfer');

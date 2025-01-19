@@ -28,6 +28,7 @@ require_once '../app/Models/Admin.php';
 require_once '../app/Models/Saving.php';
 require_once '../app/Models/Loan.php';
 require_once '../app/Models/Director.php';
+require_once '../app/Models/Statement.php';
 
 // Include controllers
 require_once '../app/Controllers/HomeController.php';
@@ -40,6 +41,7 @@ require_once '../app/Controllers/LoanController.php';
 require_once '../app/Controllers/SavingController.php';
 require_once '../app/Controllers/DirectorController.php';
 require_once '../app/Controllers/InfoController.php';
+require_once '../app/Controllers/StatementController.php';
 
 // Include middleware
 require_once '../app/Middleware/AuthMiddleware.php';
@@ -147,6 +149,10 @@ $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController'
 //Loan Type info Route 
 $router->addRoute('GET', '/info/loantype', 'InfoController', 'showLoanTypes');
 
+$router->addRoute('GET', '/users/statements', 'StatementController', 'index');
+$router->addRoute('GET', '/users/statements/generate', 'StatementController', 'generate');
+$router->addRoute('GET', '/users/statements/download/{id}', 'StatementController', 'download');
+$router->addRoute('GET', '/users/statements/download', 'StatementController', 'download');
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];

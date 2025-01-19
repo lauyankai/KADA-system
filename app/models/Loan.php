@@ -58,11 +58,38 @@ class Loan extends BaseModel
         }
     }
 
+    public function getTransactionsByDateRange($loanId, $startDate, $endDate)
+    {
+        try {
+            $sql = "SELECT 
+                    created_at,
+                    amount as payment_amount,
+                    remaining_balance,
+                    description
+                    FROM loan_payments 
+                    WHERE loan_id = :loan_id 
+                    AND created_at BETWEEN :start_date AND :end_date
+                    ORDER BY created_at ASC";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':loan_id' => $loanId,
+                ':start_date' => $startDate,
+                ':end_date' => $endDate . ' 23:59:59'
+            ]);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan sejarah pembayaran');
+        }
+    }
 
     public function getLoanById($id)
     {
         try {
-            $sql = "SELECT * FROM loan_applications WHERE id = :id";
+            $sql = "SELECT * FROM loans WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':id' => $id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
