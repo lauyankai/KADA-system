@@ -56,7 +56,7 @@
                                     <td><?= htmlspecialchars($loan['ic_no']) ?></td>
                                     <td><?= htmlspecialchars($loan['loan_type']) ?></td>
                                     <td><?= number_format($loan['amount'], 2) ?></td>
-                                    <td><?= date('d/m/Y', strtotime($loan['created_at'])) ?></td>
+                                    <td><?= date('d/m/Y', strtotime($loan['date_received'])) ?></td>
                                     <td>
                                         <button type="button" 
                                                 class="btn btn-sm btn-success"

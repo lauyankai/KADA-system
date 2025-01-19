@@ -376,7 +376,7 @@ class Director extends BaseModel
                     FROM loans l
                     JOIN members m ON l.member_id = m.id
                     WHERE l.status = 'pending'
-                    ORDER BY l.date_created DESC";
+                    ORDER BY l.date_received DESC";
             
             error_log('Executing SQL: ' . $sql);
             
