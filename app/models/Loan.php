@@ -98,6 +98,58 @@ class Loan extends BaseModel
             throw new \Exception('Gagal mendapatkan maklumat pembiayaan');
         }
     }
+
+    public function getMemberLatestLoan($memberId)
+    {
+        try {
+            // Debug logs
+            error_log("Executing getMemberLatestLoan for member_id: " . $memberId);
+            
+            // Verify database connection
+            if (!$this->getConnection()) {
+                error_log("Database connection failed");
+                throw new \PDOException("Database connection failed");
+            }
+            error_log("Database connection verified");
+            
+            // Verify member_id is numeric
+            if (!is_numeric($memberId)) {
+                error_log("Invalid member_id format: " . $memberId);
+                throw new \Exception("Invalid member ID format");
+            }
+            
+            $sql = "SELECT * FROM loans 
+                    WHERE member_id = :member_id 
+                    ORDER BY created_at DESC 
+                    LIMIT 1";
+            
+            // Debug SQL
+            error_log("Executing SQL: " . $sql . " with member_id = " . $memberId);
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            
+            // Debug statement execution
+            error_log("SQL executed successfully");
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Debug result
+            error_log("Query result: " . ($result ? json_encode($result) : "No loan found"));
+            
+            if (!$result) {
+                throw new \Exception('Tiada permohonan pembiayaan ditemui');
+            }
+            
+            return $result;
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in getMemberLatestLoan: ' . $e->getMessage());
+            error_log('SQL: ' . $sql);
+            error_log('Member ID: ' . $memberId);
+            throw new \Exception('Gagal mendapatkan maklumat pembiayaan');
+        }
+    }
 }
 
 

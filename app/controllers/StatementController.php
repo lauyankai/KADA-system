@@ -25,86 +25,61 @@ class StatementController extends BaseController
 
             $memberId = $_SESSION['member_id'];
             
-            // Get account type and period from query parameters, with defaults
-            $accountType = $_GET['account_type'] ?? 'savings';
-            $period = $_GET['period'] ?? 'today'; // Set default period to 'today'
-
+            // Get period from query parameters
+            $period = $_GET['period'] ?? 'today';
+            
             // Calculate dates based on period
-            $today = date('Y-m-d');
-            switch ($period) {
-                case 'today':
-                    $startDate = $today;
-                    $endDate = $today;
-                    break;
-                case 'current':
-                    $startDate = date('Y-m-01'); // First day of current month
-                    $endDate = $today;
-                    break;
-                case 'last':
-                    $startDate = date('Y-m-01', strtotime('last month'));
-                    $endDate = date('Y-m-t', strtotime('last month')); // Last day of last month
-                    break;
-                case 'custom':
-                    $startDate = $_GET['start_date'] ?? $today;
-                    $endDate = $_GET['end_date'] ?? $today;
-                    break;
-                default:
-                    $startDate = $today;
-                    $endDate = $today;
-                    $period = 'today'; // Ensure period is set even if invalid value provided
+            $dates = $this->calculateDates($period);
+            $startDate = $dates['startDate'];
+            $endDate = $dates['endDate'];
+
+            // Get savings account
+            $savingsAccount = $this->saving->getSavingsAccount($memberId);
+            if (!$savingsAccount) {
+                throw new \Exception('Akaun simpanan tidak ditemui');
             }
 
-            if ($accountType === 'savings') {
-                $account = $this->saving->getSavingsAccount($memberId);
-                if (!$account) {
-                    throw new \Exception('Akaun simpanan tidak dijumpai');
-                }
-                $transactions = $this->saving->getTransactionsByDateRange(
-                    $account['id'], 
-                    $startDate, 
-                    $endDate
-                );
-                $accounts = null;
-            } else {
-                $accounts = $this->loan->getLoansByMemberId($memberId);
-                if (empty($accounts)) {
-                    throw new \Exception('Akaun pembiayaan tidak dijumpai');
-                }
+            // Get all loan accounts
+            $loanAccounts = $this->loan->getLoansByMemberId($memberId);
 
-                $selectedLoanId = $_GET['loan_id'] ?? $accounts[0]['id'];
-                
+            // Determine selected account and type
+            $selectedAccount = $_GET['account_id'] ?? 'S' . $savingsAccount['id'];
+            $accountType = substr($selectedAccount, 0, 1) === 'S' ? 'savings' : 'loan';
+            $accountId = substr($selectedAccount, 1);
+
+            // Get account details and transactions based on type
+            if ($accountType === 'savings') {
+                $account = $savingsAccount;
+                $transactions = $this->saving->getTransactionsByDateRange($accountId, $startDate, $endDate);
+            } else {
                 $account = null;
-                foreach ($accounts as $loan) {
-                    if ($loan['id'] == $selectedLoanId) {
+                foreach ($loanAccounts as $loan) {
+                    if ($loan['id'] == $accountId) {
                         $account = $loan;
                         break;
                     }
                 }
-
                 if (!$account) {
-                    throw new \Exception('Akaun pembiayaan tidak dijumpai');
+                    throw new \Exception('Akaun pembiayaan tidak ditemui');
                 }
-
-                $transactions = $this->loan->getTransactionsByDateRange(
-                    $selectedLoanId,
-                    $startDate,
-                    $endDate
-                );
+                $transactions = $this->loan->getTransactionsByDateRange($accountId, $startDate, $endDate);
             }
 
             $this->view('users/statement/index', [
                 'accountType' => $accountType,
                 'account' => $account,
-                'accounts' => $accounts,
+                'savingsAccount' => $savingsAccount,
+                'loanAccounts' => $loanAccounts,
                 'transactions' => $transactions,
+                'period' => $period,
                 'startDate' => $startDate,
-                'endDate' => $endDate,
-                'period' => $period
+                'endDate' => $endDate
             ]);
 
         } catch (\Exception $e) {
-            error_log('Error in statement index: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/dashboard');
+            exit;
         }
     }
 
@@ -316,5 +291,153 @@ class StatementController extends BaseController
         $filename = 'penyata_' . ($accountType === 'savings' ? 'simpanan' : 'pembiayaan') . '_' . date('Ymd') . '.pdf';
         $pdf->Output($filename, 'D');
         exit;
+    }
+
+    public function generateLoanReport($loanId, $startDate, $endDate)
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            $loan = $this->loan->getLoanById($loanId);
+
+            if (!$loan || $loan['member_id'] != $memberId) {
+                throw new \Exception('Maklumat pembiayaan tidak dijumpai');
+            }
+
+            // Create PDF
+            $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+            // Set document information
+            $pdf->SetCreator('KADA System');
+            $pdf->SetAuthor('KADA Kelantan');
+            $pdf->SetTitle('Penyata Pembiayaan');
+
+            // Remove default header/footer
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+
+            // Add a page
+            $pdf->AddPage();
+
+            // Set font
+            $pdf->SetFont('helvetica', '', 10);
+
+            // Add letterhead
+            $pdf->SetFont('helvetica', 'B', 14);
+            $pdf->Cell(0, 10, 'Platform Digital Koperasi KADA Kelantan', 0, 1, 'C');
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Cell(0, 6, 'D/A Lembaga Kemajuan Pertanian Kemubu,', 0, 1, 'C');
+            $pdf->Cell(0, 6, 'P/S 127, 15710 Kota Bharu, Kelantan', 0, 1, 'C');
+            $pdf->Ln(10);
+
+            // Report title
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->Cell(0, 10, 'PENYATA PEMBIAYAAN', 0, 1, 'C');
+            $pdf->Ln(5);
+
+            // Loan details
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Cell(40, 6, 'No. Rujukan:', 0);
+            $pdf->Cell(0, 6, $loan['reference_no'], 0, 1);
+            $pdf->Cell(40, 6, 'Jenis Pembiayaan:', 0);
+            $pdf->Cell(0, 6, ucfirst($loan['loan_type']), 0, 1);
+            $pdf->Cell(40, 6, 'Jumlah Pembiayaan:', 0);
+            $pdf->Cell(0, 6, 'RM ' . number_format($loan['amount'], 2), 0, 1);
+            $pdf->Cell(40, 6, 'Bayaran Bulanan:', 0);
+            $pdf->Cell(0, 6, 'RM ' . number_format($loan['monthly_payment'], 2), 0, 1);
+            $pdf->Cell(40, 6, 'Tempoh:', 0);
+            $pdf->Cell(0, 6, $loan['duration'] . ' bulan', 0, 1);
+            $pdf->Cell(40, 6, 'Status:', 0);
+            $pdf->Cell(0, 6, ucfirst($loan['status']), 0, 1);
+            $pdf->Cell(40, 6, 'Bank:', 0);
+            $pdf->Cell(0, 6, $loan['bank_name'], 0, 1);
+            $pdf->Cell(40, 6, 'No. Akaun Bank:', 0);
+            $pdf->Cell(0, 6, $loan['bank_account'], 0, 1);
+            $pdf->Cell(40, 6, 'Tarikh Mohon:', 0);
+            $pdf->Cell(0, 6, date('d/m/Y', strtotime($loan['created_at'])), 0, 1);
+            if ($loan['date_received']) {
+                $pdf->Cell(40, 6, 'Tarikh Terima:', 0);
+                $pdf->Cell(0, 6, date('d/m/Y', strtotime($loan['date_received'])), 0, 1);
+            }
+            $pdf->Ln(5);
+
+            // Table header
+            $pdf->SetFont('helvetica', 'B', 10);
+            $pdf->Cell(30, 7, 'Tarikh', 1, 0, 'C');
+            $pdf->Cell(70, 7, 'Status Permohonan', 1, 0, 'C');
+            $pdf->Cell(45, 7, 'Jumlah (RM)', 1, 0, 'C');
+            $pdf->Cell(45, 7, 'Status', 1, 0, 'C');
+            $pdf->Ln();
+
+            // Table data
+            $pdf->SetFont('helvetica', '', 9);
+            
+            // Application submitted
+            $pdf->Cell(30, 6, date('d/m/Y', strtotime($loan['created_at'])), 1);
+            $pdf->Cell(70, 6, 'Permohonan Dihantar', 1);
+            $pdf->Cell(45, 6, number_format($loan['amount'], 2), 1, 0, 'R');
+            $pdf->Cell(45, 6, 'Dalam Proses', 1, 0, 'C');
+            $pdf->Ln();
+
+            // If loan is approved/received
+            if ($loan['date_received']) {
+                $pdf->Cell(30, 6, date('d/m/Y', strtotime($loan['date_received'])), 1);
+                $pdf->Cell(70, 6, 'Permohonan Diluluskan', 1);
+                $pdf->Cell(45, 6, number_format($loan['amount'], 2), 1, 0, 'R');
+                $pdf->Cell(45, 6, 'Diluluskan', 1, 0, 'C');
+                $pdf->Ln();
+            }
+
+            // Footer
+            $pdf->Ln(10);
+            $pdf->SetFont('helvetica', 'I', 8);
+            $pdf->Cell(0, 6, 'Dokumen ini dijana secara automatik. Tandatangan tidak diperlukan.', 0, 1, 'C');
+            $pdf->Cell(0, 6, 'Dicetak pada: ' . date('d/m/Y H:i:s'), 0, 1, 'C');
+
+            // Output PDF
+            $pdf->Output('penyata_pembiayaan_' . $loan['reference_no'] . '.pdf', 'D');
+            exit;
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/statements');
+            exit;
+        }
+    }
+
+    private function calculateDates($period)
+    {
+        $today = date('Y-m-d');
+        $startDate = $today;
+        $endDate = $today;
+
+        switch ($period) {
+            case 'today':
+                // Already set to today
+                break;
+            case 'current':
+                $startDate = date('Y-m-01'); // First day of current month
+                $endDate = $today;
+                break;
+            case 'last':
+                $startDate = date('Y-m-01', strtotime('last month'));
+                $endDate = date('Y-m-t', strtotime('last month')); // Last day of last month
+                break;
+            case 'custom':
+                $startDate = $_GET['start_date'] ?? $today;
+                $endDate = $_GET['end_date'] ?? $today;
+                break;
+            default:
+                // Default to today if invalid period
+                break;
+        }
+
+        return [
+            'startDate' => $startDate,
+            'endDate' => $endDate
+        ];
     }
 }

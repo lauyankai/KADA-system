@@ -208,4 +208,76 @@ class LoanController extends BaseController
             exit;
         }
     }
+
+    public function index()
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            
+            // Get all loan applications for the member
+            $loans = $this->loan->getLoansByMemberId($memberId);
+            
+            $this->view('users/loans/index', [
+                'loans' => $loans
+            ]);
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/dashboard');
+            exit;
+        }
+    }
+
+    public function report($loanId = null)
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            
+            // If no loan ID specified, get all loans for dropdown
+            if (!$loanId) {
+                $loans = $this->loan->getLoansByMemberId($memberId);
+                $loan = !empty($loans) ? $loans[0] : null;
+                $loanId = $loan ? $loan['id'] : null;
+            } else {
+                $loan = $this->loan->getLoanById($loanId);
+            }
+
+            if (!$loan || $loan['member_id'] != $memberId) {
+                throw new \Exception('Maklumat pembiayaan tidak dijumpai');
+            }
+
+            // Get period from query parameters
+            $period = $_GET['period'] ?? 'today';
+            
+            // Calculate dates based on period
+            $dates = $this->calculateDates($period);
+            $startDate = $dates['startDate'];
+            $endDate = $dates['endDate'];
+
+            // Get loan transactions
+            $transactions = $this->loan->getTransactionsByDateRange($loanId, $startDate, $endDate);
+
+            $this->view('users/loans/report', [
+                'loan' => $loan,
+                'loans' => $loans ?? [],
+                'transactions' => $transactions,
+                'period' => $period,
+                'startDate' => $startDate,
+                'endDate' => $endDate
+            ]);
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/loans');
+            exit;
+        }
+    }
 }

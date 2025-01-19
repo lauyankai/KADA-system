@@ -42,18 +42,20 @@
                     <!-- Account Selection -->
                     <div class="row mb-3 align-items-center">
                         <div class="col-md-2">
-                            <label class="form-label text-secondary">Nombor Akaun</label>
+                            <label class="form-label text-secondary">Pilih Akaun</label>
                         </div>
                         <div class="col-md-6">
                             <select name="account_id" class="form-select form-select-sm" onchange="this.form.submit()">
-                                <?php if ($accountType === 'savings'): ?>
-                                    <option value="<?= $account['id'] ?>">
-                                        <?= htmlspecialchars($account['account_number']) ?> / Akaun Simpanan
-                                    </option>
-                                <?php else: ?>
-                                    <?php foreach ($accounts as $loan): ?>
-                                        <option value="<?= $loan['id'] ?>" 
-                                                <?= ($loan['id'] == $account['id']) ? 'selected' : '' ?>>
+                                <!-- Savings Account -->
+                                <option value="S<?= $savingsAccount['id'] ?>" 
+                                        <?= ($accountType === 'savings') ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($savingsAccount['account_number']) ?> / Akaun Simpanan
+                                </option>
+                                <!-- Loan Accounts -->
+                                <?php if (isset($loanAccounts) && !empty($loanAccounts)): ?>
+                                    <?php foreach ($loanAccounts as $loan): ?>
+                                        <option value="L<?= $loan['id'] ?>" 
+                                                <?= ($accountType === 'loan' && $account['id'] == $loan['id']) ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($loan['reference_no']) ?> / Akaun Pembiayaan
                                         </option>
                                     <?php endforeach; ?>
@@ -99,7 +101,7 @@
                     <div class="row">
                         <div class="offset-md-2 col-md-2">
                             <button type="submit" class="btn btn-primary btn-sm w-100">
-                                <i class="bi bi-search me-1"></i>Submit
+                                <i class="bi bi-search me-1"></i>Papar
                             </button>
                         </div>
                     </div>
@@ -201,6 +203,49 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Loan Details -->
+            <?php if ($accountType === 'loan' && isset($account)): ?>
+                <div class="loan-details mt-4">
+                    <h5 class="mb-3">Maklumat Pembiayaan</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="30%">No. Rujukan</th>
+                            <td><?= $account['reference_no'] ?></td>
+                        </tr>
+                        <tr>
+                            <th>Jenis Pembiayaan</th>
+                            <td><?= ucfirst($account['loan_type']) ?></td>
+                        </tr>
+                        <tr>
+                            <th>Jumlah</th>
+                            <td>RM <?= number_format($account['amount'], 2) ?></td>
+                        </tr>
+                        <tr>
+                            <th>Bayaran Bulanan</th>
+                            <td>RM <?= number_format($account['monthly_payment'], 2) ?></td>
+                        </tr>
+                        <tr>
+                            <th>Tempoh</th>
+                            <td><?= $account['duration'] ?> bulan</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td><?= ucfirst($account['status']) ?></td>
+                        </tr>
+                        <tr>
+                            <th>Tarikh Mohon</th>
+                            <td><?= date('d/m/Y', strtotime($account['created_at'])) ?></td>
+                        </tr>
+                        <?php if ($account['date_received']): ?>
+                        <tr>
+                            <th>Tarikh Terima</th>
+                            <td><?= date('d/m/Y', strtotime($account['date_received'])) ?></td>
+                        </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

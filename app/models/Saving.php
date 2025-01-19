@@ -449,7 +449,7 @@ class Saving extends BaseModel
         }
     }
 
-    public function processDeposit($data)
+public function processDeposit($data)
     {
         try {
             $this->getConnection()->beginTransaction();
@@ -1420,11 +1420,11 @@ class Saving extends BaseModel
                     $stmt = $this->getConnection()->prepare($sql);
                     $stmt->execute([':member_id' => $memberId]);
                     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                    
-                    $this->getConnection()->commit();
-                    
+
+            $this->getConnection()->commit();
+
                 } catch (\Exception $e) {
-                    $this->getConnection()->rollBack();
+            $this->getConnection()->rollBack();
                     error_log('Failed to create account: ' . $e->getMessage());
                     throw new \Exception('Gagal membuat akaun baru');
                 }
