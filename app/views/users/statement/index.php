@@ -125,7 +125,7 @@
                     </thead>
                     <tbody>
                         <?php 
-                        // Start with the opening balance (current amount minus all transaction amounts)
+                        // Calculate opening balance
                         $runningBalance = $account['current_amount'] ?? 0;
                         foreach ($transactions as $t) {
                             if ($accountType === 'savings') {
@@ -133,7 +133,24 @@
                                 $runningBalance -= ($isCredit ? $t['amount'] : -$t['amount']);
                             }
                         }
+                        $openingBalance = $runningBalance;
                         
+                        // Add opening balance row
+                        ?>
+                        <tr class="table-light">
+                            <td class="small">-</td>
+                            <td><strong>Baki Awal</strong></td>
+                            <?php if ($accountType === 'savings'): ?>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                            <?php else: ?>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                            <?php endif; ?>
+                            <td class="text-end fw-bold"><?= number_format($openingBalance, 2) ?></td>
+                        </tr>
+
+                        <?php
                         // Sort transactions by date in ascending order (oldest first)
                         usort($transactions, function($a, $b) {
                             return strtotime($a['created_at']) - strtotime($b['created_at']);
@@ -165,7 +182,22 @@
                                 <?php endif; ?>
                                 <td class="text-end fw-bold"><?= number_format($runningBalance, 2) ?></td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php endforeach; 
+                        
+                        // Add closing balance row
+                        ?>
+                        <tr class="table-light">
+                            <td class="small">-</td>
+                            <td><strong>Baki Akhir</strong></td>
+                            <?php if ($accountType === 'savings'): ?>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                            <?php else: ?>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                            <?php endif; ?>
+                            <td class="text-end fw-bold"><?= number_format($runningBalance, 2) ?></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -233,6 +265,15 @@
 
 .bg-light {
     background-color: #f8f9fa !important;
+}
+
+.table tr.table-light {
+    background-color: #f8f9fa;
+}
+
+.table tr.table-light td {
+    border-top: 2px solid #dee2e6;
+    border-bottom: 2px solid #dee2e6;
 }
 </style>
 

@@ -245,15 +245,29 @@ class StatementController extends BaseController
         }
         $pdf->Ln();
 
+        // Calculate opening balance
+        $runningBalance = $account['current_amount'] ?? 0;
+        foreach ($transactions as $t) {
+            if ($accountType === 'savings') {
+                $isCredit = in_array($t['type'], ['deposit', 'transfer_in']);
+                $runningBalance -= ($isCredit ? $t['amount'] : -$t['amount']);
+            }
+        }
+        $openingBalance = $runningBalance;
+
+        // Add opening balance row
+        $pdf->SetFont('helvetica', 'B', 9);
+        $pdf->SetFillColor(245, 245, 245);
+        $pdf->Cell($widths[0], 6, '-', 1, 0, 'C', true);
+        $pdf->Cell($widths[1], 6, 'Baki Awal', 1, 0, 'L', true);
+        $pdf->Cell($widths[2], 6, '-', 1, 0, 'R', true);
+        $pdf->Cell($widths[3], 6, '-', 1, 0, 'R', true);
+        $pdf->Cell($widths[4], 6, number_format($openingBalance, 2), 1, 0, 'R', true);
+        $pdf->Ln();
+
         // Table data
         $pdf->SetFont('helvetica', '', 9);
-        
-        // Initialize balance with opening balance for savings
-        if ($accountType === 'savings') {
-            $balance = $account['opening_balance'];
-        } else {
-            $balance = $account['current_amount'] ?? 0;
-        }
+        $pdf->SetFillColor(255, 255, 255);
 
         // Sort transactions by date
         usort($transactions, function($a, $b) {
@@ -264,23 +278,33 @@ class StatementController extends BaseController
             if ($accountType === 'savings') {
                 $isDebit = in_array($trans['type'], ['transfer_out', 'withdrawal']);
                 $isCredit = in_array($trans['type'], ['deposit', 'transfer_in']);
-                $balance += ($isCredit ? $trans['amount'] : -$trans['amount']);
+                $runningBalance += ($isCredit ? $trans['amount'] : -$trans['amount']);
 
                 $pdf->Cell($widths[0], 6, date('d/m/Y', strtotime($trans['created_at'])), 1);
                 $pdf->Cell($widths[1], 6, $trans['description'], 1);
                 $pdf->Cell($widths[2], 6, $isDebit ? number_format($trans['amount'], 2) : '-', 1, 0, 'R');
                 $pdf->Cell($widths[3], 6, $isCredit ? number_format($trans['amount'], 2) : '-', 1, 0, 'R');
-                $pdf->Cell($widths[4], 6, number_format($balance, 2), 1, 0, 'R');
+                $pdf->Cell($widths[4], 6, number_format($runningBalance, 2), 1, 0, 'R');
             } else {
-                $balance = $trans['remaining_balance'];
+                $runningBalance = $trans['remaining_balance'];
                 $pdf->Cell($widths[0], 6, date('d/m/Y', strtotime($trans['created_at'])), 1);
                 $pdf->Cell($widths[1], 6, $trans['description'], 1);
                 $pdf->Cell($widths[2], 6, number_format($trans['payment_amount'], 2), 1, 0, 'R');
                 $pdf->Cell($widths[3], 6, number_format($trans['remaining_balance'], 2), 1, 0, 'R');
-                $pdf->Cell($widths[4], 6, number_format($balance, 2), 1, 0, 'R');
+                $pdf->Cell($widths[4], 6, number_format($runningBalance, 2), 1, 0, 'R');
             }
             $pdf->Ln();
         }
+
+        // Add closing balance row
+        $pdf->SetFont('helvetica', 'B', 9);
+        $pdf->SetFillColor(245, 245, 245);
+        $pdf->Cell($widths[0], 6, '-', 1, 0, 'C', true);
+        $pdf->Cell($widths[1], 6, 'Baki Akhir', 1, 0, 'L', true);
+        $pdf->Cell($widths[2], 6, '-', 1, 0, 'R', true);
+        $pdf->Cell($widths[3], 6, '-', 1, 0, 'R', true);
+        $pdf->Cell($widths[4], 6, number_format($runningBalance, 2), 1, 0, 'R', true);
+        $pdf->Ln();
 
         // Add footer
         $pdf->Ln(10);
