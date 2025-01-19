@@ -39,7 +39,7 @@
                             <i class="bi bi-wrench me-2"></i>Perkhidmatan
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="perkhidmatanDropdown">
-                            <li><a class="dropdown-item" href="/users/loans/details"><i class="bi bi-cash"></i>Pinjaman</a></li>
+                            <li><a class="dropdown-item" href="info/loantype"><i class="bi bi-cash"></i>Pinjaman</a></li>
                             <li><a class="dropdown-item" href="/users/"><i class="bi bi-graph-up"></i>Pelaburan</a></li>
                             <li><a class="dropdown-item" href="/users/savings"><i class="bi bi-piggy-bank"></i>Tabung</a></li>
                             <li><a class="dropdown-item" href="/users"><i class="bi bi-credit-card"></i>Pembiayaan</a></li>
