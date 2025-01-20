@@ -142,4 +142,60 @@ class DirectorController extends BaseController
             exit;
         }
     }
+
+    public function updateLoanStatus()
+    {
+        try {
+            if (!isset($_SESSION['director_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            if (!isset($_POST['loan_id']) || !isset($_POST['status'])) {
+                throw new \Exception('ID pembiayaan dan status diperlukan');
+            }
+
+            $loanId = $_POST['loan_id'];
+            $status = $_POST['status'];
+            $remarks = $_POST['remarks'] ?? '';
+
+            // Validate status
+            if (!in_array($status, ['approved', 'rejected'])) {
+                throw new \Exception('Status tidak sah');
+            }
+
+            $result = $this->director->updateLoanStatus($loanId, $status, $remarks);
+            if ($result) {
+                $_SESSION['success'] = 'Status pembiayaan telah dikemaskini';
+            } else {
+                throw new \Exception('Gagal mengemaskini status pembiayaan');
+            }
+
+            header('Location: /director/loans');
+            exit;
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /director/loans');
+            exit;
+        }
+    }
+
+    public function showLoans()
+    {
+        try {
+            if (!isset($_SESSION['director_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $loans = $this->director->getPendingLoans();
+            $this->view('director/loan-list', [
+                'loans' => $loans
+            ]);
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /director');
+            exit;
+        }
+    }
 } 
