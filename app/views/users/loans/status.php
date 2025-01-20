@@ -85,6 +85,13 @@
                             </table>
                         </div>
                     <?php endif; ?>
+
+                    <!-- Add Back Button -->
+                    <div class="mt-4 text-center">
+                        <a href="/users/dashboard" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
