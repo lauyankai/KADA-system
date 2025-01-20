@@ -124,9 +124,11 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/users/statements/download', 'StatementController', 'download');
 
 // Director routes
-    $router->addRoute('GET', '/director/dashboard', 'DirectorController', 'dashboard');
+    $router->addRoute('GET', '/director', 'DirectorController', 'dashboard');
     $router->addRoute('GET', '/director/add', 'DirectorController', 'showAddDirector');
     $router->addRoute('POST', '/director/store', 'DirectorController', 'store');
+    $router->addRoute('GET', '/director/loans', 'DirectorController', 'showLoans');
+    $router->addRoute('POST', '/director/loans/update-status', 'DirectorController', 'updateLoanStatus');
 
 // Guest routes
     $router->addRoute('GET', '/guest/check-status', 'GuestController', 'checkStatusPage');

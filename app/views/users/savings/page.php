@@ -4,6 +4,13 @@
 ?>
 
 <div class="container mt-4">
+    <!-- Add Back Button -->
+    <div class="mb-3">
+        <a href="/users/dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard
+        </a>
+    </div>
+
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show">
             <i class="bi bi-check-circle me-2"></i>
