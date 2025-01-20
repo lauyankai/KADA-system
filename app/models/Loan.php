@@ -9,7 +9,7 @@ class Loan extends BaseModel
     public function createLoan($data)
     {
         try {
-            $sql = "INSERT INTO loans (
+            $sql = "INSERT INTO pendingloans (
                 reference_no, member_id, loan_type, amount, duration, 
                 monthly_payment, status, bank_name, bank_account, date_received
             ) VALUES (
@@ -48,7 +48,7 @@ class Loan extends BaseModel
     public function getLoansByMemberId($memberId)
     {
         try {
-            $sql = "SELECT * FROM loans WHERE member_id = :member_id ORDER BY date_received DESC";
+            $sql = "SELECT * FROM pendingloans WHERE member_id = :member_id ORDER BY date_received DESC";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -89,7 +89,7 @@ class Loan extends BaseModel
     public function getLoanById($id)
     {
         try {
-            $sql = "SELECT * FROM loans WHERE id = :id";
+            $sql = "SELECT * FROM pendingloans WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':id' => $id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
