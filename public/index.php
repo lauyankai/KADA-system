@@ -55,6 +55,11 @@ $router = new App\Core\Router();
     $router->addRoute('GET', '/home/index', 'HomeController', 'index');
     $router->addRoute('GET', '/info/loantype', 'InfoController', 'showLoanTypes');
 
+// About routes
+    $router->addRoute('GET', '/about/vision', 'HomeController', 'showVision');
+    $router->addRoute('GET', '/about/history', 'HomeController', 'showHistory');
+    $router->addRoute('GET', '/about/facts', 'HomeController', 'showFacts');
+
 // Guest routes
     $router->addRoute('GET', '/guest/create', 'GuestController', 'create'); // For new member registration
     $router->addRoute('POST', '/guest/store', 'GuestController', 'store'); // To store new pending member
