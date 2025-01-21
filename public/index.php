@@ -29,6 +29,7 @@ require_once '../app/Models/Saving.php';
 require_once '../app/Models/Loan.php';
 require_once '../app/Models/Director.php';
 require_once '../app/Models/Statement.php';
+require_once '../app/Models/AnnualReport.php';
 
 // Include controllers
 require_once '../app/Controllers/HomeController.php';
@@ -42,6 +43,7 @@ require_once '../app/Controllers/SavingController.php';
 require_once '../app/Controllers/DirectorController.php';
 require_once '../app/Controllers/InfoController.php';
 require_once '../app/Controllers/StatementController.php';
+require_once '../app/Controllers/AnnualReportController.php';
 
 // Include middleware
 require_once '../app/Middleware/AuthMiddleware.php';
@@ -82,6 +84,13 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/admin/view/{id}', 'AdminController', 'viewMember');
         $router->addRoute('POST', '/admin/export-pdf', 'AdminController', 'exportPdf');
         $router->addRoute('POST', '/admin/export-excel', 'AdminController', 'exportExcel');
+    
+    // Admin routes --annual reports
+        $router->addRoute('GET', '/admin/annual-reports', 'AnnualReportController', 'index');
+        $router->addRoute('GET', '/admin/annual-reports/upload', 'AnnualReportController', 'upload');
+        $router->addRoute('POST', '/admin/annual-reports/upload', 'AnnualReportController', 'upload');
+        $router->addRoute('GET', '/admin/annual-reports/download/{id}', 'AnnualReportController', 'download');
+        $router->addRoute('POST', '/admin/annual-reports/delete/{id}', 'AnnualReportController', 'delete');
 
 // User Dashboard Routes
     $router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
