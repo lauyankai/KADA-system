@@ -55,11 +55,6 @@ class AnnualReportController extends BaseController
                 return;
             }
 
-            error_log('Starting file upload process');
-            error_log('POST data: ' . print_r($_POST, true));
-            error_log('FILES data: ' . print_r($_FILES, true));
-            error_log('Session data: ' . print_r($_SESSION, true));
-
             // Verify admin session
             if (!isset($_SESSION['admin_id'])) {
                 error_log('No admin_id in session');
@@ -87,17 +82,6 @@ class AnnualReportController extends BaseController
             $maxSize = 10 * 1024 * 1024; // 10MB in bytes
             if ($file['size'] > $maxSize) {
                 throw new \Exception('Saiz fail terlalu besar. Had maksimum adalah 10MB');
-            }
-
-            // Create upload directory if it doesn't exist
-            $uploadDir = dirname(__DIR__, 2) . '/public/uploads/annual-reports/';
-            if (!file_exists($uploadDir)) {
-                error_log('Creating upload directory: ' . $uploadDir);
-                if (!mkdir($uploadDir, 0777, true)) {
-                    error_log('Failed to create upload directory');
-                    throw new \Exception('Gagal membuat direktori muat naik');
-                }
-                chmod($uploadDir, 0777);
             }
 
             // Check if directory is writable
