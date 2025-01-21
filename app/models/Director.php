@@ -334,7 +334,7 @@ class Director extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            $sql = "UPDATE loans 
+            $sql = "UPDATE pendingloans 
                     SET status = :status,
                         reviewed_by = :director_id,
                         remarks = :remarks,
@@ -369,33 +369,15 @@ class Director extends BaseModel
     public function getPendingLoans()
     {
         try {
-            // Debug connection
-            error_log('Database connection status: ' . ($this->getConnection() ? 'Connected' : 'Not connected'));
-            
             $sql = "SELECT l.*, m.name as member_name, m.ic_no 
-                    FROM loans l
+                    FROM pendingloans l
                     JOIN members m ON l.member_id = m.id
                     WHERE l.status = 'pending'
                     ORDER BY l.date_received DESC";
             
-            error_log('Executing SQL: ' . $sql);
-            
-            // Try preparing and executing separately to catch specific errors
             $stmt = $this->getConnection()->prepare($sql);
-            if (!$stmt) {
-                error_log('Prepare failed: ' . print_r($this->getConnection()->errorInfo(), true));
-                throw new \PDOException('Failed to prepare statement');
-            }
-            
             $success = $stmt->execute();
-            if (!$success) {
-                error_log('Execute failed: ' . print_r($stmt->errorInfo(), true));
-                throw new \PDOException('Failed to execute statement');
-            }
-            
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            error_log('Query results count: ' . count($results));
-            
             return $results;
 
         } catch (\PDOException $e) {
