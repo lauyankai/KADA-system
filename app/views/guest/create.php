@@ -591,36 +591,54 @@
                         <div class="step-content" data-step="3">
                             <h4 class="mt-3 mb-4 text-success"><i class="bi bi-house me-2"></i>Maklumat Kediaman</h4>
                             <div class="row g-3">
-                                <div class="col-12">
+                                <div class="col-md-12">
                                     <label class="form-label fw-bold">Alamat Rumah</label>
-                                    <textarea name="home_address" class="form-control" rows="3" required onkeyup="this.value = this.value.toUpperCase();"
-                                    style="text-transform: uppercase;"></textarea>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label fw-bold">Poskod</label>
-                                    <input type="text" name="home_postcode" minlength="5" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" required>
+                                    <textarea name="home_address" 
+                                              id="home_address"
+                                              class="form-control" 
+                                              rows="2" 
+                                              required 
+                                              oninput="this.value = this.value.toUpperCase(); detectAddressDebounced(this.value);"
+                                              style="text-transform: uppercase;"></textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Negeri/Wilayah</label>
-                                    <select name="home_state" class="form-select" required>
-                                        <option value="" disabled selected>Pilih</option>
-                                        <option value="Johor">Johor</option>
-                                        <option value="Kedah">Kedah</option>
-                                        <option value="Kelantan">Kelantan</option>
-                                        <option value="Melaka">Melaka</option>
-                                        <option value="Negeri Sembilan">Negeri Sembilan</option>
-                                        <option value="Pahang">Pahang</option>
-                                        <option value="Perak">Perak</option>
-                                        <option value="Perlis">Perlis</option>
-                                        <option value="Pulau Pinang">Pulau Pinang</option>
-                                        <option value="Sabah">Sabah</option>
-                                        <option value="Sarawak">Sarawak</option>
-                                        <option value="Selangor">Selangor</option>
-                                        <option value="Terengganu">Terengganu</option>
-                                        <option value="WP Kuala Lumpur">WP Kuala Lumpur</option>
-                                        <option value="WP Labuan">WP Labuan</option>
-                                        <option value="WP Putrajaya">WP Putrajaya</option>
+                                    <label class="form-label fw-bold">Poskod</label>
+                                    <input type="text" 
+                                           name="home_postcode" 
+                                           id="home_postcode"
+                                           class="form-control" 
+                                           required 
+                                           pattern="\d{5}"
+                                           maxlength="5">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Negeri</label>
+                                    <select name="home_state" 
+                                            id="home_state"
+                                            class="form-select" 
+                                            required>
+                                        <option value="" disabled selected>Pilih Negeri</option>
+                                        <option value="JOHOR">JOHOR</option>
+                                        <option value="KEDAH">KEDAH</option>
+                                        <option value="KELANTAN">KELANTAN</option>
+                                        <option value="MELAKA">MELAKA</option>
+                                        <option value="NEGERI SEMBILAN">NEGERI SEMBILAN</option>
+                                        <option value="PAHANG">PAHANG</option>
+                                        <option value="PERAK">PERAK</option>
+                                        <option value="PERLIS">PERLIS</option>
+                                        <option value="PULAU PINANG">PULAU PINANG</option>
+                                        <option value="SABAH">SABAH</option>
+                                        <option value="SARAWAK">SARAWAK</option>
+                                        <option value="SELANGOR">SELANGOR</option>
+                                        <option value="TERENGGANU">TERENGGANU</option>
+                                        <option value="KUALA LUMPUR">KUALA LUMPUR</option>
+                                        <option value="LABUAN">LABUAN</option>
+                                        <option value="PUTRAJAYA">PUTRAJAYA</option>
                                     </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">No. Telefon Bimbit</label>
+                                    <input type="tel" name="mobile_phone" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Telefon Rumah</label>
@@ -629,12 +647,44 @@
                                 <h4 class="mt-4 mb-3 text-success"><i class="bi bi-building me-2"></i>Alamat</h4>
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Alamat Pejabat</label>
-                                    <textarea name="office_address" class="form-control" rows="3" required onkeyup="this.value = this.value.toUpperCase();"
-                                    style="text-transform: uppercase;"></textarea>
+                                    <textarea name="office_address" class="form-control" rows="3" required 
+                                    oninput="this.value = this.value.toUpperCase(); detectAddressDebounced(this.value);"
+                                    style="text-transform: uppercase;""></textarea>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-6">
                                     <label class="form-label fw-bold">Poskod</label>
-                                    <input type="text" name="office_postcode" class="form-control" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                                    <input type="text" 
+                                           name="home_postcode" 
+                                           id="home_postcode"
+                                           class="form-control" 
+                                           required 
+                                           pattern="\d{5}"
+                                           maxlength="5">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Negeri</label>
+                                    <select name="home_state" 
+                                            id="home_state"
+                                            class="form-select" 
+                                            required>
+                                        <option value="" disabled selected>Pilih Negeri</option>
+                                        <option value="JOHOR">JOHOR</option>
+                                        <option value="KEDAH">KEDAH</option>
+                                        <option value="KELANTAN">KELANTAN</option>
+                                        <option value="MELAKA">MELAKA</option>
+                                        <option value="NEGERI SEMBILAN">NEGERI SEMBILAN</option>
+                                        <option value="PAHANG">PAHANG</option>
+                                        <option value="PERAK">PERAK</option>
+                                        <option value="PERLIS">PERLIS</option>
+                                        <option value="PULAU PINANG">PULAU PINANG</option>
+                                        <option value="SABAH">SABAH</option>
+                                        <option value="SARAWAK">SARAWAK</option>
+                                        <option value="SELANGOR">SELANGOR</option>
+                                        <option value="TERENGGANU">TERENGGANU</option>
+                                        <option value="KUALA LUMPUR">KUALA LUMPUR</option>
+                                        <option value="LABUAN">LABUAN</option>
+                                        <option value="PUTRAJAYA">PUTRAJAYA</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">No. Telefon Pejabat</label>
@@ -857,6 +907,109 @@ document.addEventListener('DOMContentLoaded', function() {
     if (nameInput) {
         nameInput.addEventListener('input', function() {
             this.value = this.value.toUpperCase();
+        });
+    }
+});
+
+const statePostcodes = {
+    'JOHOR': ['01', '02', '79', '80', '81', '82', '83', '84', '85', '86'],
+    'KEDAH': ['05', '06', '07', '08', '09'],
+    'KELANTAN': ['15', '16', '17', '18'],
+    'MELAKA': ['75', '76', '77', '78'],
+    'NEGERI SEMBILAN': ['70', '71', '72', '73', '74'],
+    'PAHANG': ['25', '26', '27', '28', '39'],
+    'PERAK': ['30', '31', '32', '33', '34', '35', '36'],
+    'PERLIS': ['01', '02'],
+    'PULAU PINANG': ['10', '11', '12', '13', '14'],
+    'SABAH': ['88', '89', '90', '91'],
+    'SARAWAK': ['93', '94', '95', '96', '97', '98'],
+    'SELANGOR': ['40', '41', '42', '43', '44', '45', '46', '47', '48', '49'],
+    'TERENGGANU': ['20', '21', '22', '23', '24'],
+    'KUALA LUMPUR': ['50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60'],
+    'LABUAN': ['87'],
+    'PUTRAJAYA': ['62']
+};
+
+function detectPostcodeAndState(address) {
+    // Clear existing values
+    document.getElementById('home_postcode').value = '';
+    document.getElementById('home_state').value = '';
+
+    if (!address) return;
+
+    // Convert to uppercase for consistency
+    address = address.toUpperCase();
+
+    // Try to find postcode (5 digits)
+    const postcodeMatch = address.match(/\b\d{5}\b/);
+    if (postcodeMatch) {
+        const postcode = postcodeMatch[0];
+        document.getElementById('home_postcode').value = postcode;
+
+        // Find state based on postcode
+        const prefix = postcode.substring(0, 2);
+        for (const [state, prefixes] of Object.entries(statePostcodes)) {
+            if (prefixes.includes(prefix)) {
+                document.getElementById('home_state').value = state;
+                break;
+            }
+        }
+    }
+
+    // If no postcode found, try to find state by name
+    if (!document.getElementById('home_state').value) {
+        for (const state of Object.keys(statePostcodes)) {
+            if (address.includes(state)) {
+                document.getElementById('home_state').value = state;
+                break;
+            }
+        }
+    }
+}
+
+// Add debounce function to prevent too many calls
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const detectAddressDebounced = debounce((value) => detectPostcodeAndState(value), 500);
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Your existing DOMContentLoaded code...
+
+    // Add manual postcode validation
+    const postcodeInput = document.getElementById('home_postcode');
+    if (postcodeInput) {
+        postcodeInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').substring(0, 5);
+            
+            if (this.value.length === 5) {
+                const prefix = this.value.substring(0, 2);
+                let stateFound = false;
+                
+                for (const [state, prefixes] of Object.entries(statePostcodes)) {
+                    if (prefixes.includes(prefix)) {
+                        document.getElementById('home_state').value = state;
+                        stateFound = true;
+                        break;
+                    }
+                }
+                
+                if (!stateFound) {
+                    this.setCustomValidity('Poskod tidak sah');
+                } else {
+                    this.setCustomValidity('');
+                }
+            }
         });
     }
 });
