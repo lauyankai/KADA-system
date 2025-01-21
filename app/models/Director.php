@@ -334,28 +334,82 @@ class Director extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            $sql = "UPDATE pendingloans 
-                    SET status = :status,
-                        reviewed_by = :director_id,
-                        remarks = :remarks,
-                        reviewed_at = NOW()
-                    WHERE id = :loan_id";
-
+            $sql = "SELECT * FROM pendingloans WHERE id = :loan_id";
             $stmt = $this->getConnection()->prepare($sql);
-            $result = $stmt->execute([
-                ':status' => $status,
-                ':director_id' => $_SESSION['director_id'],
-                ':remarks' => $remarks,
-                ':loan_id' => $loanId
-            ]);
+            $stmt->execute([':loan_id' => $loanId]);
+            $loanData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($result) {
-                $this->getConnection()->commit();
-                return true;
+            if (!$loanData) {
+                throw new \Exception('Pembiayaan tidak dijumpai');
             }
 
-            $this->getConnection()->rollBack();
-            return false;
+            if ($status === 'approved') {
+                // Insert into loans table
+                $sql = "INSERT INTO loans (
+                    member_id, reference_no, loan_type, amount, 
+                    duration, monthly_payment, bank_name, bank_account,
+                    status, date_received, approved_by, approved_at, remarks
+                ) VALUES (
+                    :member_id, :reference_no, :loan_type, :amount,
+                    :duration, :monthly_payment, :bank_name, :bank_account,
+                    'approved', :date_received, :approved_by, NOW(), :remarks
+                )";
+
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([
+                    ':member_id' => $loanData['member_id'],
+                    ':reference_no' => $loanData['reference_no'],
+                    ':loan_type' => $loanData['loan_type'],
+                    ':amount' => $loanData['amount'],
+                    ':duration' => $loanData['duration'],
+                    ':monthly_payment' => $loanData['monthly_payment'],
+                    ':bank_name' => $loanData['bank_name'],
+                    ':bank_account' => $loanData['bank_account'],
+                    ':date_received' => $loanData['date_received'],
+                    ':approved_by' => $_SESSION['director_id'],
+                    ':remarks' => $remarks
+                ]);
+
+                // Delete from pendingloans
+                $sql = "DELETE FROM pendingloans WHERE id = :loan_id";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([':loan_id' => $loanId]);
+
+            } else if ($status === 'rejected') {
+                // Insert into loans table
+                $sql = "INSERT INTO rejectedloans (
+                    member_id, reference_no, loan_type, amount, 
+                    duration, monthly_payment, bank_name, bank_account,
+                    status, date_received, approved_by, approved_at, remarks
+                ) VALUES (
+                    :member_id, :reference_no, :loan_type, :amount,
+                    :duration, :monthly_payment, :bank_name, :bank_account,
+                    'approved', :date_received, :approved_by, NOW(), :remarks
+                )";
+
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([
+                    ':member_id' => $loanData['member_id'],
+                    ':reference_no' => $loanData['reference_no'],
+                    ':loan_type' => $loanData['loan_type'],
+                    ':amount' => $loanData['amount'],
+                    ':duration' => $loanData['duration'],
+                    ':monthly_payment' => $loanData['monthly_payment'],
+                    ':bank_name' => $loanData['bank_name'],
+                    ':bank_account' => $loanData['bank_account'],
+                    ':date_received' => $loanData['date_received'],
+                    ':approved_by' => $_SESSION['director_id'],
+                    ':remarks' => $remarks
+                ]);
+
+                // Delete from pendingloans
+                $sql = "DELETE FROM pendingloans WHERE id = :loan_id";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([':loan_id' => $loanId]);
+            }
+
+            $this->getConnection()->commit();
+            return true;
 
         } catch (\PDOException $e) {
             if ($this->getConnection()->inTransaction()) {

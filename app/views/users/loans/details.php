@@ -1,6 +1,3 @@
-*details.php
-app\views\loans\details.php
-
 <?php 
     $title = 'Butiran Pinjaman';
     require_once '../app/views/layouts/header.php';
