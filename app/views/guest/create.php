@@ -598,7 +598,7 @@
                                               class="form-control" 
                                               rows="2" 
                                               required 
-                                              oninput="this.value = this.value.toUpperCase(); detectAddressDebounced(this.value);"
+                                              oninput="this.value = this.value.toUpperCase(); detectAddressDebounced('home', this.value);"
                                               style="text-transform: uppercase;"></textarea>
                                 </div>
                                 <div class="col-md-6">
@@ -647,15 +647,19 @@
                                 <h4 class="mt-4 mb-3 text-success"><i class="bi bi-building me-2"></i>Alamat</h4>
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Alamat Pejabat</label>
-                                    <textarea name="office_address" class="form-control" rows="3" required 
-                                    oninput="this.value = this.value.toUpperCase(); detectAddressDebounced(this.value);"
-                                    style="text-transform: uppercase;""></textarea>
+                                    <textarea name="office_address" 
+                                              id="office_address"
+                                              class="form-control" 
+                                              rows="3" 
+                                              required 
+                                              oninput="this.value = this.value.toUpperCase(); detectAddressDebounced('office', this.value);"
+                                              style="text-transform: uppercase;"></textarea>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Poskod</label>
                                     <input type="text" 
-                                           name="home_postcode" 
-                                           id="home_postcode"
+                                           name="office_postcode" 
+                                           id="office_postcode"
                                            class="form-control" 
                                            required 
                                            pattern="\d{5}"
@@ -663,8 +667,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Negeri</label>
-                                    <select name="home_state" 
-                                            id="home_state"
+                                    <select name="office_state" 
+                                            id="office_state"
                                             class="form-select" 
                                             required>
                                         <option value="" disabled selected>Pilih Negeri</option>
@@ -862,9 +866,6 @@ function formatIC(input) {
     // Calculate age and birthday only if we have a valid date
     if (value.replace(/\D/g, '').length === 12 && input.validity.valid) {
         calculateAgeAndBirthday(value.replace(/\D/g, ''));
-    } else {
-        document.getElementById('birthday').value = '';
-        document.getElementById('age').value = '';
     }
 }
 
@@ -883,9 +884,12 @@ function calculateAgeAndBirthday(icNo) {
         const century = parseInt(year) > (currentYear - 2000) ? '19' : '20';
         const fullYear = century + year;
         
-        // Set birthday
-        const formattedDate = `${fullYear}-${month}-${day}`;
-        document.getElementById('birthday').value = formattedDate;
+        // Set birthday with proper zero-padding
+        const formattedMonth = month.padStart(2, '0');
+        const formattedDay = day.padStart(2, '0');
+        const formattedDate = `${fullYear}-${formattedMonth}-${formattedDay}`;
+        const birthdayInput = document.getElementById('birthday');
+        birthdayInput.value = formattedDate;
         
         // Calculate age
         const birthDate = new Date(formattedDate);
@@ -901,6 +905,15 @@ function calculateAgeAndBirthday(icNo) {
         document.getElementById('age').value = age;
     }
 }
+
+// Add form submission validation
+document.getElementById('membershipForm').addEventListener('submit', function(e) {
+    const birthdayInput = document.getElementById('birthday');
+    if (!birthdayInput.value) {
+        e.preventDefault();
+        alert('Sila masukkan No. K/P yang sah untuk mengisi tarikh lahir secara automatik.');
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     const nameInput = document.querySelector('input[name="name"]');
@@ -930,10 +943,10 @@ const statePostcodes = {
     'PUTRAJAYA': ['62']
 };
 
-function detectPostcodeAndState(address) {
+function detectPostcodeAndState(type, address) {
     // Clear existing values
-    document.getElementById('home_postcode').value = '';
-    document.getElementById('home_state').value = '';
+    document.getElementById(`${type}_postcode`).value = '';
+    document.getElementById(`${type}_state`).value = '';
 
     if (!address) return;
 
@@ -944,23 +957,23 @@ function detectPostcodeAndState(address) {
     const postcodeMatch = address.match(/\b\d{5}\b/);
     if (postcodeMatch) {
         const postcode = postcodeMatch[0];
-        document.getElementById('home_postcode').value = postcode;
+        document.getElementById(`${type}_postcode`).value = postcode;
 
         // Find state based on postcode
         const prefix = postcode.substring(0, 2);
         for (const [state, prefixes] of Object.entries(statePostcodes)) {
             if (prefixes.includes(prefix)) {
-                document.getElementById('home_state').value = state;
+                document.getElementById(`${type}_state`).value = state;
                 break;
             }
         }
     }
 
     // If no postcode found, try to find state by name
-    if (!document.getElementById('home_state').value) {
+    if (!document.getElementById(`${type}_state`).value) {
         for (const state of Object.keys(statePostcodes)) {
             if (address.includes(state)) {
-                document.getElementById('home_state').value = state;
+                document.getElementById(`${type}_state`).value = state;
                 break;
             }
         }
@@ -980,36 +993,44 @@ function debounce(func, wait) {
     };
 }
 
-const detectAddressDebounced = debounce((value) => detectPostcodeAndState(value), 500);
+const detectAddressDebounced = debounce((type, value) => detectPostcodeAndState(type, value), 500);
 
 // Initialize event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Your existing DOMContentLoaded code...
-
-    // Add manual postcode validation
-    const postcodeInput = document.getElementById('home_postcode');
-    if (postcodeInput) {
-        postcodeInput.addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, '').substring(0, 5);
-            
-            if (this.value.length === 5) {
-                const prefix = this.value.substring(0, 2);
-                let stateFound = false;
+    // Add manual postcode validation for both home and office
+    ['home', 'office'].forEach(type => {
+        const postcodeInput = document.getElementById(`${type}_postcode`);
+        if (postcodeInput) {
+            postcodeInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').substring(0, 5);
                 
-                for (const [state, prefixes] of Object.entries(statePostcodes)) {
-                    if (prefixes.includes(prefix)) {
-                        document.getElementById('home_state').value = state;
-                        stateFound = true;
-                        break;
+                if (this.value.length === 5) {
+                    const prefix = this.value.substring(0, 2);
+                    let stateFound = false;
+                    
+                    for (const [state, prefixes] of Object.entries(statePostcodes)) {
+                        if (prefixes.includes(prefix)) {
+                            document.getElementById(`${type}_state`).value = state;
+                            stateFound = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!stateFound) {
+                        this.setCustomValidity('Poskod tidak sah');
+                    } else {
+                        this.setCustomValidity('');
                     }
                 }
-                
-                if (!stateFound) {
-                    this.setCustomValidity('Poskod tidak sah');
-                } else {
-                    this.setCustomValidity('');
-                }
-            }
+            });
+        }
+    });
+
+    // Your existing name input code
+    const nameInput = document.querySelector('input[name="name"]');
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
         });
     }
 });
