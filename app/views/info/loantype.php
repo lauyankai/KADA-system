@@ -118,6 +118,16 @@
     </div>
 </div>
 
+<div class="container mb-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <a href="/" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Kembali ke Halaman Utama
+            </a>
+        </div>
+    </div>
+</div>
+
 <style>
 .icon-circle {
     width: 48px;

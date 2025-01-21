@@ -59,6 +59,7 @@ $router = new App\Core\Router();
     $router->addRoute('GET', '/about/vision', 'HomeController', 'showVision');
     $router->addRoute('GET', '/about/history', 'HomeController', 'showHistory');
     $router->addRoute('GET', '/about/facts', 'HomeController', 'showFacts');
+    $router->addRoute('GET', '/about/info/loantype', 'InfoController', 'showLoanTypes');
 
 // Guest routes
     $router->addRoute('GET', '/guest/create', 'GuestController', 'create'); // For new member registration
@@ -128,6 +129,10 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/users/statements/download/{id}', 'StatementController', 'download');
         $router->addRoute('GET', '/users/statements/download', 'StatementController', 'download');
 
+        // User routes --Loan Info
+        $router->addRoute('GET', '/users/info/loantype', 'InfoController', 'showLoanTypes');
+        
+
 // Director routes
     $router->addRoute('GET', '/director', 'DirectorController', 'dashboard');
     $router->addRoute('GET', '/director/add', 'DirectorController', 'showAddDirector');
@@ -138,9 +143,6 @@ $router = new App\Core\Router();
 // Guest routes
     $router->addRoute('GET', '/guest/check-status', 'GuestController', 'checkStatusPage');
     $router->addRoute('POST', '/guest/check-status', 'GuestController', 'checkStatus');
-
-
-
 
 // $router->addRoute('GET', '/users/savings/goals/{id}/edit', 'SavingController', 'editSavingsGoal');
 // $router->addRoute('POST', '/users/savings/goals/{id}/update', 'SavingController', 'updateSavingsGoal');
