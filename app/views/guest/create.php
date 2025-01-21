@@ -29,10 +29,10 @@
                             <i class="bi bi-people"></i>
                             <div>Maklumat Keluarga</div>
                         </div>
-                        <div class="step" data-step="5">
+                        <!-- <div class="step" data-step="5">
                             <i class="bi bi-cash-coin"></i>
                             <div>Yuran dan Sumbangan</div>
-                        </div>
+                        </div> -->
                     </div>
                     
                     <form id="membershipForm" action="/guest/store" method="POST" class="row g-3">
@@ -51,20 +51,31 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">No. K/P</label>
-                                    <input type="text" name="ic_no" class="form-control" maxlength="14" oninput="formatIC(this)" placeholder="e.g., 880101-01-1234" required>
-                                    <script>
-                                        function formatIC(input) {
-                                            let value = input.value.replace(/\D/g, '');
-                                            value = value.substring(0, 14);
-                                            if (value.length >= 6) {
-                                                value = value.substring(0, 6) + '-' + value.substring(6);
-                                            }
-                                            if (value.length >= 9) {
-                                                value = value.substring(0, 9) + '-' + value.substring(9);
-                                            }
-                                            input.value = value;
-                                        }
-                                    </script>
+                                    <input type="text" 
+                                           name="ic_no" 
+                                           class="form-control" 
+                                           maxlength="14" 
+                                           oninput="formatIC(this); calculateAgeAndBirthday(this.value.replace(/\D/g, ''))" 
+                                           placeholder="e.g., 880101-01-1234" 
+                                           required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Tarikh Lahir</label>
+                                    <input type="date" 
+                                           name="birthday" 
+                                           id="birthday" 
+                                           class="form-control" 
+                                           readonly 
+                                           required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Umur</label>
+                                    <input type="number" 
+                                           name="age" 
+                                           id="age" 
+                                           class="form-control" 
+                                           readonly 
+                                           required>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Jantina</label>
@@ -691,7 +702,7 @@
                         </div>
 
                         <!-- Step 5: Fees & Contributions -->
-                        <div class="step-content" data-step="5">
+                        <!-- <div class="step-content" data-step="5">
                             <h4 class="mt-3 mb-4 text-success"><i class="bi bi-cash-coin me-2"></i>Yuran dan Sumbangan</h4>
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -724,7 +735,7 @@
                                             placeholder="Sumbangan lain..."></textarea>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- Navigation Buttons -->
                         <div class="step-buttons mt-4">
@@ -744,17 +755,110 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const nameInput = document.querySelector('input[name="name"]');
-        if (nameInput) {
-            nameInput.addEventListener('input', function() {
-                this.value = this.value.toUpperCase();
-            });
-        }
-    });
-</script>
 <script src="/js/form-wizard.js"></script>
 <script src="/js/grade-selector.js"></script>
+
+<script>
+function isValidDate(year, month, day) {
+    // Convert 2-digit year to 4-digit year
+    const currentYear = new Date().getFullYear();
+    const century = parseInt(year) > (currentYear - 2000) ? '19' : '20';
+    const fullYear = century + year;
+    
+    // Create date object and verify the date is valid
+    const date = new Date(fullYear, month - 1, day);
+    
+    return date.getFullYear() === parseInt(fullYear) &&
+           date.getMonth() === parseInt(month) - 1 &&
+           date.getDate() === parseInt(day) &&
+           parseInt(month) >= 1 && parseInt(month) <= 12 &&
+           parseInt(day) >= 1 && parseInt(day) <= 31;
+}
+
+function formatIC(input) {
+    // Remove non-digits
+    let value = input.value.replace(/\D/g, '');
+    
+    // Extract date components if we have enough digits
+    if (value.length >= 6) {
+        const year = value.substring(0, 2);
+        const month = value.substring(2, 4);
+        const day = value.substring(4, 6);
+        
+        // Validate date
+        if (!isValidDate(year, month, day)) {
+            input.setCustomValidity('Tarikh tidak sah');
+            input.reportValidity();
+            // Keep only the first two digits (year)
+            value = value.substring(0, 2);
+        } else {
+            input.setCustomValidity('');
+        }
+    }
+    
+    // Format with dashes
+    if (value.length >= 6) {
+        value = value.substring(0, 6) + '-' + value.substring(6);
+    }
+    if (value.length >= 9) {
+        value = value.substring(0, 9) + '-' + value.substring(9);
+    }
+    
+    // Limit to 14 characters (12 digits + 2 dashes)
+    value = value.substring(0, 14);
+    
+    input.value = value;
+    
+    // Calculate age and birthday only if we have a valid date
+    if (value.replace(/\D/g, '').length === 12 && input.validity.valid) {
+        calculateAgeAndBirthday(value.replace(/\D/g, ''));
+    } else {
+        document.getElementById('birthday').value = '';
+        document.getElementById('age').value = '';
+    }
+}
+
+function calculateAgeAndBirthday(icNo) {
+    if (icNo.length === 12) {
+        const year = icNo.substring(0, 2);
+        const month = icNo.substring(2, 4);
+        const day = icNo.substring(4, 6);
+        
+        if (!isValidDate(year, month, day)) {
+            return;
+        }
+        
+        // Determine century
+        const currentYear = new Date().getFullYear();
+        const century = parseInt(year) > (currentYear - 2000) ? '19' : '20';
+        const fullYear = century + year;
+        
+        // Set birthday
+        const formattedDate = `${fullYear}-${month}-${day}`;
+        document.getElementById('birthday').value = formattedDate;
+        
+        // Calculate age
+        const birthDate = new Date(formattedDate);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        
+        // Adjust age if birthday hasn't occurred this year
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        
+        document.getElementById('age').value = age;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.querySelector('input[name="name"]');
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+});
+</script>
 <?php require_once '../app/views/layouts/footer.php'; ?>
