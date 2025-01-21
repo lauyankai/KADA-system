@@ -187,9 +187,9 @@ class DirectorController extends BaseController
                 throw new \Exception('Sila log masuk untuk mengakses');
             }
 
-            $loans = $this->director->getPendingLoans();
+            $pendingloans = $this->director->getPendingLoans();
             $this->view('director/loan-list', [
-                'loans' => $loans
+                'loans' => $pendingloans
             ]);
 
         } catch (\Exception $e) {
