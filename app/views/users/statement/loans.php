@@ -1,5 +1,5 @@
 <?php 
-    $title = 'Penyata Akaun';
+    $title = 'Penyata Akaun Pembiayaan';
     require_once '../app/views/layouts/header.php';
 ?>
 
@@ -11,8 +11,8 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1 text-primary">Penyata Akaun</h4>
-                            <p class="text-muted mb-0">Lihat dan muat turun penyata akaun anda</p>
+                            <h4 class="mb-1 text-primary">Penyata Akaun Pembiayaan</h4>
+                            <p class="text-muted mb-0">Lihat dan muat turun penyata akaun pembiayaan anda</p>
                         </div>
                         <a href="/users/statements" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
@@ -82,12 +82,6 @@
     color: #dc3545 !important;
 }
 
-.statement-form {
-    background-color: #f8f9fa;
-    border-radius: 0.75rem;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);
-}
-
 .shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075) !important;
 }
@@ -101,11 +95,6 @@
 .btn {
     padding: 0.4rem 1rem;
     font-size: 0.9rem;
-}
-
-.form-label {
-    font-size: 0.9rem;
-    color: #495057;
 }
 </style>
 

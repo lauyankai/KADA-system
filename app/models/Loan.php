@@ -81,14 +81,15 @@ class Loan extends BaseModel
     {
         try {
             $sql = "SELECT 
-                    created_at,
-                    amount as payment_amount,
-                    remaining_balance,
-                    description
-                    FROM loan_payments 
-                    WHERE loan_id = :loan_id 
-                    AND created_at BETWEEN :start_date AND :end_date
-                    ORDER BY created_at ASC";
+                    lp.created_at,
+                    lp.payment_amount,
+                    lp.remaining_balance,
+                    CONCAT('Bayaran Pembiayaan - ', l.reference_no) as description
+                    FROM loan_payments lp
+                    JOIN loans l ON l.id = lp.loan_id 
+                    WHERE lp.loan_id = :loan_id 
+                    AND DATE(lp.created_at) BETWEEN :start_date AND :end_date
+                    ORDER BY lp.created_at ASC";
                     
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([
@@ -97,6 +98,23 @@ class Loan extends BaseModel
                 ':end_date' => $endDate . ' 23:59:59'
             ]);
             
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan sejarah pembayaran');
+        }
+    }
+
+    public function getLoanPaymentsByLoanId($loanId)
+    {
+        try {
+            $sql = "SELECT * FROM loan_payments 
+                    WHERE loan_id = :loan_id 
+                    ORDER BY created_at ASC";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':loan_id' => $loanId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (\PDOException $e) {

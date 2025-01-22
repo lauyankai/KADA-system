@@ -86,11 +86,13 @@
                                                 <tr>
                                                     <td><?= $index = ($index ?? 0) + 1; ?></td>
                                                     <td><?= htmlspecialchars($loan['loan_type']) ?></td>
-                                                    <td><a href="/users/statements/loans" 
-                                                               class="text-primary text-decoration-none">
-                                                                <?= htmlspecialchars($loan['reference_no']) ?>
-                                                                <i class="bi bi-box-arrow-up-right ms-1 small"></i>
-                                                            </a></td>
+                                                    <td>
+                                                        <a href="/users/statements/loans?id=<?= $loan['id'] ?>" 
+                                                           class="text-primary text-decoration-none">
+                                                            <?= htmlspecialchars($loan['reference_no']) ?>
+                                                            <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                                                        </a>
+                                                    </td>
                                                     <td>RM<?= number_format($loan['remaining_amount'] ?? 0, 2) ?></td>
                                                     <td><span class="badge bg-success">Aktif</span></td>
                                                 </tr>

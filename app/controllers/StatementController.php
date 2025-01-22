@@ -126,60 +126,44 @@ class StatementController extends BaseController
 
             $memberId = $_SESSION['member_id'];
             
-            // Get account type and period from query parameters, with defaults
-            $accountType = $_GET['account_type'] ?? 'savings';
-            $period = $_GET['period'] ?? 'today';
-            $year = $_GET['year'] ?? date('Y');
-
-            // Calculate dates based on period
-            $dateRange = $this->calculateDateRange($period, $year);
-            $startDate = $dateRange['start'];
-            $endDate = $dateRange['end'];
-
-            // Get savings account
-            $account = $this->saving->getSavingsAccount($memberId);
-            if (!$account) {
-                throw new \Exception('Akaun simpanan tidak dijumpai');
+            // Get loan ID from URL parameter
+            $loanId = $_GET['id'] ?? null;
+            if (!$loanId) {
+                throw new \Exception('ID pembiayaan tidak ditemui');
             }
+
+            // Get specific loan details
+            $loans = $this->loan->getActiveLoansByMemberId($memberId);
             
-            // Get transactions for savings account
-            $transactions = $this->saving->getTransactionsByDateRange(
-                $account['id'], 
-                $startDate, 
-                $endDate
-            );
-            
-            // Calculate opening balance for savings account
-            $currentBalance = $account['current_amount'] ?? 0;
-            $openingBalance = $currentBalance;
-            
-            foreach ($transactions as $trans) {
-                if (in_array($trans['type'], ['deposit', 'transfer_in'])) {
-                    $openingBalance -= $trans['amount'];
-                } else {
-                    $openingBalance += $trans['amount'];
+            // Find the requested loan
+            $selectedLoan = null;
+            foreach ($loans as $loan) {
+                if ($loan['id'] == $loanId) {
+                    $selectedLoan = $loan;
+                    break;
                 }
             }
 
-            // Get active loans
-            $loans = $this->loan->getActiveLoansByMemberId($memberId);
-            
+            if (!$selectedLoan) {
+                throw new \Exception('Pembiayaan tidak dijumpai');
+            }
+
+            // Get loan transactions
+            $transactions = $this->loan->getTransactionsByDateRange(
+                $loanId,
+                date('Y-m-01'), // First day of current month
+                date('Y-m-d')  // Today
+            );
+
             $this->view('users/statement/loans', [
-                'accountType' => $accountType,
-                'account' => $account,
-                'loans' => $loans,
-                'transactions' => $transactions,
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'period' => $period,
-                'year' => $year,
-                'openingBalance' => $openingBalance
+                'loans' => [$selectedLoan], // Pass as array with single loan
+                'transactions' => $transactions
             ]);
 
         } catch (\Exception $e) {
-            error_log('Error in statement index: ' . $e->getMessage());
+            error_log('Error in loan statement: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /users');
+            header('Location: /users/statements');
             exit;
         }
     }
