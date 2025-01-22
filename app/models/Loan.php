@@ -175,6 +175,61 @@ class Loan extends BaseModel
             throw new \Exception('Gagal mendapatkan senarai pembiayaan ditolak');
         }
     }
+
+    public function generateMonthlyStatement($loanId, $period)
+    {
+        try {
+            // Check if statement already exists
+            $sql = "SELECT * FROM loan_statements 
+                    WHERE loan_id = :loan_id 
+                    AND statement_period = :period";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':loan_id' => $loanId,
+                ':period' => $period
+            ]);
+            
+            if ($stmt->rowCount() > 0) {
+                return; // Statement already exists
+            }
+
+            // Generate PDF file
+            $filename = "statement_" . $loanId . "_" . date('Ym', strtotime($period)) . ".pdf";
+            $filepath = "statements/loans/" . $filename;
+            
+            // Save statement record
+            $sql = "INSERT INTO loan_statements (loan_id, statement_period, file_path) 
+                    VALUES (:loan_id, :period, :file_path)";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':loan_id' => $loanId,
+                ':period' => $period,
+                ':file_path' => $filepath
+            ]);
+
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal menjana penyata bulanan');
+        }
+    }
+
+    public function getMonthlyStatements($loanId, $limit = 12)
+    {
+        try {
+            $sql = "SELECT * FROM loan_statements 
+                    WHERE loan_id = :loan_id 
+                    ORDER BY statement_period DESC 
+                    LIMIT :limit";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':loan_id', $loanId);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai penyata');
+        }
+    }
 }
 
 

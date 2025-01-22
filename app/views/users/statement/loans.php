@@ -46,6 +46,40 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- After loan details section -->
+                    <div class="mt-4">
+                        <h5 class="mb-3">Penyata Bulanan</h5>
+                        <div class="row">
+                            <?php 
+                            // Get last 12 months
+                            $months = [];
+                            for ($i = 0; $i < 12; $i++) {
+                                $date = new DateTime();
+                                $date->modify("-$i month");
+                                $months[] = $date;
+                            }
+                            ?>
+                            
+                            <?php foreach ($months as $month): ?>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title"><?= $month->format('F Y') ?></h6>
+                                            <p class="card-text small text-muted">
+                                                Penyata <?= $month->format('d/m/Y') ?> - <?= $month->format('t/m/Y') ?>
+                                            </p>
+                                            <a href="/users/statements/download?loan_id=<?= $loan['id'] ?>&period=<?= $month->format('Y-m') ?>" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-download me-1"></i>
+                                                Muat Turun PDF
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
