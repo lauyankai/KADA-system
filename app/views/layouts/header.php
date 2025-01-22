@@ -53,10 +53,26 @@
                             <i class="bi bi-envelope"></i>Hubungi Kami
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="hubungiKamiDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-geo-alt"></i>Alamat</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-telephone"></i>Telefon</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-envelope"></i>E-mel</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-clock"></i>Waktu Operasi</a></li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-geo-alt me-2"></i>127, Jalan Dato'Lundang 15710 Kota Bharu, Kelantan.
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="tel:+6097455388">
+                                    <i class="bi bi-telephone me-2"></i>+609-7455388
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="mailto:prokada@kada.gov.my">
+                                    <i class="bi bi-envelope me-2"></i>prokada@kada.gov.my
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-clock me-2"></i>Waktu Operasi
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     </ul>
