@@ -3,3 +3,4 @@
 .env.backup
 vendor/
 .DS_Store 
+public/uploads/

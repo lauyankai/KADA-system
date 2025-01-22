@@ -35,7 +35,6 @@ class DirectorController extends BaseController
                 'membershipTrends' => $membershipTrends,
                 'membershipStats' => $membershipStats
             ]);
-
         } catch (\Exception $e) {
             error_log('Error in director dashboard: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
@@ -47,7 +46,6 @@ class DirectorController extends BaseController
     public function showAddDirector()
     {
         try {
-            // Only admin can add directors
             \App\Middleware\AuthMiddleware::validateAccess('admin');
             
             $this->view('director/add', [
@@ -75,7 +73,6 @@ class DirectorController extends BaseController
     public function store()
     {
         try {
-            // Only admin can add directors
             \App\Middleware\AuthMiddleware::validateAccess('admin');
 
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

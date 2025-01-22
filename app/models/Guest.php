@@ -29,7 +29,7 @@ class Guest extends BaseModel
                 deposit_funds, welfare_fund, fixed_deposit,
                 other_contributions,
                 family_relationship, family_name, family_ic,
-                reference_no,
+                reference_no, birthday, age,
                 status
             ) VALUES (
                 :name, :ic_no, :gender, :religion, :race, :marital_status,
@@ -41,7 +41,7 @@ class Guest extends BaseModel
                 :deposit_funds, :welfare_fund, :fixed_deposit,
                 :other_contributions,
                 :family_relationship, :family_name, :family_ic,
-                :reference_no,
+                :reference_no, :birthday, :age,
                 'Pending'
             )";
             
@@ -75,7 +75,9 @@ class Guest extends BaseModel
                 ':family_relationship' => $data['family_relationship'][0] ?? null,
                 ':family_name' => $data['family_name'][0] ?? null,
                 ':family_ic' => $data['family_ic'][0] ?? null,
-                ':reference_no' => $reference_no
+                ':reference_no' => $reference_no,
+                ':birthday' => $data['birthday'],
+                ':age' => $data['age']
             ];
 
             $result = $stmt->execute($params);
@@ -245,6 +247,55 @@ class Guest extends BaseModel
         } catch (\PDOException $e) {
             error_log("Database error in checkStatusByPersonal: " . $e->getMessage());
             throw new \Exception("Database error occurred");
+        }
+    }
+
+    public function store($data)
+    {
+        try {
+            $sql = "INSERT INTO members (
+                name, ic_no, birthday, age, gender, religion, race, 
+                marital_status, monthly_salary, position, grade,
+                home_address, home_postcode, home_state, home_phone,
+                office_address, office_postcode, office_phone, fax, birthday, age,
+                status
+            ) VALUES (
+                :name, :ic_no, :birthday, :age, :gender, :religion, :race,
+                :marital_status, :monthly_salary, :position, :grade,
+                :home_address, :home_postcode, :home_state, :home_phone,
+                :office_address, :office_postcode, :office_phone, :fax,
+                :birthday, :age,
+                'pending'
+            )";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':name' => $data['name'],
+                ':ic_no' => $data['ic_no'],
+                ':birthday' => $data['birthday'],
+                ':age' => $data['age'],
+                ':gender' => $data['gender'],
+                ':religion' => $data['religion'],
+                ':race' => $data['race'],
+                ':marital_status' => $data['marital_status'],
+                ':monthly_salary' => $data['monthly_salary'],
+                ':position' => $data['position'],
+                ':grade' => $data['grade'],
+                ':home_address' => $data['home_address'],
+                ':home_postcode' => $data['home_postcode'],
+                ':home_state' => $data['home_state'],
+                ':home_phone' => $data['home_phone'],
+                ':office_address' => $data['office_address'],
+                ':office_postcode' => $data['office_postcode'],
+                ':office_phone' => $data['office_phone'],
+                ':fax' => $data['fax'],
+                ':birthday' => $data['birthday'],
+                ':age' => $data['age']
+            ]);
+            return $this->getConnection()->lastInsertId();
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal menyimpan data pemohon');
         }
     }
 }
