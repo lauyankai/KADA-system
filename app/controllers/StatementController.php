@@ -4,16 +4,20 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\Saving;
 use App\Models\Loan;
+use App\Models\Statement;
+use PDO;
 
 class StatementController extends BaseController
 {
     private $saving;
     private $loan;
+    private $statement;
 
     public function __construct()
     {
         $this->saving = new Saving();
         $this->loan = new Loan();
+        $this->statement = new Statement();
     }
 
     public function index()
@@ -34,17 +38,18 @@ class StatementController extends BaseController
             // Calculate remaining amount for each loan
             if ($loans) {
                 foreach ($loans as &$loan) {
-                    // Get total paid amount for this loan
                     $totalPaid = $this->loan->getTotalPaidAmount($loan['id']);
-                    
-                    // Calculate remaining amount
                     $loan['remaining_amount'] = $loan['amount'] - $totalPaid;
                 }
             }
             
+            // Get notification preferences using Statement model
+            $notifications = $this->statement->getNotificationSettings($memberId);
+            
             $this->view('users/statement/index', [
                 'account' => $account,
-                'loans' => $loans
+                'loans' => $loans,
+                'notifications' => $notifications
             ]);
 
         } catch (\Exception $e) {
@@ -373,6 +378,54 @@ class StatementController extends BaseController
         } catch (\Exception $e) {
             error_log('PDF Generation Error: ' . $e->getMessage());
             $_SESSION['error'] = 'Ralat menjana PDF: ' . $e->getMessage();
+            header('Location: /users/statements');
+            exit;
+        }
+    }
+
+    public function notifications()
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new \Exception('Invalid request method');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            $emailEnabled = isset($_POST['email_notification']);
+            $email = $_POST['email'] ?? null;
+
+            // Get current notification settings
+            $currentSettings = $this->statement->getNotificationSettings($memberId);
+
+            // Validate email if notification is enabled
+            if ($emailEnabled) {
+                if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    throw new \Exception('Alamat emel tidak sah');
+                }
+
+                // Check if settings have changed
+                if ($currentSettings['email_enabled'] != $emailEnabled || $currentSettings['email'] !== $email) {
+                    $this->statement->updateNotificationSettings($memberId, $emailEnabled, $email);
+                    $_SESSION['success'] = 'Tetapan notifikasi berjaya dikemaskini';
+                }
+            } else {
+                // If notifications are being disabled
+                if ($currentSettings['email_enabled']) {
+                    $this->statement->updateNotificationSettings($memberId, false, null);
+                    $_SESSION['success'] = 'Tetapan notifikasi berjaya dikemaskini';
+                }
+            }
+            
+            header('Location: /users/statements');
+            exit;
+
+        } catch (\Exception $e) {
+            error_log('Error updating notifications: ' . $e->getMessage());
+            $_SESSION['error'] = $e->getMessage();
             header('Location: /users/statements');
             exit;
         }

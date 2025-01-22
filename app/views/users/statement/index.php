@@ -6,7 +6,7 @@
 <div class="container py-4">
     <!-- Header Section -->
     <div class="row mb-4">
-        <div class="col-11">
+        <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center">
@@ -14,9 +14,14 @@
                             <h4 class="mb-1 text-primary">Penyata Akaun</h4>
                             <p class="text-muted mb-0">Lihat dan muat turun penyata akaun anda</p>
                         </div>
-                        <a href="/users" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-2"></i>Kembali
-                        </a>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                                <i class="bi bi-bell<?= isset($notifications['email_enabled']) && $notifications['email_enabled'] ? '-fill' : '' ?>"></i>
+                            </button>
+                            <a href="/users" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Kembali
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -25,7 +30,7 @@
 
     <!-- Main Content -->
     <div class="row">
-        <div class="col-11">
+        <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <!-- Statement Form -->
@@ -113,6 +118,54 @@
             </div>
         </div>
     </div>
+
+    <!-- Remove the old notification card and add this modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="notificationModalLabel">
+                        <i class="bi bi-bell me-2"></i>
+                        Tetapan Notifikasi
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/users/statements/notifications" method="POST" class="notification-form">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="emailNotification" 
+                                   name="email_notification" 
+                                   <?= isset($notifications['email_enabled']) && $notifications['email_enabled'] ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="emailNotification">
+                                Terima penyata bulanan melalui emel
+                            </label>
+                        </div>
+                        
+                        <div class="email-settings <?= isset($notifications['email_enabled']) && $notifications['email_enabled'] ? '' : 'd-none' ?>">
+                            <div class="mb-4">
+                                <label class="form-label">Emel</label>
+                                <input type="email" class="form-control" name="email" id="emailInput"
+                                       value="<?= htmlspecialchars($notifications['email'] ?? '') ?>" 
+                                       placeholder="Masukkan alamat emel anda"
+                                       required>
+                                <div class="form-text">
+                                    Penyata akan dihantar ke emel ini pada setiap 28 haribulan.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-2"></i>
+                                Simpan Tetapan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -162,13 +215,81 @@
 .shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075) !important;
 }
+
+.modal-content {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    padding: 1.5rem 1.5rem 1rem;
+}
+
+.modal-body {
+    padding: 1rem 1.5rem 1.5rem;
+}
+
+.btn-light {
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
+.btn-light:hover {
+    background-color: #e9ecef;
+    border-color: #e9ecef;
+}
 </style>
 
 <script>
-    // Set default period to 'today' when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        updateDates('today');
+document.addEventListener('DOMContentLoaded', function() {
+    const emailNotification = document.getElementById('emailNotification');
+    const emailSettings = document.querySelector('.email-settings');
+    const emailInput = document.getElementById('emailInput');
+    const form = document.querySelector('.notification-form');
+
+    // Handle checkbox change
+    emailNotification.addEventListener('change', function() {
+        emailSettings.classList.toggle('d-none', !this.checked);
+        if (this.checked) {
+            emailInput.setAttribute('required', '');
+        } else {
+            emailInput.removeAttribute('required');
+        }
     });
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        if (emailNotification.checked && !emailInput.value) {
+            e.preventDefault();
+            alert('Sila masukkan alamat emel anda');
+            return;
+        }
+    });
+
+    // If there's an email value, ensure checkbox is checked
+    if (emailInput.value) {
+        emailNotification.checked = true;
+        emailSettings.classList.remove('d-none');
+    }
+
+    // Update bell icon when settings change
+    form.addEventListener('submit', function() {
+        const bellIcon = document.querySelector('.btn-light .bi-bell, .btn-light .bi-bell-fill');
+        if (emailNotification.checked) {
+            bellIcon.classList.remove('bi-bell');
+            bellIcon.classList.add('bi-bell-fill');
+        } else {
+            bellIcon.classList.remove('bi-bell-fill');
+            bellIcon.classList.add('bi-bell');
+        }
+    });
+});
+
+// Keep existing date update function
+document.addEventListener('DOMContentLoaded', function() {
+    updateDates('today');
+});
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>

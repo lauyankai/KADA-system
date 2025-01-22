@@ -129,4 +129,77 @@ class Statement extends BaseModel
             throw new \Exception('Gagal mendapatkan maklumat penyata');
         }
     }
+
+    public function getNotificationSettings($memberId)
+    {
+        try {
+            $sql = "SELECT email_enabled, email FROM user_notifications WHERE member_id = :member_id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$result) {
+                // Create default settings if none exist
+                $sql = "INSERT INTO user_notifications (member_id, email_enabled, email) 
+                        VALUES (:member_id, 0, NULL)";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([':member_id' => $memberId]);
+                
+                return ['email_enabled' => false, 'email' => null];
+            }
+            
+            return [
+                'email_enabled' => (bool)$result['email_enabled'],
+                'email' => $result['email']
+            ];
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan tetapan notifikasi');
+        }
+    }
+
+    public function updateNotificationSettings($memberId, $emailEnabled, $email)
+    {
+        try {
+            $this->getConnection()->beginTransaction();
+
+            // First check if record exists
+            $sql = "SELECT id FROM user_notifications WHERE member_id = :member_id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            
+            if ($stmt->fetch()) {
+                // Update existing record
+                $sql = "UPDATE user_notifications 
+                        SET email_enabled = :email_enabled, 
+                            email = :email,
+                            updated_at = CURRENT_TIMESTAMP
+                        WHERE member_id = :member_id";
+            } else {
+                // Insert new record
+                $sql = "INSERT INTO user_notifications 
+                        (member_id, email_enabled, email, created_at, updated_at)
+                        VALUES 
+                        (:member_id, :email_enabled, :email, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+            }
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':member_id' => $memberId,
+                ':email_enabled' => $emailEnabled,
+                ':email' => $emailEnabled ? $email : null
+            ]);
+
+            $this->getConnection()->commit();
+            
+        } catch (\PDOException $e) {
+            if ($this->getConnection()->inTransaction()) {
+                $this->getConnection()->rollBack();
+            }
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mengemaskini tetapan notifikasi');
+        }
+    }
 }
