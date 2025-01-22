@@ -50,30 +50,6 @@
             </div>
         </div>
 
-        <!-- Loan Status -->
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="icon-box bg-warning bg-opacity-10 rounded-3 p-3 me-3">
-                            <i class="bi bi-cash-stack text-warning fs-4"></i>
-                        </div>
-                        <div>
-                            <h6 class="text-muted mb-1">Status Pembiayaan</h6>
-                            <h4 class="mb-0">
-                                <?php if (isset($activeLoans)): ?>
-                                    RM <?= number_format($activeLoans->amount, 2) ?>
-                                <?php else: ?>
-                                    Tiada Pembiayaan Aktif
-                                <?php endif; ?>
-                            </h4>
-                        </div>
-                    </div>
-                    <a href="/users/loans/status" class="btn btn-warning w-100">Lihat Pembiayaan</a>
-                </div>
-            </div>
-        </div>
-
         <!-- Savings Transfer -->
         <div class="col-md-4">
             <div class="card border-0 shadow-sm h-100">
@@ -93,6 +69,30 @@
                             Pindah Antara Akaun
                         </a>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loan Status -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-warning bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="bi bi-cash-stack text-warning fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Status Pembiayaan</h6>
+                            <h4 class="mb-0">
+                                <?php if (!empty($activeLoans)): ?>
+                                    RM <?= number_format($totalLoanAmount, 2) ?>
+                                <?php else: ?>
+                                    Tiada Pembiayaan Aktif
+                                <?php endif; ?>
+                            </h4>
+                        </div>
+                    </div>
+                    <a href="/users/loans/status" class="btn btn-warning w-100">Lihat Pembiayaan</a>
                 </div>
             </div>
         </div>
