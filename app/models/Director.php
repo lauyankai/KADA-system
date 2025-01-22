@@ -380,11 +380,11 @@ class Director extends BaseModel
                 $sql = "INSERT INTO rejectedloans (
                     member_id, reference_no, loan_type, amount, 
                     duration, monthly_payment, bank_name, bank_account,
-                    status, date_received, approved_by, approved_at, remarks
+                    status, date_received, rejected_by, rejected_at, remarks
                 ) VALUES (
                     :member_id, :reference_no, :loan_type, :amount,
                     :duration, :monthly_payment, :bank_name, :bank_account,
-                    'approved', :date_received, :approved_by, NOW(), :remarks
+                    'rejected', :date_received, :rejected_by, NOW(), :remarks
                 )";
 
                 $stmt = $this->getConnection()->prepare($sql);
@@ -398,7 +398,7 @@ class Director extends BaseModel
                     ':bank_name' => $loanData['bank_name'],
                     ':bank_account' => $loanData['bank_account'],
                     ':date_received' => $loanData['date_received'],
-                    ':approved_by' => $_SESSION['director_id'],
+                    ':rejected_by' => $_SESSION['director_id'],
                     ':remarks' => $remarks
                 ]);
 

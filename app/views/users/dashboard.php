@@ -3,171 +3,186 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
-<div class="container mt-4">
+<div class="container py-4">
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
     <!-- Welcome Section -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h3 class="card-title mb-1">
-                        Selamat Datang, <?= htmlspecialchars($member->name ?? 'Ahli') ?>
-                    </h3>
-                    <p class="text-muted mb-0">
-                        No. Ahli: <?= htmlspecialchars($member->member_id ?? '-') ?>
-                    </p>
-                </div>
-                <!-- Last Login Info -->
-                <div class="text-end text-muted">
-                    <small>Login Terakhir: <?= date('d/m/Y H:i') ?></small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Savings Section -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">
-                        <i class="bi bi-piggy-bank me-2"></i>Simpanan
-                        </h5>
-                    <!-- Total Savings Amount -->
-                    <h3 class="text-success mb-3">RM <?= number_format($totalSavings ?? 0, 2) ?></h3>
-                    <div class="d-grid">
-                        <a href="/users/savings/page" class="btn btn-outline-success">
-                            <i class="bi bi-piggy-bank me-2"></i>
-                            Akaun Simpanan
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Loans Section -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">
-                        <i class="bi bi-cash-stack me-2"></i>Pinjaman
-                        </h5>
-                    <!-- Loan Actions -->
-                    <div class="d-grid gap-2">
-                        <a href="/users/loans/status" class="btn btn-outline-primary">
-                            <i class="bi bi-list-check me-2"></i>Status Pinjaman
-                        </a>
-                        <a href="/users/loans/request" class="btn btn-primary">
-                            <i class="bi bi-file-earmark-text me-2"></i>Mohon Pinjaman
-                        </a>
-                    </div>
-                            </div>
-                            </div>
-                        </div>
-
-        <!-- Payments Section -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">
-                        <i class="bi bi-credit-card me-2"></i>Pembayaran
-                    </h5>
-                    <!-- Payment Actions -->
-                    <div class="d-grid gap-2">
-                        <a href="/users" class="btn btn-outline-secondary">
-                            <i class="bi bi-clock-history me-2"></i>Sejarah Pembayaran
-                        </a>
-                        <a href="/users/savings/transfer" class="btn btn-secondary">
-                            <i class="bi bi-cash me-2"></i>Buat Pembayaran
-                        </a>
-                        </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Stats Row -->
     <div class="row mb-4">
-        <!-- Member Status -->
-        <div class="col-md-6 mb-4">
-    <div class="card">
-        <div class="card-body">
-                    <h5 class="card-title">Status Keahlian</h5>
-            <div class="table-responsive">
-                        <table class="table table-borderless">
-                            <tr>
-                                <td width="40%">Nama Penuh</td>
-                                <td width="5%">:</td>
-                                <td><?= htmlspecialchars($member->name ?? '-') ?></td>
-                            </tr>
-                            <tr>
-                                <td>No. Ahli</td>
-                                <td>:</td>
-                                <td><?= htmlspecialchars($member->member_id ?? '-') ?></td>
-                            </tr>
-                            <tr>
-                                <td>No. Akaun</td>
-                                <td>:</td>
-                                <td><?= htmlspecialchars($member->account_number ?? '-') ?></td>
-                        </tr>
-                            <tr>
-                                <td>Status</td>
-                                <td>:</td>
-                                <td><span class="badge bg-success">Aktif</span></td>
-                                </tr>
-                            <tr>
-                                <td>Tarikh Daftar</td>
-                                <td>:</td>
-                                <td><?= date('d/m/Y', strtotime($member->created_at ?? 'now')) ?></td>
-                            </tr>
-                </table>
+        <div class="col-12">
+            <div class="card border-0 bg-white shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">Selamat Datang, <?= htmlspecialchars($member->name) ?></h4>
+                            <p class="text-muted mb-0">No. Ahli: <?= htmlspecialchars($member->member_id) ?></p>
+                        </div>
+                        <a href="/users/profile" class="btn btn-outline-primary">
+                            <i class="bi bi-person-circle me-2"></i>Profil
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-        <!-- Recent Activities -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Aktiviti Terkini</h5>
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-4">
+        <!-- Total Savings -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="bi bi-wallet2 text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Jumlah Simpanan</h6>
+                            <h4 class="mb-0">RM <?= number_format($totalSavings, 2) ?></h4>
+                        </div>
+                    </div>
+                    <a href="/users/savings" class="btn btn-primary w-100">Urus Simpanan</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loan Status -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-warning bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="bi bi-cash-stack text-warning fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Status Pembiayaan</h6>
+                            <h4 class="mb-0">
+                                <?php if (isset($activeLoan)): ?>
+                                    RM <?= number_format($activeLoan->amount, 2) ?>
+                                <?php else: ?>
+                                    Tiada Pembiayaan Aktif
+                                <?php endif; ?>
+                            </h4>
+                        </div>
+                    </div>
+                    <a href="/users/loans/status" class="btn btn-warning w-100">Lihat Pembiayaan</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Savings Transfer -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-success bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="bi bi-arrow-left-right text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">Pindahan Simpanan</h5>
+                            <p class="text-muted small mb-0">Pindah wang antara akaun</p>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="/users/savings/transfer" class="btn btn-success">
+                            <i class="bi bi-arrow-left-right me-2"></i>
+                            Pindah Antara Akaun
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">Aktiviti Terkini</h5>
+                        <a href="/users/statements" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-file-text me-2"></i>Lihat Penyata
+                        </a>
+                    </div>
+
                     <?php if (!empty($recentActivities)): ?>
-                        <ul class="list-unstyled mb-0">
-                            <?php foreach ($recentActivities as $activity): ?>
-                                <li class="mb-2">
-                                    <small class="text-muted"><?= date('d/m/Y H:i', strtotime($activity->created_at)) ?></small>
-                                    <br>
-                                    <?= htmlspecialchars($activity->description) ?>
-                                    <?php if ($activity->amount > 0): ?>
-                                        <span class="text-<?= $activity->type === 'savings' ? 'success' : 'primary' ?>">
-                                            RM <?= number_format($activity->amount, 2) ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <tbody>
+                                    <?php foreach ($recentActivities as $activity): ?>
+                                        <tr>
+                                            <td style="width: 40px;">
+                                                <div class="activity-icon 
+                                                    <?= $activity->type === 'savings' ? 'bg-success' : 'bg-primary' ?> 
+                                                    bg-opacity-10 rounded-circle p-2">
+                                                    <i class="bi 
+                                                        <?= $activity->type === 'savings' ? 'bi-wallet2' : 'bi-cash-stack' ?> 
+                                                        <?= $activity->type === 'savings' ? 'text-success' : 'text-primary' ?> 
+                                                        small"></i>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="d-block"><?= htmlspecialchars($activity->description) ?></span>
+                                                <small class="text-muted">
+                                                    <?= date('d/m/Y H:i', strtotime($activity->created_at)) ?>
+                                                </small>
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="badge 
+                                                    <?= $activity->type === 'savings' ? 
+                                                        ($activity->action === 'withdrawal' ? 'bg-danger' : 'bg-success') : 
+                                                        'bg-primary' ?>">
+                                                    RM <?= number_format($activity->amount, 2) ?>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php else: ?>
-                        <p class="text-muted mb-0">Tiada aktiviti terkini</p>
+                        <p class="text-muted text-center py-4 mb-0">Tiada aktiviti terkini</p>
                     <?php endif; ?>
                 </div>
-                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Notifications Toast -->
-<?php if (isset($_SESSION['success'])): ?>
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-success text-white">
-            <i class="bi bi-check-circle me-2"></i>
-            <strong class="me-auto">Berjaya</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-</div>
-        <div class="toast-body">
-            <?= $_SESSION['success']; ?>
-        </div>
-    </div>
-</div>
-<?php unset($_SESSION['success']); endif; ?>
+<style>
+.card {
+    transition: all 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-2px);
+}
+.icon-box {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+}
+</style>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 

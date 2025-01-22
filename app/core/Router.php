@@ -29,8 +29,8 @@ class Router {
             // Remove query string for matching
             $baseUri = preg_replace('/\?.*$/', '', $requestUri);
             
-            // Remove the base URL part of the URI
-            $baseUri = str_replace('/KADA-system', '', $baseUri);
+            // Remove the base URL part of the URI (i.e., /project-root)
+            $requestUri = str_replace('/KADA-system', '', $requestUri);
 
             // Add debug logging
             $this->debugRoute($requestUri, $requestMethod);

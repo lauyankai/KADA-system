@@ -44,7 +44,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="/users/savings/page" class="btn btn-secondary">
+                            <a href="/users/savings" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left me-2"></i>Kembali
                             </a>
                             <button type="submit" class="btn btn-primary">

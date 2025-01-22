@@ -99,55 +99,50 @@ class Loan extends BaseModel
         }
     }
 
-    public function getMemberLatestLoan($memberId)
+    public function getPendingLoansByMemberId($memberId)
     {
         try {
-            // Debug logs
-            error_log("Executing getMemberLatestLoan for member_id: " . $memberId);
-            
-            // Verify database connection
-            if (!$this->getConnection()) {
-                error_log("Database connection failed");
-                throw new \PDOException("Database connection failed");
-            }
-            error_log("Database connection verified");
-            
-            // Verify member_id is numeric
-            if (!is_numeric($memberId)) {
-                error_log("Invalid member_id format: " . $memberId);
-                throw new \Exception("Invalid member ID format");
-            }
-            
-            $sql = "SELECT * FROM loans 
+            $sql = "SELECT * FROM pendingloans 
                     WHERE member_id = :member_id 
-                    ORDER BY created_at DESC 
-                    LIMIT 1";
-            
-            // Debug SQL
-            error_log("Executing SQL: " . $sql . " with member_id = " . $memberId);
-            
+                    AND status = 'pending'
+                    ORDER BY date_received DESC";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
-            
-            // Debug statement execution
-            error_log("SQL executed successfully");
-            
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            // Debug result
-            error_log("Query result: " . ($result ? json_encode($result) : "No loan found"));
-            
-            if (!$result) {
-                throw new \Exception('Tiada permohonan pembiayaan ditemui');
-            }
-            
-            return $result;
-            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            error_log('Database Error in getMemberLatestLoan: ' . $e->getMessage());
-            error_log('SQL: ' . $sql);
-            error_log('Member ID: ' . $memberId);
-            throw new \Exception('Gagal mendapatkan maklumat pembiayaan');
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai pembiayaan dalam proses');
+        }
+    }
+
+    public function getActiveLoansByMemberId($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM loans 
+                    WHERE member_id = :member_id 
+                    AND status = 'active'
+                    ORDER BY approved_at DESC";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai pembiayaan aktif');
+        }
+    }
+
+    public function getRejectedLoansByMemberId($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM rejectedloans 
+                    WHERE member_id = :member_id 
+                    ORDER BY rejected_at DESC";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai pembiayaan ditolak');
         }
     }
 }

@@ -793,15 +793,20 @@
 
                         <!-- Navigation Buttons -->
                         <div class="step-buttons mt-4">
-                            <button type="button" class="btn btn-secondary prev-step" style="display: none;">
-                                <i class="bi bi-arrow-left me-2"></i>Sebelumnya
-                            </button>
-                            <button type="button" class="btn btn-gradient next-step">
-                                Seterusnya<i class="bi bi-arrow-right ms-2"></i>
-                            </button>
-                            <button type="submit" class="btn btn-gradient submit-form" style="display: none;">
-                                Hantar<i class="bi bi-check-circle ms-2"></i>
-                            </button>
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Kembali ke Halaman Utama
+                            </a>
+                            <div class="float-end">
+                                <button type="button" class="btn btn-secondary prev-step" style="display: none;">
+                                    <i class="bi bi-arrow-left me-2"></i>Sebelumnya
+                                </button>
+                                <button type="button" class="btn btn-gradient next-step">
+                                    Seterusnya<i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                                <button type="submit" class="btn btn-gradient submit-form" style="display: none;">
+                                    Hantar<i class="bi bi-check-circle ms-2"></i>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
