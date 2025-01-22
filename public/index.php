@@ -94,7 +94,7 @@ $router = new App\Core\Router();
         $router->addRoute('POST', '/admin/annual-reports/delete/{id}', 'AnnualReportController', 'delete');
 
 // User Dashboard Routes
-    $router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
+    $router->addRoute('GET', '/users', 'UserController', 'dashboard');
 
     // User routes -- Savings Routes
         $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');

@@ -60,7 +60,7 @@ class AuthController extends BaseController
                     $_SESSION['username'] = $member['name'];
                     $_SESSION['user_type'] = 'member';
                     
-                    header('Location: /users/dashboard');
+                    header('Location: /users');
                     exit;
                 }
                 throw new \Exception('No. K/P tidak dijumpai atau belum diluluskan');
