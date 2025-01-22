@@ -25,29 +25,41 @@ class StatementController extends BaseController
 
             $memberId = $_SESSION['member_id'];
             
-            // Get period from query parameters
-            $period = $_GET['period'] ?? 'today';
-            
-            // Calculate dates based on period
-            $dates = $this->calculateDates($period);
-            $startDate = $dates['startDate'];
-            $endDate = $dates['endDate'];
+            // Get account type and period from query parameters, with defaults
+            $accountType = $_GET['account_type'] ?? 'savings';
+            $period = $_GET['period'] ?? 'today'; // Set default period to 'today'
+            $year = $_GET['year'] ?? date('Y'); // Get the selected year, default to current year
 
-            // Get savings account
-            $savingsAccount = $this->saving->getSavingsAccount($memberId);
-            if (!$savingsAccount) {
-                throw new \Exception('Akaun simpanan tidak ditemui');
+            // Calculate dates based on period
+            $today = date('Y-m-d');
+            switch ($period) {
+                case 'today':
+                    $startDate = $today;
+                    $endDate = $today;
+                    break;
+                case 'current':
+                    $startDate = date('Y-m-01'); // First day of current month
+                    $endDate = $today;
+                    break;
+                case 'last':
+                    $startDate = date('Y-m-01', strtotime('last month'));
+                    $endDate = date('Y-m-t', strtotime('last month')); // Last day of last month
+                    break;
+                case 'custom':
+                    $startDate = $_GET['start_date'] ?? $today;
+                    $endDate = $_GET['end_date'] ?? $today;
+                    break;
+                case 'yearly':
+                    $startDate = "$year-01-01"; // First day of the selected year
+                    $endDate = "$year-12-31"; // Last day of the selected year
+                    break;
+
+                default:
+                    $startDate = $today;
+                    $endDate = $today;
+                    $period = 'today'; // Ensure period is set even if invalid value provided
             }
 
-            // Get all loan accounts
-            $loanAccounts = $this->loan->getLoansByMemberId($memberId);
-
-            // Determine selected account and type
-            $selectedAccount = $_GET['account_id'] ?? 'S' . $savingsAccount['id'];
-            $accountType = substr($selectedAccount, 0, 1) === 'S' ? 'savings' : 'loan';
-            $accountId = substr($selectedAccount, 1);
-
-            // Get account details and transactions based on type
             if ($accountType === 'savings') {
                 $account = $savingsAccount;
                 $transactions = $this->saving->getTransactionsByDateRange($accountId, $startDate, $endDate);
@@ -73,7 +85,10 @@ class StatementController extends BaseController
                 'transactions' => $transactions,
                 'period' => $period,
                 'startDate' => $startDate,
-                'endDate' => $endDate
+                'endDate' => $endDate,
+                'period' => $period,
+                'year' => $year
+                
             ]);
 
         } catch (\Exception $e) {
@@ -93,7 +108,8 @@ class StatementController extends BaseController
             $memberId = $_SESSION['member_id'];
             $accountType = $_GET['account_type'] ?? 'savings';
             $period = $_GET['period'] ?? 'today';
-            
+            $year = $_GET['year'] ?? date('Y'); // Get the selected year, default to current year
+
             // Calculate dates based on period - same logic as index method
             $today = date('Y-m-d');
             switch ($period) {
@@ -113,6 +129,11 @@ class StatementController extends BaseController
                     $startDate = $_GET['start_date'] ?? $today;
                     $endDate = $_GET['end_date'] ?? $today;
                     break;
+                case 'yearly':
+                    $startDate = "$year-01-01"; // First day of the selected year
+                    $endDate = "$year-12-31"; // Last day of the selected year
+                    break;
+
                 default:
                     $startDate = $today;
                     $endDate = $today;
