@@ -28,6 +28,7 @@ class StatementController extends BaseController
             // Get account type and period from query parameters, with defaults
             $accountType = $_GET['account_type'] ?? 'savings';
             $period = $_GET['period'] ?? 'today'; // Set default period to 'today'
+            $year = $_GET['year'] ?? date('Y'); // Get the selected year, default to current year
 
             // Calculate dates based on period
             $today = date('Y-m-d');
@@ -48,6 +49,11 @@ class StatementController extends BaseController
                     $startDate = $_GET['start_date'] ?? $today;
                     $endDate = $_GET['end_date'] ?? $today;
                     break;
+                case 'yearly':
+                    $startDate = "$year-01-01"; // First day of the selected year
+                    $endDate = "$year-12-31"; // Last day of the selected year
+                    break;
+
                 default:
                     $startDate = $today;
                     $endDate = $today;
@@ -99,7 +105,9 @@ class StatementController extends BaseController
                 'transactions' => $transactions,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
-                'period' => $period
+                'period' => $period,
+                'year' => $year
+                
             ]);
 
         } catch (\Exception $e) {
@@ -118,7 +126,8 @@ class StatementController extends BaseController
             $memberId = $_SESSION['member_id'];
             $accountType = $_GET['account_type'] ?? 'savings';
             $period = $_GET['period'] ?? 'today';
-            
+            $year = $_GET['year'] ?? date('Y'); // Get the selected year, default to current year
+
             // Calculate dates based on period - same logic as index method
             $today = date('Y-m-d');
             switch ($period) {
@@ -138,6 +147,11 @@ class StatementController extends BaseController
                     $startDate = $_GET['start_date'] ?? $today;
                     $endDate = $_GET['end_date'] ?? $today;
                     break;
+                case 'yearly':
+                    $startDate = "$year-01-01"; // First day of the selected year
+                    $endDate = "$year-12-31"; // Last day of the selected year
+                    break;
+
                 default:
                     $startDate = $today;
                     $endDate = $today;

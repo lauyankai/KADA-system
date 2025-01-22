@@ -73,6 +73,7 @@
                                 <option value="current" <?= ($period === 'current') ? 'selected' : '' ?>>Bulan Ini</option>
                                 <option value="last" <?= ($period === 'last') ? 'selected' : '' ?>>Bulan Sebelumnya</option>
                                 <option value="custom" <?= ($period === 'custom') ? 'selected' : '' ?>>Tarikh</option>
+                                <option value="yearly" <?= ($period === 'yearly') ? 'selected' : '' ?>>Tahun</option>
                             </select>
                         </div>
                     </div>
@@ -94,6 +95,19 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Year Selection -->
+                    <div id="yearSelection" class="row mb-3" style="display: <?= $period === 'yearly' ? 'block' : 'none' ?>;">
+                        <div class="offset-md-2 col-md-6">
+                                <label class="form-label text-secondary">Pilih Tahun</label>
+                                <select name="year" class="form-select form-select-sm">
+                                    <?php 
+                                    $currentYear = date('Y');
+                                    for ($i = $currentYear; $i >= 2000; $i--): ?>
+                                        <option value="<?= $i ?>" <?= ($year == $i) ? 'selected' : '' ?>><?= $i ?></option>
+                                     <?php endfor; ?>
+                                </select>
+                            </div>
+                        </div>
 
                     <!-- Submit Button -->
                     <div class="row">
@@ -282,8 +296,15 @@ function updateDates(period) {
     const customDateRange = document.getElementById('customDateRange');
     if (period === 'custom') {
         customDateRange.style.display = 'block';
+        yearSelection.style.display = 'none';
+
+    } else if (period === 'yearly') {
+        customDateRange.style.display = 'none';
+        yearSelection.style.display = 'block';
     } else {
         customDateRange.style.display = 'none';
+        yearSelection.style.display = 'none';
+
         
         const today = new Date();
         let startDate, endDate;
@@ -314,4 +335,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php require_once '../app/views/layouts/footer.php'; ?> 
+<?php require_once '../app/views/layouts/footer.php'; ?>
