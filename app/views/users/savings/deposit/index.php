@@ -26,7 +26,7 @@
                         <h4 class="card-title mb-0">
                             <i class="bi bi-plus-circle me-2"></i>Deposit Simpanan
                         </h4>
-                        <a href="/users/savings/page" class="btn btn-outline-secondary">
+                        <a href="/users/savings" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>

@@ -131,7 +131,7 @@
                         <button onclick="window.print()" class="btn btn-primary">
                             <i class="bi bi-printer me-2"></i>Cetak
                         </button>
-                        <a href="/KADA-system/users/savings/page" class="btn btn-outline-secondary">
+                        <a href="/users/savings" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>

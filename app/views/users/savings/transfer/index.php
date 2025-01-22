@@ -12,7 +12,7 @@
                         <h4 class="card-title mb-0">
                             <i class="bi bi-arrow-left-right me-2"></i>Pemindahan Dana
                         </h4>
-                        <a href="/KADA-system/users" class="btn btn-outline-secondary">
+                        <a href="/users/savings" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>
