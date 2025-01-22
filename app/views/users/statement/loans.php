@@ -48,9 +48,19 @@
                     </div>
 
                     <!-- After loan details section -->
-                    <div class="mt-4">
-                        <h5 class="mb-3">Penyata Bulanan</h5>
-                        <div class="row">
+                    <div class="mt-5">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">
+                                <i class="bi bi-file-earmark-text me-2"></i>
+                                Penyata Bulanan
+                            </h5>
+                            <div class="text-muted small">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Penyata dijana setiap 28 haribulan
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
                             <?php 
                             // Get last 12 months
                             $months = [];
@@ -59,20 +69,45 @@
                                 $date->modify("-$i month");
                                 $months[] = $date;
                             }
+
+                            // Array of Malay month names
+                            $malayMonths = [
+                                'January' => 'Januari',
+                                'February' => 'Februari', 
+                                'March' => 'Mac',
+                                'April' => 'April',
+                                'May' => 'Mei',
+                                'June' => 'Jun',
+                                'July' => 'Julai',
+                                'August' => 'Ogos',
+                                'September' => 'September',
+                                'October' => 'Oktober',
+                                'November' => 'November',
+                                'December' => 'Disember'
+                            ];
                             ?>
                             
                             <?php foreach ($months as $month): ?>
-                                <div class="col-md-3 mb-3">
-                                    <div class="card h-100">
+                                <div class="col-md-3">
+                                    <div class="card statement-card h-100 border-0">
                                         <div class="card-body">
-                                            <h6 class="card-title"><?= $month->format('F Y') ?></h6>
-                                            <p class="card-text small text-muted">
-                                                Penyata <?= $month->format('d/m/Y') ?> - <?= $month->format('t/m/Y') ?>
-                                            </p>
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="statement-icon me-3">
+                                                    <i class="bi bi-file-pdf text-danger"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="card-title mb-1">
+                                                        <?= $malayMonths[$month->format('F')] ?> <?= $month->format('Y') ?>
+                                                    </h6>
+                                                    <p class="card-subtitle text-muted small mb-0">
+                                                        <?= $month->format('d/m/Y') ?> - <?= $month->format('t/m/Y') ?>
+                                                    </p>
+                                                </div>
+                                            </div>
                                             <a href="/users/statements/download?loan_id=<?= $loan['id'] ?>&period=<?= $month->format('Y-m') ?>" 
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-download me-1"></i>
-                                                Muat Turun PDF
+                                               class="btn btn-light btn-sm w-100 statement-download-btn">
+                                                <i class="bi bi-download me-2"></i>
+                                                Muat Turun
                                             </a>
                                         </div>
                                     </div>
@@ -129,6 +164,71 @@
 .btn {
     padding: 0.4rem 1rem;
     font-size: 0.9rem;
+}
+
+/* New styles for statement cards */
+.statement-card {
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.statement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    background: white;
+}
+
+.statement-icon {
+    font-size: 1.5rem;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 12px;
+}
+
+.statement-download-btn {
+    border: 1px solid #dee2e6;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.statement-download-btn:hover {
+    background: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .col-md-3 {
+        padding: 0 8px;
+    }
+    
+    .statement-card {
+        margin-bottom: 16px;
+    }
+}
+
+/* Animation for hover effects */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.statement-card:hover .statement-icon {
+    animation: float 2s ease-in-out infinite;
 }
 </style>
 
