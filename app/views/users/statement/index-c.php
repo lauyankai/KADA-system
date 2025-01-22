@@ -35,14 +35,24 @@
                             <div class="col-md-12">
                                 <div class="row align-items-center">
                                     <div class="col-md-3">
-                                        <label class="form-label mb-0">Akaun Simpanan</label>
+                                        <label class="form-label mb-0">Nombor Akaun</label>
                                     </div>
                                     <div class="col-md-9">
                                         <select name="account_id" class="form-select" onchange="this.form.submit()">
-                                            <option value="<?= $account['id'] ?>">
-                                                <?= htmlspecialchars($account['account_number']) ?> / 
-                                                RM<?= number_format($account['current_amount'], 2) ?>
+                                            <!-- Savings Account -->
+                                            <option value="<?= $account['id'] ?>" <?= ($accountType === 'savings') ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($account['account_number']) ?> / Akaun Simpanan
                                             </option>
+                                            
+                                            <!-- Loan Accounts -->
+                                            <?php if (!empty($loans)): ?>
+                                                <?php foreach ($loans as $loan): ?>
+                                                    <option value="<?= $loan['id'] ?>" 
+                                                            <?= (isset($_GET['account_id']) && $_GET['account_id'] == $loan['id']) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($loan['reference_no']) ?> / Akaun Pembiayaan
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
                                         </select>
                                     </div>
                                 </div>
@@ -132,56 +142,6 @@
                                 </div>
                             </div>
                         </div>
-                    </form>
-
-                    <!-- Loan Accounts Table -->
-                    <?php if (!empty($loans)): ?>
-                        <div class="mt-4">
-                            <h5 class="mb-3">Senarai Akaun Pembiayaan</h5>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>No. Rujukan</th>
-                                            <th>Jenis Pembiayaan</th>
-                                            <th>Jumlah Pembiayaan</th>
-                                            <th>Baki Pembiayaan</th>
-                                            <th>Tempoh</th>
-                                            <th>Status</th>
-                                            <th>Tindakan</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($loans as $loan): ?>
-                                            <tr>
-                                                <td><?= htmlspecialchars($loan['reference_no']) ?></td>
-                                                <td><?= htmlspecialchars($loan['loan_type']) ?></td>
-                                                <td>RM<?= number_format($loan['amount'] ?? 0, 2) ?></td>
-                                                <td>RM<?= number_format($loan['remaining_amount'] ?? $loan['amount'] ?? 0, 2) ?></td>
-                                                <td><?= htmlspecialchars($loan['duration']) ?> bulan</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <form action="/users/statements/download" method="GET" class="d-inline">
-                                                        <input type="hidden" name="account_type" value="loans">
-                                                        <input type="hidden" name="loan_id" value="<?= $loan['id'] ?>">
-                                                        <input type="hidden" name="period" value="<?= htmlspecialchars($period) ?>">
-                                                        <input type="hidden" name="year" value="<?= htmlspecialchars($year) ?>">
-                                                        <?php if ($period === 'custom'): ?>
-                                                            <input type="hidden" name="start_date" value="<?= htmlspecialchars($startDate) ?>">
-                                                            <input type="hidden" name="end_date" value="<?= htmlspecialchars($endDate) ?>">
-                                                        <?php endif; ?>
-                                                        <button type="submit" class="btn btn-sm btn-outline-primary">
-                                                            <i class="bi bi-file-pdf"></i>
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    <?php endif; ?>
 
                     <!-- Transactions Table -->
                     <div class="table-responsive mt-4">

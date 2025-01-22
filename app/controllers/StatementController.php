@@ -35,73 +35,44 @@ class StatementController extends BaseController
             $startDate = $dateRange['start'];
             $endDate = $dateRange['end'];
 
-            if ($accountType === 'savings') {
-                $account = $this->saving->getSavingsAccount($memberId);
-                if (!$account) {
-                    throw new \Exception('Akaun simpanan tidak dijumpai');
+            // Get savings account
+            $account = $this->saving->getSavingsAccount($memberId);
+            if (!$account) {
+                throw new \Exception('Akaun simpanan tidak dijumpai');
+            }
+            
+            // Get transactions for savings account
+            $transactions = $this->saving->getTransactionsByDateRange(
+                $account['id'], 
+                $startDate, 
+                $endDate
+            );
+            
+            // Calculate opening balance for savings account
+            $currentBalance = $account['current_amount'] ?? 0;
+            $openingBalance = $currentBalance;
+            
+            foreach ($transactions as $trans) {
+                if (in_array($trans['type'], ['deposit', 'transfer_in'])) {
+                    $openingBalance -= $trans['amount'];
+                } else {
+                    $openingBalance += $trans['amount'];
                 }
-                $transactions = $this->saving->getTransactionsByDateRange(
-                    $account['id'], 
-                    $startDate, 
-                    $endDate
-                );
-                
-                // Calculate opening balance for savings account
-                $currentBalance = $account['current_amount'] ?? 0;
-                $openingBalance = $currentBalance;
-                
-                // Subtract all transaction amounts to get to opening balance
-                foreach ($transactions as $trans) {
-                    if (in_array($trans['type'], ['deposit', 'transfer_in'])) {
-                        $openingBalance -= $trans['amount'];
-                    } else {
-                        $openingBalance += $trans['amount'];
-                    }
-                }
-                
-                $accounts = null;
-            } else {
-                $accounts = $this->loan->getLoansByMemberId($memberId);
-                if (empty($accounts)) {
-                    throw new \Exception('Akaun pembiayaan tidak dijumpai');
-                }
-
-                $selectedLoanId = $_GET['loan_id'] ?? $accounts[0]['id'];
-                
-                $account = null;
-                foreach ($accounts as $loan) {
-                    if ($loan['id'] == $selectedLoanId) {
-                        $account = $loan;
-                        break;
-                    }
-                }
-
-                if (!$account) {
-                    throw new \Exception('Akaun pembiayaan tidak dijumpai');
-                }
-
-                $transactions = $this->loan->getTransactionsByDateRange(
-                    $selectedLoanId,
-                    $startDate,
-                    $endDate
-                );
-                
-                // For loan accounts, opening balance is the first transaction's balance
-                $openingBalance = !empty($transactions) ? 
-                    $transactions[0]['remaining_balance'] + $transactions[0]['payment_amount'] : 
-                    $account['loan_amount'];
             }
 
+            // Get active loans
+            $loans = $this->loan->getActiveLoansByMemberId($memberId);
+            
             $this->view('users/statement/index', [
                 'accountType' => $accountType,
                 'account' => $account,
-                'accounts' => $accounts,
+                'loans' => $loans,
                 'transactions' => $transactions,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
                 'period' => $period,
                 'year' => $year,
-                'openingBalance' => $openingBalance // Pass the opening balance to the view
+                'openingBalance' => $openingBalance
             ]);
 
         } catch (\Exception $e) {
@@ -145,7 +116,7 @@ class StatementController extends BaseController
                 if (!$loanId) {
                     throw new \Exception('ID pembiayaan tidak ditemui');
                 }
-                $account = $this->loan->getLoanById($loanId);
+                $account = $this->loan->getActiveLoansByMemberId($loanId);
                 if (!$account || $account['member_id'] !== $memberId) {
                     throw new \Exception('Akaun pembiayaan tidak dijumpai');
                 }
@@ -300,6 +271,45 @@ class StatementController extends BaseController
             header('Location: /users/statements');
             exit;
         }
+    }
+
+    public function selection()
+    {
+        // Get user's accounts
+        $memberId = $_SESSION['member_id'];
+        $account = $this->saving->getSavingsAccount($memberId);
+        $loans = $this->loan->getActiveLoansByMemberId($memberId);
+
+        // Get period from query params or set default
+        $period = $_GET['period'] ?? 'today';
+        $year = $_GET['year'] ?? date('Y');
+        $accountType = $_GET['account_type'] ?? 'savings';
+
+        // Set default dates
+        $today = date('Y-m-d');
+        $startDate = $_GET['start_date'] ?? $today;
+        $endDate = $_GET['end_date'] ?? $today;
+
+        // Get transactions based on period
+        $transactions = $this->saving->getTransactionsByDateRange(
+            $account['id'],
+            $startDate,
+            $endDate
+        );
+
+        // Load view with data
+        $data = [
+            'account' => $account,
+            'loans' => $loans,
+            'transactions' => $transactions,
+            'period' => $period,
+            'year' => $year,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'accountType' => $accountType,
+        ];
+
+        $this->view('users/statement/selection', $data);
     }
 
     private function calculateDateRange($period, $year)

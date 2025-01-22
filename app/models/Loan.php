@@ -86,19 +86,6 @@ class Loan extends BaseModel
         }
     }
 
-    public function getLoanById($id)
-    {
-        try {
-            $sql = "SELECT * FROM pendingloans WHERE id = :id";
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':id' => $id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal mendapatkan maklumat pembiayaan');
-        }
-    }
-
     public function getPendingLoansByMemberId($memberId)
     {
         try {
