@@ -98,6 +98,53 @@ class Loan extends BaseModel
             throw new \Exception('Gagal mendapatkan maklumat pembiayaan');
         }
     }
+
+    public function getPendingLoansByMemberId($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM pendingloans 
+                    WHERE member_id = :member_id 
+                    AND status = 'pending'
+                    ORDER BY date_received DESC";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai pembiayaan dalam proses');
+        }
+    }
+
+    public function getActiveLoansByMemberId($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM loans 
+                    WHERE member_id = :member_id 
+                    AND status = 'active'
+                    ORDER BY approved_at DESC";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai pembiayaan aktif');
+        }
+    }
+
+    public function getRejectedLoansByMemberId($memberId)
+    {
+        try {
+            $sql = "SELECT * FROM rejectedloans 
+                    WHERE member_id = :member_id 
+                    ORDER BY rejected_at DESC";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai pembiayaan ditolak');
+        }
+    }
 }
 
 

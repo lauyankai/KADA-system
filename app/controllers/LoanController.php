@@ -103,17 +103,30 @@ class LoanController extends BaseController
 
     public function showStatus()
     {
-        if (!isset($_SESSION['member_id'])) {
-            $_SESSION['error'] = 'Sila log masuk untuk melihat status';
-            header('Location: /auth/login');
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            
+            // Get all types of loans
+            $pendingLoans = $this->loan->getPendingLoansByMemberId($memberId);
+            $activeLoans = $this->loan->getActiveLoansByMemberId($memberId);
+            $rejectedLoans = $this->loan->getRejectedLoansByMemberId($memberId);
+
+            $this->view('users/loans/status', [
+                'pendingLoans' => $pendingLoans,
+                'activeLoans' => $activeLoans,
+                'rejectedLoans' => $rejectedLoans
+            ]);
+
+        } catch (\Exception $e) {
+            error_log('Error in showStatus: ' . $e->getMessage());
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/dashboard');
             exit;
         }
-
-        $loans = $this->loan->getLoansByMemberId($_SESSION['member_id']);
-        
-        $this->view('users/loans/status', [
-            'loans' => $loans
-        ]);
     }
 
     public function showDetails($id)
