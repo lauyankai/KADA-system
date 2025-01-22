@@ -14,7 +14,7 @@
                             <h4 class="mb-1 text-primary">Penyata Akaun</h4>
                             <p class="text-muted mb-0">Lihat dan muat turun penyata akaun anda</p>
                         </div>
-                        <a href="/users/statements" class="btn btn-outline-secondary">
+                        <a href="/users" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>
@@ -86,8 +86,12 @@
                                                 <tr>
                                                     <td><?= $index = ($index ?? 0) + 1; ?></td>
                                                     <td><?= htmlspecialchars($loan['loan_type']) ?></td>
-                                                    <td><?= htmlspecialchars($loan['reference_no']) ?></td>
-                                                    <td>RM<?= number_format($loan['amount'] ?? 0, 2) ?></td>
+                                                    <td><a href="/users/statements/loans" 
+                                                               class="text-primary text-decoration-none">
+                                                                <?= htmlspecialchars($loan['reference_no']) ?>
+                                                                <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                                                            </a></td>
+                                                    <td>RM<?= number_format($loan['remaining_amount'] ?? 0, 2) ?></td>
                                                     <td><span class="badge bg-success">Aktif</span></td>
                                                 </tr>
                                             <?php endforeach; ?>

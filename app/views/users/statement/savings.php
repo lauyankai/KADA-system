@@ -1,5 +1,5 @@
 <?php 
-    $title = 'Penyata Akaun';
+    $title = 'Penyata Pembiayaan';
     require_once '../app/views/layouts/header.php';
 ?>
 
@@ -11,10 +11,10 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1 text-primary">Penyata Akaun</h4>
-                            <p class="text-muted mb-0">Lihat dan muat turun penyata akaun anda</p>
+                            <h4 class="mb-1 text-primary">Penyata Pembiayaan</h4>
+                            <p class="text-muted mb-0">Lihat dan muat turun penyata pembiayaan anda</p>
                         </div>
-                        <a href="/users" class="btn btn-outline-secondary">
+                        <a href="/users/statements" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>

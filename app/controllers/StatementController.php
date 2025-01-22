@@ -18,7 +18,170 @@ class StatementController extends BaseController
 
     public function index()
     {
-        $this->view('users/statement/index');
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            
+            // Get savings account
+            $account = $this->saving->getSavingsAccount($memberId);
+            
+            // Get active loans with remaining amount
+            $loans = $this->loan->getActiveLoansByMemberId($memberId);
+            
+            // Calculate remaining amount for each loan
+            if ($loans) {
+                foreach ($loans as &$loan) {
+                    // Get total paid amount for this loan
+                    $totalPaid = $this->loan->getTotalPaidAmount($loan['id']);
+                    
+                    // Calculate remaining amount
+                    $loan['remaining_amount'] = $loan['amount'] - $totalPaid;
+                }
+            }
+            
+            $this->view('users/statement/index', [
+                'account' => $account,
+                'loans' => $loans
+            ]);
+
+        } catch (\Exception $e) {
+            error_log('Error in statement index: ' . $e->getMessage());
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users');
+            exit;
+        }
+    }
+
+    public function savings()
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            
+            // Get account type and period from query parameters, with defaults
+            $accountType = $_GET['account_type'] ?? 'savings';
+            $period = $_GET['period'] ?? 'today';
+            $year = $_GET['year'] ?? date('Y');
+
+            // Calculate dates based on period
+            $dateRange = $this->calculateDateRange($period, $year);
+            $startDate = $dateRange['start'];
+            $endDate = $dateRange['end'];
+
+            // Get savings account
+            $account = $this->saving->getSavingsAccount($memberId);
+            if (!$account) {
+                throw new \Exception('Akaun simpanan tidak dijumpai');
+            }
+            
+            // Get transactions for savings account
+            $transactions = $this->saving->getTransactionsByDateRange(
+                $account['id'], 
+                $startDate, 
+                $endDate
+            );
+            
+            // Calculate opening balance for savings account
+            $currentBalance = $account['current_amount'] ?? 0;
+            $openingBalance = $currentBalance;
+            
+            foreach ($transactions as $trans) {
+                if (in_array($trans['type'], ['deposit', 'transfer_in'])) {
+                    $openingBalance -= $trans['amount'];
+                } else {
+                    $openingBalance += $trans['amount'];
+                }
+            }
+
+            $this->view('users/statement/savings', [
+                'accountType' => $accountType,
+                'account' => $account,
+                'transactions' => $transactions,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'period' => $period,
+                'year' => $year,
+                'openingBalance' => $openingBalance
+            ]);
+        } catch (\Exception $e) {
+            error_log('Error in statement index: ' . $e->getMessage());
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users');
+            exit;
+        }
+    }
+
+    public function loans()
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            
+            // Get account type and period from query parameters, with defaults
+            $accountType = $_GET['account_type'] ?? 'savings';
+            $period = $_GET['period'] ?? 'today';
+            $year = $_GET['year'] ?? date('Y');
+
+            // Calculate dates based on period
+            $dateRange = $this->calculateDateRange($period, $year);
+            $startDate = $dateRange['start'];
+            $endDate = $dateRange['end'];
+
+            // Get savings account
+            $account = $this->saving->getSavingsAccount($memberId);
+            if (!$account) {
+                throw new \Exception('Akaun simpanan tidak dijumpai');
+            }
+            
+            // Get transactions for savings account
+            $transactions = $this->saving->getTransactionsByDateRange(
+                $account['id'], 
+                $startDate, 
+                $endDate
+            );
+            
+            // Calculate opening balance for savings account
+            $currentBalance = $account['current_amount'] ?? 0;
+            $openingBalance = $currentBalance;
+            
+            foreach ($transactions as $trans) {
+                if (in_array($trans['type'], ['deposit', 'transfer_in'])) {
+                    $openingBalance -= $trans['amount'];
+                } else {
+                    $openingBalance += $trans['amount'];
+                }
+            }
+
+            // Get active loans
+            $loans = $this->loan->getActiveLoansByMemberId($memberId);
+            
+            $this->view('users/statement/loans', [
+                'accountType' => $accountType,
+                'account' => $account,
+                'loans' => $loans,
+                'transactions' => $transactions,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'period' => $period,
+                'year' => $year,
+                'openingBalance' => $openingBalance
+            ]);
+
+        } catch (\Exception $e) {
+            error_log('Error in statement index: ' . $e->getMessage());
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users');
+            exit;
+        }
     }
 
     public function download()
@@ -207,73 +370,6 @@ class StatementController extends BaseController
             error_log('PDF Generation Error: ' . $e->getMessage());
             $_SESSION['error'] = 'Ralat menjana PDF: ' . $e->getMessage();
             header('Location: /users/statements');
-            exit;
-        }
-    }
-
-    public function savings()
-    {
-        try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
-            }
-
-            $memberId = $_SESSION['member_id'];
-            
-            // Get account type and period from query parameters, with defaults
-            $accountType = $_GET['account_type'] ?? 'savings';
-            $period = $_GET['period'] ?? 'today';
-            $year = $_GET['year'] ?? date('Y');
-
-            // Calculate dates based on period
-            $dateRange = $this->calculateDateRange($period, $year);
-            $startDate = $dateRange['start'];
-            $endDate = $dateRange['end'];
-
-            // Get savings account
-            $account = $this->saving->getSavingsAccount($memberId);
-            if (!$account) {
-                throw new \Exception('Akaun simpanan tidak dijumpai');
-            }
-            
-            // Get transactions for savings account
-            $transactions = $this->saving->getTransactionsByDateRange(
-                $account['id'], 
-                $startDate, 
-                $endDate
-            );
-            
-            // Calculate opening balance for savings account
-            $currentBalance = $account['current_amount'] ?? 0;
-            $openingBalance = $currentBalance;
-            
-            foreach ($transactions as $trans) {
-                if (in_array($trans['type'], ['deposit', 'transfer_in'])) {
-                    $openingBalance -= $trans['amount'];
-                } else {
-                    $openingBalance += $trans['amount'];
-                }
-            }
-
-            // Get active loans
-            $loans = $this->loan->getActiveLoansByMemberId($memberId);
-            
-            $this->view('users/statement/savings', [
-                'accountType' => $accountType,
-                'account' => $account,
-                'loans' => $loans,
-                'transactions' => $transactions,
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'period' => $period,
-                'year' => $year,
-                'openingBalance' => $openingBalance
-            ]);
-
-        } catch (\Exception $e) {
-            error_log('Error in statement index: ' . $e->getMessage());
-            $_SESSION['error'] = $e->getMessage();
-            header('Location: /users');
             exit;
         }
     }

@@ -58,6 +58,25 @@ class Loan extends BaseModel
         }
     }
 
+    public function getTotalPaidAmount($loanId)
+    {
+        try {
+            $sql = "SELECT COALESCE(SUM(payment_amount), 0) as total_paid 
+                    FROM loan_payments 
+                    WHERE loan_id = :loan_id";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':loan_id' => $loanId]);
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return floatval($result['total_paid']);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan jumlah pembayaran');
+        }
+    }
+
     public function getTransactionsByDateRange($loanId, $startDate, $endDate)
     {
         try {
@@ -105,9 +124,16 @@ class Loan extends BaseModel
     public function getActiveLoansByMemberId($memberId)
     {
         try {
-            $sql = "SELECT * FROM loans 
-                    WHERE member_id = :member_id 
-                    ORDER BY approved_at DESC";
+            $sql = "SELECT l.*, 
+                    COALESCE(l.amount - IFNULL((
+                        SELECT SUM(lp.payment_amount) 
+                        FROM loan_payments lp 
+                        WHERE lp.loan_id = l.id
+                    ), 0), l.amount) as remaining_amount
+                    FROM loans l 
+                    WHERE l.member_id = :member_id 
+                    ORDER BY l.approved_at DESC";
+                    
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
