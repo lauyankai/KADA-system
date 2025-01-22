@@ -25,7 +25,7 @@
                     <i class="bi bi-list-check me-2"></i>Status Pembiayaan
                 </h4>
                 <div>
-                    <a href="/users/dashboard" class="btn btn-outline-secondary me-2">
+                    <a href="/users" class="btn btn-outline-secondary me-2">
                         <i class="bi bi-arrow-left me-2"></i>Kembali
                     </a>
                     <a href="/users/loans/request" class="btn btn-success">
