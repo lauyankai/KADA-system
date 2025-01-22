@@ -58,49 +58,7 @@ class SavingController extends BaseController
             $_SESSION['error'] = $e->getMessage();
         }
         
-        header('Location: /users/savings/page');
-        exit;
-    }
-
-    public function deleteAccount($id)
-    {
-        try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
-            }
-
-            if ($this->saving->deleteSavingsAccount($id)) {
-                $_SESSION['success'] = 'Akaun simpanan berjaya dipadam';
-            }
-
-        } catch (\Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-        }
-        
-        header('Location: /users/savings/page');
-        exit;
-    }
-
-    public function setMainAccount($id)
-    {
-        try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
-            }
-
-            $memberId = $_SESSION['member_id'];
-
-            if ($this->saving->setMainDisplayAccount($id, $memberId)) {
-                $_SESSION['success'] = 'Tetapan paparan berjaya dikemaskini';
-            } else {
-                throw new \Exception('Gagal mengemaskini tetapan paparan');
-            }
-
-        } catch (\Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-        }
-        
-        header('Location: /users/savings/page');
+        header('Location: /users/savings');
         exit;
     }
 
@@ -166,10 +124,8 @@ class SavingController extends BaseController
 
                 $memberId = $_SESSION['member_id'];
                 
-                // Get recurring payment data first
                 $recurringPayments = $this->saving->getRecurringPayments($memberId);
                 
-                // Get all required data for the page
                 $data = [
                     'member' => $this->user->getUserById($memberId),
                     'account' => $this->saving->getSavingsAccount($memberId),
@@ -185,7 +141,7 @@ class SavingController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/dashboard');
+                header('Location: /users');
                 exit;
             }
         }
@@ -319,7 +275,7 @@ class SavingController extends BaseController
                 $_SESSION['error'] = $e->getMessage();
             }
 
-            header('Location: /users/savings/page');
+            header('Location: /users/savings');
             exit;
         }
 
@@ -426,7 +382,7 @@ class SavingController extends BaseController
                 ]);
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
         }
@@ -472,7 +428,7 @@ class SavingController extends BaseController
                 $_SESSION['error'] = $e->getMessage();
             }
             
-            header('Location: /users/savings/page');
+            header('Location: /users/savings');
             exit;
         }
 
@@ -497,7 +453,7 @@ class SavingController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /KADA-system/users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
         }
@@ -557,12 +513,12 @@ class SavingController extends BaseController
                 }
 
                 $_SESSION['success'] = 'Pemindahan berjaya dilakukan';
-                header('Location: /KADA-system/users/savings/page');
+                header('Location: /users/savings');
                 exit;
                 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /KADA-system/users/savings/transfer');
+                header('Location: /users/savings/transfer');
                 exit;
             }
         }
@@ -588,7 +544,7 @@ class SavingController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
         }
@@ -652,7 +608,7 @@ class SavingController extends BaseController
                 $_SESSION['error'] = $e->getMessage();
             }
 
-            header('Location: /users/savings/page');
+            header('Location: /users/savings');
             exit;
         }
 
@@ -705,39 +661,14 @@ class SavingController extends BaseController
                     throw new \Exception('Gagal memadam sasaran simpanan');
                 }
 
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
-        }
-
-        public function storeAccount()
-        {
-            try {
-                $data = [
-                    'member_id' => $_SESSION['admin_id'],
-                    'account_name' => $_POST['account_name'],
-                    'initial_amount' => $_POST['initial_amount'] ?? 0,
-                    'status' => 'active'
-                ];
-
-                $accountId = $this->user->createNewSavingsAccount($data);
-                if ($accountId) {
-                    $_SESSION['success'] = 'Akaun baru berjaya ditambah';
-                } else {
-                    throw new \Exception('Gagal menambah akaun baru');
-                }
-
-            } catch (\Exception $e) {
-                $_SESSION['error'] = $e->getMessage();
-            }
-
-            header('Location: /users/accounts/accountList');
-            exit();
         }
 
         public function showReceipt($referenceNo)
@@ -766,7 +697,7 @@ class SavingController extends BaseController
             } catch (\Exception $e) {
                 error_log('Error in showReceipt: ' . $e->getMessage());
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
         }
@@ -791,7 +722,7 @@ class SavingController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
         }
@@ -814,7 +745,7 @@ class SavingController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
         }
@@ -836,7 +767,7 @@ class SavingController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
         }
@@ -867,7 +798,7 @@ class SavingController extends BaseController
                     throw new \Exception('Gagal mengemaskini sasaran simpanan');
                 }
 
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
 
             } catch (\Exception $e) {
@@ -888,7 +819,7 @@ class SavingController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
         }
@@ -923,7 +854,7 @@ class SavingController extends BaseController
 
                 if ($this->saving->createSavingsGoal($data)) {
                     $_SESSION['success'] = 'Sasaran simpanan berjaya ditambah';
-                    header('Location: /users/savings/page');
+                    header('Location: /users/savings');
                     exit;
                 }
 
@@ -954,7 +885,7 @@ class SavingController extends BaseController
                     $transactions = $this->saving->getTransactionHistory($account['id']);
                 }
                 
-                $this->view('users/savings/page', [
+                $this->view('users/savings', [
                     'account' => $account,
                     'goals' => $goals,
                     'transactions' => $transactions
@@ -962,7 +893,7 @@ class SavingController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/dashboard');
+                header('Location: /users');
                 exit;
             }
         }
@@ -1011,7 +942,7 @@ class SavingController extends BaseController
             } catch (\Exception $e) {
                 error_log('Error in makeDeposit: ' . $e->getMessage());
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/page');
+                header('Location: /users/savings');
                 exit;
             }
         }
@@ -1085,12 +1016,12 @@ class SavingController extends BaseController
                 }
 
                 $_SESSION['success'] = 'Pemindahan berjaya dilakukan';
-                header('Location: /KADA-system/users/savings/page');
+                header('Location: /users/savings');
                 exit;
                 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /KADA-system/users/savings/transfer');
+                header('Location: /users/savings/transfer');
                 exit;
             }
         }

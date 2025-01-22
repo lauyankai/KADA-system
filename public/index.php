@@ -98,7 +98,7 @@ $router = new App\Core\Router();
 
     // User routes -- Savings Routes
         $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
-        $router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
+        $router->addRoute('GET', '/users/savings', 'SavingController', 'savingsDashboard');
         $router->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositForm');
         $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
         $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferForm');
