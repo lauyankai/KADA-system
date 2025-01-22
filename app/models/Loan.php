@@ -120,7 +120,6 @@ class Loan extends BaseModel
         try {
             $sql = "SELECT * FROM loans 
                     WHERE member_id = :member_id 
-                    AND status = 'active'
                     ORDER BY approved_at DESC";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);

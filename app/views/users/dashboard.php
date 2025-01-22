@@ -61,8 +61,8 @@
                         <div>
                             <h6 class="text-muted mb-1">Status Pembiayaan</h6>
                             <h4 class="mb-0">
-                                <?php if (isset($activeLoan)): ?>
-                                    RM <?= number_format($activeLoan->amount, 2) ?>
+                                <?php if (isset($activeLoans)): ?>
+                                    RM <?= number_format($activeLoans->amount, 2) ?>
                                 <?php else: ?>
                                     Tiada Pembiayaan Aktif
                                 <?php endif; ?>
