@@ -135,7 +135,7 @@ $router = new App\Core\Router();
         // User routes --Statements
         $router->addRoute('GET', '/users/statements', 'StatementController', 'index');
         $router->addRoute('GET', '/users/statements/download', 'StatementController', 'download');
-        $router->addRoute('GET', '/users/statements/selection', 'StatementController', 'selection');
+        $router->addRoute('GET', '/users/statements/savings', 'StatementController', 'savings');
 
         // User routes --Loan Info
         $router->addRoute('GET', '/users/info/loantype', 'InfoController', 'showLoanTypes');
