@@ -16,6 +16,12 @@
                             <div class="alert alert-danger">
                                 <i class="bi bi-exclamation-circle me-2"></i>
                                 <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+                                <hr>
+                                <p class="mb-0">Belum menjadi ahli? 
+                                    <a href="/guest/create" class="alert-link">
+                                        Daftar sebagai ahli sekarang
+                                    </a>
+                                </p>
                             </div>
                         <?php endif; ?>
 
@@ -51,6 +57,15 @@
                             </a>
                         </div>
                     </form>
+
+                    <!-- Registration Link -->
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Belum mendaftar? 
+                            <a href="/guest/create" class="text-success fw-bold">
+                                Daftar sebagai ahli
+                            </a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

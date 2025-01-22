@@ -57,6 +57,13 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Add Back Button -->
+                    <div class="text-center mt-4">
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Kembali ke Halaman Utama
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
