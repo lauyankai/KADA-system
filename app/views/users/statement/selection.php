@@ -60,35 +60,41 @@
                             </div>
                         </div>
                         <!-- Loan Accounts Selection -->
-                    <?php if (!empty($loans)): ?>
-                        <div class="mt-4">
-                            <h5 class="mb-3">Senarai Akaun Pembiayaan</h5>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>No.</th>
-                                            <th>Jenis Pembiayaan</th>
-                                            <th>No. Rujukan</th>
-                                            <th>Jumlah Pembiayaan</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($loans as $loan): ?>
+                        <?php if (!empty($loans)): ?>
+                            <div class="mt-4">
+                                <h5 class="mb-3">Senarai Akaun Pembiayaan</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
                                             <tr>
-                                                <td><?= $loop_index = isset($loop_index) ? $loop_index + 1 : 1; ?></td>
-                                                <td><?= htmlspecialchars($loan['loan_type']) ?></td>
-                                                <td><?= htmlspecialchars($loan['reference_no']) ?></td>
-                                                <td>RM<?= number_format($loan['amount'] ?? 0, 2) ?></td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
+                                                <th>No.</th>
+                                                <th>Jenis Pembiayaan</th>
+                                                <th>No. Rujukan</th>
+                                                <th>Jumlah Pembiayaan</th>
+                                                <th>Status</th>
                                             </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($loans as $loan): ?>
+                                                <tr>
+                                                    <td><?= $index = ($index ?? 0) + 1; ?></td>
+                                                    <td><?= htmlspecialchars($loan['loan_type']) ?></td>
+                                                    <td><?= htmlspecialchars($loan['reference_no']) ?></td>
+                                                    <td>RM<?= number_format($loan['amount'] ?? 0, 2) ?></td>
+                                                    <td><span class="badge bg-success">Aktif</span></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
+                        <?php endif; ?>
+                        <div class="mt-4">
+                            <p class="text-muted fst-italic">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Jika tidak dapat melihat akaun anda, sila hubungi kakitangan kami untuk bantuan.
+                            </p>
                         </div>
-                    <?php endif; ?>
                     </form>
                 </div>
             </div>
@@ -97,7 +103,6 @@
 </div>
 
 <style>
-/* Enhanced Styles */
 .card {
     border-radius: 0.75rem;
     transition: transform 0.2s;
@@ -105,24 +110,6 @@
 
 .card:hover {
     transform: translateY(-2px);
-}
-
-.form-label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0.5rem;
-}
-
-.form-select, .form-control {
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.form-select:focus, .form-control:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.15);
 }
 
 .btn {
@@ -138,7 +125,7 @@
 
 .table {
     font-size: 0.95rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .table thead th {
@@ -155,91 +142,20 @@
     vertical-align: middle;
 }
 
-.table-light {
-    background-color: rgba(248,249,250,0.5) !important;
-}
-
 .text-success {
     color: #198754 !important;
-}
-
-.text-danger {
-    color: #dc3545 !important;
 }
 
 .shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075) !important;
 }
-
-/* Compact Styles */
-.form-select, .form-control {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.9rem;
-}
-
-.btn {
-    padding: 0.4rem 1rem;
-    font-size: 0.9rem;
-}
-
-.form-label {
-    font-size: 0.9rem;
-    color: #495057;
-}
-
-.statement-form {
-    background-color: #f8f9fa;
-    border-radius: 0.5rem;
-}
-
-/* Reduce spacing */
-.row {
-    --bs-gutter-y: 0.5rem;
-}
 </style>
 
 <script>
-function updateDates(period) {
-    const customDateRange = document.getElementById('customDateRange');
-    if (period === 'custom') {
-        customDateRange.style.display = 'block';
-        yearSelection.style.display = 'none';
-
-    } else if (period === 'yearly') {
-        customDateRange.style.display = 'none';
-        yearSelection.style.display = 'block';
-    } else {
-        customDateRange.style.display = 'none';
-        yearSelection.style.display = 'none';
-
-        
-        const today = new Date();
-        let startDate, endDate;
-        
-        switch(period) {
-            case 'today':
-                startDate = today;
-                endDate = today;
-                break;
-            case 'current':
-                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                endDate = today;
-                break;
-            case 'last':
-                startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                endDate = new Date(today.getFullYear(), today.getMonth(), 0);
-                break;
-        }
-        
-        document.querySelector('input[name="start_date"]').value = startDate.toISOString().split('T')[0];
-        document.querySelector('input[name="end_date"]').value = endDate.toISOString().split('T')[0];
-    }
-}
-
-// Set default period to 'today' when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    updateDates('today');
-});
+    // Set default period to 'today' when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDates('today');
+    });
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>
