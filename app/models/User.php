@@ -144,38 +144,48 @@ class User extends BaseModel
     public function getRecentActivities($memberId, $limit = 5)
     {
         try {
-            $sql = "SELECT 
+            $sql = "(SELECT 
                     'savings' as type,
-                    st.transaction_type as action,
+                    st.type as action,
                     st.amount,
                     st.created_at,
                     CASE 
-                        WHEN st.transaction_type = 'deposit' THEN 'Deposit ke akaun simpanan'
-                        WHEN st.transaction_type = 'withdrawal' THEN 'Pengeluaran dari akaun simpanan'
-                        WHEN st.transaction_type = 'transfer' THEN 'Pemindahan wang'
+                        WHEN st.type = 'deposit' THEN 'Deposit ke akaun simpanan'
+                        WHEN st.type = 'withdrawal' THEN 'Pengeluaran dari akaun simpanan'
+                        WHEN st.type = 'transfer_in' THEN 'Pemindahan masuk'
+                        WHEN st.type = 'transfer_out' THEN 'Pemindahan keluar'
                         ELSE 'Transaksi simpanan'
                     END as description
                 FROM savings_transactions st
                 JOIN savings_accounts sa ON st.savings_account_id = sa.id
-                WHERE sa.member_id = :member_id
+                WHERE sa.member_id = :member_id)
                 
                 UNION ALL
                 
-                SELECT 
+                (SELECT 
                     'loan' as type,
-                    status as action,
-                    amount,
-                    created_at,
-                    CONCAT('Permohonan pembiayaan ', 
-                        CASE 
-                            WHEN status = 'pending' THEN 'sedang diproses'
-                            WHEN status = 'approved' THEN 'telah diluluskan'
-                            WHEN status = 'rejected' THEN 'telah ditolak'
-                            ELSE status
-                        END
-                    ) as description
-                FROM loans
-                WHERE member_id = :member_id
+                    CASE 
+                        WHEN pl.id IS NOT NULL THEN 'pending'
+                        WHEN l.id IS NOT NULL THEN 'active'
+                        WHEN rl.id IS NOT NULL THEN 'rejected'
+                    END as action,
+                    COALESCE(pl.amount, l.amount, rl.amount) as amount,
+                    COALESCE(pl.date_received, l.approved_at, rl.rejected_at) as created_at,
+                    CASE 
+                        WHEN pl.id IS NOT NULL THEN 'Permohonan pembiayaan sedang diproses'
+                        WHEN l.id IS NOT NULL THEN 'Permohonan pembiayaan telah diluluskan'
+                        WHEN rl.id IS NOT NULL THEN CONCAT('Permohonan pembiayaan ditolak: ', rl.remarks)
+                    END as description
+                FROM (
+                    SELECT member_id, id FROM pendingloans WHERE member_id = :member_id
+                    UNION ALL 
+                    SELECT member_id, id FROM loans WHERE member_id = :member_id
+                    UNION ALL
+                    SELECT member_id, id FROM rejectedloans WHERE member_id = :member_id
+                ) all_loans
+                LEFT JOIN pendingloans pl ON pl.id = all_loans.id
+                LEFT JOIN loans l ON l.id = all_loans.id
+                LEFT JOIN rejectedloans rl ON rl.id = all_loans.id)
                 
                 ORDER BY created_at DESC
                 LIMIT :limit";
