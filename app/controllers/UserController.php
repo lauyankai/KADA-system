@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\User;
 use App\Models\Saving;
+use App\Models\Loan;
 
 class UserController extends BaseController
 {
@@ -21,16 +22,26 @@ class UserController extends BaseController
     {
         try {
             if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses dashboard');
+                header('Location: /auth/login');
+                exit;
             }
 
             $memberId = $_SESSION['member_id'];
-            error_log('Dashboard - Member ID: ' . $memberId);
-            
-            // Get member details
             $member = $this->user->getUserById($memberId);
-            if (!$member) {
-                throw new \Exception('Maklumat ahli tidak dijumpai');
+            
+            // Get savings account
+            $savingsAccount = $this->saving->getSavingsAccount($memberId);
+            $totalSavings = $savingsAccount ? $savingsAccount['current_amount'] : 0;
+            
+            // Get active loans and calculate total loan amount
+            $loan = new Loan();
+            $activeLoans = $loan->getActiveLoansByMemberId($memberId);
+            $totalLoanAmount = 0;
+            
+            if (!empty($activeLoans)) {
+                foreach ($activeLoans as $activeLoan) {
+                    $totalLoanAmount += $activeLoan['amount'];
+                }
             }
 
             $totalSavings = $this->saving->getTotalSavings($memberId);
@@ -38,12 +49,15 @@ class UserController extends BaseController
 
             $this->view('users/dashboard', [
                 'member' => $member,
+                'savingsAccount' => $savingsAccount,
+                'activeLoans' => $activeLoans,
                 'totalSavings' => $totalSavings,
+                'totalLoanAmount' => $totalLoanAmount,
                 'recentActivities' => $recentActivities
             ]);
 
         } catch (\Exception $e) {
-            error_log('Error in dashboard: ' . $e->getMessage());
+            error_log('Dashboard Error: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
             header('Location: /auth/login');
             exit;

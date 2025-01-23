@@ -76,7 +76,7 @@
                                     <td><?= number_format($loan['amount'], 2) ?></td>
                                     <td><?= htmlspecialchars($loan['duration']) ?> bulan</td>
                                     <td><?= number_format($loan['monthly_payment'], 2) ?></td>
-                                    <td><?= date('d/m/Y', strtotime($loan['approved_date'])) ?></td>
+                                    <td><?= date('d/m/Y', strtotime($loan['approved_at'])) ?></td>
                                     <td><span class="badge bg-success">Aktif</span></td>
                                     <td>
                                         <a href="/users/loans/details/<?= $loan['id'] ?>" 
