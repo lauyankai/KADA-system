@@ -45,6 +45,56 @@
     </div>
 </div>
 
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <h2 class="mb-4">Laporan Tahunan</h2>
+            <p class="text-muted mb-5">Akses laporan tahunan koperasi untuk mendapatkan maklumat terperinci tentang prestasi dan perkembangan kami.</p>
+        </div>
+    </div>
+
+    <?php if (!empty($annualReports)): ?>
+        <div class="row g-4">
+            <?php foreach ($annualReports as $report): ?>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-file-earmark-pdf text-danger fs-3 me-3"></i>
+                                <div>
+                                    <h5 class="card-title mb-1"><?= htmlspecialchars($report['title']) ?></h5>
+                                    <p class="text-muted small mb-0">Tahun <?= htmlspecialchars($report['year']) ?></p>
+                                </div>
+                            </div>
+                            <?php if (!empty($report['description'])): ?>
+                                <p class="card-text small text-muted"><?= htmlspecialchars($report['description']) ?></p>
+                            <?php endif; ?>
+                            <div class="mt-3">
+                                <a href="<?= htmlspecialchars($report['file_path']) ?>" 
+                                   class="btn btn-outline-primary btn-sm" 
+                                   target="_blank">
+                                    <i class="bi bi-download me-2"></i>Muat Turun
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>
+                                <?= date('d/m/Y', strtotime($report['uploaded_at'])) ?>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <div class="text-center text-muted">
+            <i class="bi bi-info-circle fs-3 mb-3"></i>
+            <p>Tiada laporan tahunan pada masa ini.</p>
+        </div>
+    <?php endif; ?>
+</div>
+
 <div class="quick-links">
     <div class="container">
         <div class="row">
@@ -355,5 +405,24 @@
         document.getElementById('monthlyPayment').textContent = monthlyPayment.toFixed(2);
     });
 </script>
+
+<style>
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.bi-file-earmark-pdf {
+    font-size: 2rem;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+</style>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 
