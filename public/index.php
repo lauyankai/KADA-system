@@ -124,7 +124,7 @@ $router = new App\Core\Router();
         // User routes -- Savings Recurring
         $router->addRoute('GET', '/users/savings/recurring/edit', 'SavingController', 'editRecurringPayment');
         // $router->addRoute('POST', '/users/savings/recurring/update', 'SavingController', 'updateRecurringPayment');
-        $router->addRoute('POST', '/users/savings/recurring', 'SavingController', 'storeRecurringPayment');
+        $router->addRoute('POST', '/users/savings/recurring/store', 'SavingController', 'storeRecurringPayment');
 
         // User routes --Loans
         $router->addRoute('GET', '/users/loans/request', 'LoanController', 'showRequest');
