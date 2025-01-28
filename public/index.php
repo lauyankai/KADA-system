@@ -122,10 +122,9 @@ $router = new App\Core\Router();
         $router->addRoute('POST', '/users/savings/goals/delete/{id}', 'SavingController', 'deleteGoal');
         
         // User routes -- Savings Recurring
-        $router->addRoute('GET', '/users/savings/recurring', 'SavingController', 'showRecurringPayment');
         $router->addRoute('GET', '/users/savings/recurring/edit', 'SavingController', 'editRecurringPayment');
-        $router->addRoute('POST', '/users/savings/recurring/update', 'SavingController', 'updateRecurringPayment');
-        $router->addRoute('POST', '/users/savings/storeRecurringPayment', 'SavingController', 'storeRecurringPayment');
+        // $router->addRoute('POST', '/users/savings/recurring/update', 'SavingController', 'updateRecurringPayment');
+        $router->addRoute('POST', '/users/savings/recurring', 'SavingController', 'storeRecurringPayment');
 
         // User routes --Loans
         $router->addRoute('GET', '/users/loans/request', 'LoanController', 'showRequest');

@@ -279,31 +279,31 @@ class SavingController extends BaseController
             exit;
         }
 
-        public function showRecurringSettings()
-        {
-            try {
-                $memberId = $_SESSION['admin_id'];
+        // public function showRecurringSettings()
+        // {
+        //     try {
+        //         $memberId = $_SESSION['admin_id'];
                 
-                // Only try to get recurring payment if table exists
-                try {
-                    $recurringPayment = $this->user->getRecurringPayment($memberId);
-                } catch (\PDOException $e) {
-                    // If table doesn't exist, just set payment to null
-                    $recurringPayment = null;
-                    error_log('Recurring payments table may not exist: ' . $e->getMessage());
-                }
+        //         // Only try to get recurring payment if table exists
+        //         try {
+        //             $recurringPayment = $this->user->getRecurringPayment($memberId);
+        //         } catch (\PDOException $e) {
+        //             // If table doesn't exist, just set payment to null
+        //             $recurringPayment = null;
+        //             error_log('Recurring payments table may not exist: ' . $e->getMessage());
+        //         }
                 
-                $this->view('users/recurring', [
-                    'recurringPayment' => $recurringPayment
-                ]);
-            } catch (\Exception $e) {
-                // Only show user-friendly error messages
-                $_SESSION['error'] = 'Maaf, terdapat masalah teknikal. Sila cuba sebentar lagi.';
-                $this->view('users/recurring', [
-                    'recurringPayment' => null
-                ]);
-            }
-        }
+        //         $this->view('users/recurring', [
+        //             'recurringPayment' => $recurringPayment
+        //         ]);
+        //     } catch (\Exception $e) {
+        //         // Only show user-friendly error messages
+        //         $_SESSION['error'] = 'Maaf, terdapat masalah teknikal. Sila cuba sebentar lagi.';
+        //         $this->view('users/recurring', [
+        //             'recurringPayment' => null
+        //         ]);
+        //     }
+        // }
 
         public function storeRecurringPayment()
         {
