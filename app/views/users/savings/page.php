@@ -468,7 +468,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h5 class="modal-title">Tetapan Bayaran Berulang</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/users/savings/recurring/store" method="POST">
+            <form action="/users/savings/storeRecurringPayment" method="POST">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Jumlah Bulanan (RM)</label>

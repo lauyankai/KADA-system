@@ -175,7 +175,6 @@
 
                         <div class="row g-4">
                             <?php 
-                            // Get last 12 months
                             $months = [];
                             for ($i = 0; $i < 12; $i++) {
                                 $date = new DateTime();
@@ -279,7 +278,6 @@
     font-size: 0.9rem;
 }
 
-/* New styles for statement cards */
 .statement-card {
     background: #f8f9fa;
     transition: all 0.3s ease;

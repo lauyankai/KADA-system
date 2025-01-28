@@ -104,7 +104,6 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferForm');
         $router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
         $router->addRoute('POST', '/users/savings/goals', 'SavingController', 'createSavingsGoal');
-        $router->addRoute('POST', '/users/savings/recurring', 'SavingController', 'createRecurringPayment');
 
         // User routes --Receipts
         $router->addRoute('GET', '/payment/receipt/{referenceNo}', 'SavingController', 'showReceipt');
@@ -123,9 +122,11 @@ $router = new App\Core\Router();
         $router->addRoute('POST', '/users/savings/goals/delete/{id}', 'SavingController', 'deleteGoal');
         
         // User routes -- Savings Recurring
+        $router->addRoute('GET', '/users/savings/recurring', 'SavingController', 'showRecurringPayment');
         $router->addRoute('GET', '/users/savings/recurring/edit', 'SavingController', 'editRecurringPayment');
         $router->addRoute('POST', '/users/savings/recurring/update', 'SavingController', 'updateRecurringPayment');
-        
+        $router->addRoute('POST', '/users/savings/storeRecurringPayment', 'SavingController', 'storeRecurringPayment');
+
         // User routes --Loans
         $router->addRoute('GET', '/users/loans/request', 'LoanController', 'showRequest');
         $router->addRoute('POST', '/users/loans/submitRequest', 'LoanController', 'submitRequest');
