@@ -55,16 +55,25 @@ class AnnualReportController extends BaseController
                 return;
             }
 
-            // Verify admin session
-            if (!isset($_SESSION['admin_id'])) {
-                error_log('No admin_id in session');
-                throw new \Exception('Sila log masuk sebagai admin');
+            // Create upload directory if it doesn't exist
+            $uploadDir = dirname(__DIR__, 2) . '/public/uploads/annual-reports';
+            if (!file_exists($uploadDir)) {
+                if (!mkdir($uploadDir, 0755, true)) {
+                    throw new \Exception('Gagal membuat direktori muat naik');
+                }
             }
 
-            // Handle file upload
+            // Verify directory is writable
+            if (!is_writable($uploadDir)) {
+                chmod($uploadDir, 0755);
+                if (!is_writable($uploadDir)) {
+                    throw new \Exception('Direktori muat naik tidak boleh ditulis. Sila semak kebenaran direktori.');
+                }
+            }
+
+            // Validate file upload
             if (!isset($_FILES['report_file']) || $_FILES['report_file']['error'] !== UPLOAD_ERR_OK) {
-                error_log('File upload error: ' . ($_FILES['report_file']['error'] ?? 'No file uploaded'));
-                throw new \Exception('Sila pilih fail untuk dimuat naik');
+                throw new \Exception('Ralat semasa memuat naik fail');
             }
 
             $file = $_FILES['report_file'];
@@ -72,9 +81,12 @@ class AnnualReportController extends BaseController
             $description = $_POST['description'] ?? '';
 
             // Validate file type
-            error_log('File type: ' . $file['type']);
             $allowedTypes = ['application/pdf'];
-            if (!in_array($file['type'], $allowedTypes)) {
+            $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($fileInfo, $file['tmp_name']);
+            finfo_close($fileInfo);
+
+            if (!in_array($mimeType, $allowedTypes)) {
                 throw new \Exception('Hanya fail PDF dibenarkan');
             }
 
@@ -84,37 +96,33 @@ class AnnualReportController extends BaseController
                 throw new \Exception('Saiz fail terlalu besar. Had maksimum adalah 10MB');
             }
 
-            // Check if directory is writable
-            if (!is_writable($uploadDir)) {
-                error_log('Upload directory is not writable: ' . $uploadDir);
-                throw new \Exception('Direktori muat naik tidak boleh ditulis');
-            }
-
             // Generate unique filename
-            $filename = 'annual_report_' . $year . '_' . uniqid() . '.pdf';
-            $filepath = $uploadDir . $filename;
-            error_log('Upload path: ' . $filepath);
+            $fileName = 'annual_report_' . $year . '_' . uniqid() . '.pdf';
+            $filePath = $uploadDir . '/' . $fileName;
+            error_log('Upload path: ' . $filePath);
 
             // Move uploaded file
-            if (!move_uploaded_file($file['tmp_name'], $filepath)) {
-                error_log('Failed to move uploaded file. Error: ' . error_get_last()['message']);
-                throw new \Exception('Gagal memuat naik fail');
+            if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+                throw new \Exception('Gagal memindahkan fail yang dimuat naik');
             }
 
-            error_log('File uploaded successfully to: ' . $filepath);
+            error_log('File uploaded successfully to: ' . $filePath);
 
             // Save to database
             try {
-                $reportId = $this->annualReport->create([
+                $data = [
                     'year' => $year,
-                    'filename' => $filename,
+                    'title' => 'Laporan Tahunan ' . $year,
                     'description' => $description,
+                    'filename' => $fileName,
+                    'file_path' => '/uploads/annual-reports/' . $fileName,
                     'uploaded_by' => $_SESSION['admin_id']
-                ]);
+                ];
+                $reportId = $this->annualReport->create($data);
                 error_log('Annual report saved to database with ID: ' . $reportId);
             } catch (\Exception $e) {
                 // If database save fails, delete the uploaded file
-                unlink($filepath);
+                unlink($filePath);
                 throw $e;
             }
 

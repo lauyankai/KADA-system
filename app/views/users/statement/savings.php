@@ -23,6 +23,18 @@
         </div>
     </div>
 
+    <!-- Add this right after the header section card -->
+    <div class="row mb-3">
+        <div class="col-11">
+            <div class="d-md-1"> <!-- Only visible on mobile -->
+                <button type="button" class="btn btn-outline-primary btn-sm w-100" id="toggleView">
+                    <i class="bi bi-phone me-2"></i>
+                    <span class="toggle-text">Tukar ke Paparan Ringkas</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <div class="row">
         <div class="col-11">
@@ -138,16 +150,16 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr class="bg-light">
-                                    <th class="border-0">Tarikh</th>
-                                    <th class="border-0">Penerangan</th>
+                                    <th class="border-0 date-column">Tarikh</th>
+                                    <th class="border-0 desc-column">Penerangan</th>
                                     <?php if ($accountType === 'savings'): ?>
-                                        <th class="border-0 text-end">Debit (RM)</th>
-                                        <th class="border-0 text-end">Kredit (RM)</th>
+                                        <th class="border-0 text-end amount-column">Debit (RM)</th>
+                                        <th class="border-0 text-end amount-column">Kredit (RM)</th>
                                     <?php else: ?>
-                                        <th class="border-0 text-end">Bayaran (RM)</th>
-                                        <th class="border-0 text-end">Baki Pinjaman (RM)</th>
+                                        <th class="border-0 text-end amount-column">Bayaran (RM)</th>
+                                        <th class="border-0 text-end amount-column">Baki Pinjaman (RM)</th>
                                     <?php endif; ?>
-                                    <th class="border-0 text-end">Baki (RM)</th>
+                                    <th class="border-0 text-end balance-column">Baki (RM)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -313,6 +325,40 @@
 .row {
     --bs-gutter-y: 0.5rem;
 }
+
+/* Mobile view styles */
+@media (max-width: 768px) {
+    .table.simplified-view {
+        font-size: 0.85rem;
+    }
+    
+    .table.simplified-view .date-column,
+    .table.simplified-view .amount-column {
+        display: none;
+    }
+    
+    .table.simplified-view .desc-column {
+        width: 60%;
+    }
+    
+    .table.simplified-view .balance-column {
+        width: 40%;
+    }
+    
+    .table.simplified-view td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+/* Toggle button styles */
+.btn-outline-primary {
+    border-width: 1px;
+    font-size: 0.9rem;
+}
+
+.btn-outline-primary:focus {
+    box-shadow: none;
+}
 </style>
 
 <script>
@@ -356,6 +402,29 @@ function updateDates(period) {
 // Set default period to 'today' when page loads
 document.addEventListener('DOMContentLoaded', function() {
     updateDates('today');
+
+    // Mobile view toggle functionality
+    const toggleButton = document.getElementById('toggleView');
+    const table = document.querySelector('.table');
+    const toggleText = document.querySelector('.toggle-text');
+    let isSimplified = false;
+
+    if (toggleButton) {
+        toggleButton.addEventListener('click', function() {
+            isSimplified = !isSimplified;
+            table.classList.toggle('simplified-view');
+            
+            if (isSimplified) {
+                toggleText.textContent = 'Tukar ke Paparan Penuh';
+                toggleButton.classList.remove('btn-outline-primary');
+                toggleButton.classList.add('btn-primary');
+            } else {
+                toggleText.textContent = 'Tukar ke Paparan Ringkas';
+                toggleButton.classList.remove('btn-primary');
+                toggleButton.classList.add('btn-outline-primary');
+            }
+        });
+    }
 });
 </script>
 

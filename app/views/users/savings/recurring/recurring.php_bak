@@ -39,7 +39,7 @@
                         </ul>
                     </div>
 
-                    <form action="/admin/savings/recurring/store" method="POST" class="needs-validation" novalidate>
+                    <form action="/users/savings/storeRecurringPayment" method="POST" class="needs-validation" novalidate>
                         <!-- Amount Setting -->
                         <div class="mb-4">
                             <label class="form-label">Jumlah Potongan Bulanan (RM)</label>
