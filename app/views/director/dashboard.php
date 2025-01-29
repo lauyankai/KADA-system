@@ -128,7 +128,7 @@ error_log('Current session data: ' . print_r($_SESSION, true));
                     </div>
                     <div class="mt-2">
                         <small class="text-muted">
-                            <?= $approvedLoans ?> diluluskan daripada <?= $totalLoans ?> permohonan
+                            <?= $approvedLoans ?> diluluskan daripada <?= $totalLoans ?> permohonan tahun ini
                         </small>
                     </div>
                 </div>
