@@ -97,6 +97,10 @@
                         <label class="form-label">Catatan</label>
                         <textarea name="remarks" class="form-control" rows="3"></textarea>
                     </div>
+                    <!-- Add CSRF token if you're using it -->
+                    <?php if (isset($_SESSION['csrf_token'])): ?>
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <?php endif; ?>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>

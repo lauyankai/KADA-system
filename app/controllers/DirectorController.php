@@ -148,7 +148,7 @@ class DirectorController extends BaseController
             }
 
             if (!isset($_POST['loan_id']) || !isset($_POST['status'])) {
-                throw new \Exception('ID pembiayaan dan status diperlukan');
+                throw new \Exception('Data tidak lengkap');
             }
 
             $loanId = $_POST['loan_id'];
@@ -160,21 +160,29 @@ class DirectorController extends BaseController
                 throw new \Exception('Status tidak sah');
             }
 
-            $result = $this->director->updateLoanStatus($loanId, $status, $remarks);
-            if ($result) {
-                $_SESSION['success'] = 'Status pembiayaan telah dikemaskini';
+            $updateData = [
+                'id' => $loanId,
+                'status' => $status,
+                'remarks' => $remarks,
+                'updated_by' => $_SESSION['director_id'],
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            if ($this->director->updateLoanStatus($updateData)) {
+                $_SESSION['success'] = $status === 'approved' 
+                    ? 'Permohonan pembiayaan telah diluluskan' 
+                    : 'Permohonan pembiayaan telah ditolak';
             } else {
                 throw new \Exception('Gagal mengemaskini status pembiayaan');
             }
 
-            header('Location: /director/loans');
-            exit;
-
         } catch (\Exception $e) {
+            error_log('Error in updateLoanStatus: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /director/loans');
-            exit;
         }
+
+        header('Location: /director/loans');
+        exit;
     }
 
     public function showLoans()
