@@ -19,14 +19,24 @@ class Director extends BaseModel
             $stmt = $this->getConnection()->query($sql);
             $totalSavings = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-            // Total Loans
+            // Get loan statistics
             $sql = "SELECT 
-                    COUNT(*) as total_loans,
-                    SUM(amount) as total_amount,
-                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_loans
-                    FROM loans";
+                    (SELECT COUNT(*) FROM loans WHERE status = 'approved') as approved_loans,
+                    (SELECT COUNT(*) FROM rejectedloans) as rejected_count,
+                    (SELECT COUNT(*) FROM pendingloans WHERE status = 'pending') as pending_count,
+                    (SELECT SUM(amount) FROM loans WHERE status = 'approved') as total_amount";
+            
             $stmt = $this->getConnection()->query($sql);
             $loanStats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Calculate total loans (including all statuses)
+            $loanStats['total_loans'] = $loanStats['approved_loans'];
+            
+            // Ensure we have numeric values
+            $loanStats['approved_loans'] = (int)($loanStats['approved_loans'] ?? 0);
+            $loanStats['rejected_count'] = (int)($loanStats['rejected_count'] ?? 0);
+            $loanStats['pending_count'] = (int)($loanStats['pending_count'] ?? 0);
+            $loanStats['total_amount'] = (float)($loanStats['total_amount'] ?? 0);
 
             // New Members This Month
             $sql = "SELECT COUNT(*) as total FROM members 
@@ -108,6 +118,17 @@ class Director extends BaseModel
     public function getFinancialMetrics()
     {
         try {
+            // Add this temporary debug code at the start of getFinancialMetrics()
+            try {
+                $debugSql = "SELECT COUNT(*) as count, status FROM rejectedloans GROUP BY status";
+                $debugStmt = $this->getConnection()->query($debugSql);
+                $debugResults = $debugStmt->fetchAll(PDO::FETCH_ASSOC);
+                error_log('Debug - Rejected loans by status:');
+                error_log(print_r($debugResults, true));
+            } catch (\PDOException $e) {
+                error_log('Debug query error: ' . $e->getMessage());
+            }
+
             // Get total savings with error handling
             try {
                 $sql = "SELECT COALESCE(SUM(current_amount), 0) as total FROM savings_accounts WHERE status = 'active'";
@@ -118,14 +139,51 @@ class Director extends BaseModel
                 $totalSavings = 0;
             }
 
-            // Get total loans with error handling
+            // Get loan statistics with error handling
             try {
-                $sql = "SELECT COALESCE(SUM(amount), 0) as total FROM loans WHERE status = 'approved'";
+                // Modified query to ensure we're counting correctly
+                $sql = "SELECT 
+                    (SELECT COUNT(*) FROM loans WHERE status = 'active') as approved_count,
+                    (SELECT COUNT(*) FROM rejectedloans WHERE status = 'rejected') as rejected_count,
+                    (SELECT COUNT(*) FROM pendingloans WHERE status = 'pending') as pending_count,
+                    (
+                        SELECT COUNT(*) 
+                        FROM (
+                            SELECT id FROM loans WHERE status = 'active'
+                            UNION ALL
+                            SELECT id FROM rejectedloans WHERE status = 'rejected'
+                            UNION ALL
+                            SELECT id FROM pendingloans WHERE status = 'pending'
+                        ) as all_loans
+                    ) as total_count";
+                
                 $stmt = $this->getConnection()->query($sql);
-                $totalLoans = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+                $loanStats = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                // Detailed debug logging
+                error_log('Detailed Loan Statistics:');
+                error_log('- Approved loans: ' . $loanStats['approved_count']);
+                error_log('- Rejected loans: ' . $loanStats['rejected_count']);
+                error_log('- Pending loans: ' . $loanStats['pending_count']);
+                error_log('- Total count: ' . $loanStats['total_count']);
+                
+                // Calculate total loans (all loans from all tables)
+                $totalLoans = $loanStats['total_count'];
+                
+                // Calculate approval rate
+                $approvalRate = $totalLoans > 0 
+                    ? ($loanStats['approved_count'] / $totalLoans) * 100 
+                    : 0;
+                
+                // Debug: Log the final calculations
+                error_log('Final calculations:');
+                error_log('Total Loans: ' . $totalLoans);
+                error_log('Approval Rate: ' . $approvalRate . '%');
+                
             } catch (\PDOException $e) {
                 error_log('Error getting loans: ' . $e->getMessage());
                 $totalLoans = 0;
+                $approvalRate = 0;
             }
 
             // Get total fees with error handling
@@ -142,17 +200,18 @@ class Director extends BaseModel
             try {
                 $sql = "SELECT COALESCE(SUM(amount), 0) as total FROM other_transactions WHERE status = 'completed'";
                 $stmt = $this->getConnection()->query($sql);
-                $otherAmounts = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+                $totalOther = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             } catch (\PDOException $e) {
                 error_log('Error getting other amounts: ' . $e->getMessage());
-                $otherAmounts = 0;
+                $totalOther = 0;
             }
 
             return [
                 'total_savings' => $totalSavings,
                 'total_loans' => $totalLoans,
                 'total_fees' => $totalFees,
-                'other_amounts' => $otherAmounts
+                'total_other' => $totalOther,
+                'loan_approval_rate' => round($approvalRate, 1)
             ];
 
         } catch (\PDOException $e) {
@@ -161,7 +220,8 @@ class Director extends BaseModel
                 'total_savings' => 0,
                 'total_loans' => 0,
                 'total_fees' => 0,
-                'other_amounts' => 0
+                'total_other' => 0,
+                'loan_approval_rate' => 0
             ];
         }
     }

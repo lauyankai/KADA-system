@@ -113,16 +113,23 @@ error_log('Current session data: ' . print_r($_SESSION, true));
                         </div>
                         <div class="flex-grow-1">
                             <h6 class="card-subtitle text-muted">Kadar Kelulusan</h6>
-                            <?php 
-                                $approvalRate = $metrics['loan_stats']['total_loans'] > 0 
-                                    ? ($metrics['loan_stats']['approved_loans'] / $metrics['loan_stats']['total_loans']) * 100 
-                                    : 0;
+                            <?php
+                                $approvedLoans = $metrics['loan_stats']['approved_loans'] ?? 0;
+                                $totalLoans = ($metrics['loan_stats']['total_loans'] ?? 0) + 
+                                            ($metrics['loan_stats']['rejected_count'] ?? 0) + 
+                                            ($metrics['loan_stats']['pending_count'] ?? 0);
+                                $approvalRate = $totalLoans > 0 ? ($approvedLoans / $totalLoans) * 100 : 0;
                             ?>
                             <h2 class="card-title mb-0"><?= number_format($approvalRate, 1) ?>%</h2>
                         </div>
                     </div>
                     <div class="progress" style="height: 4px;">
                         <div class="progress-bar bg-info" style="width: <?= $approvalRate ?>%"></div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <?= $approvedLoans ?> diluluskan daripada <?= $totalLoans ?> permohonan
+                        </small>
                     </div>
                 </div>
             </div>
