@@ -62,4 +62,5 @@ class UserController extends BaseController
             header('Location: /auth/login');
             exit;
         }
+    }
 }
