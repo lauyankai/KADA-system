@@ -137,19 +137,49 @@
                                    name="email_notification" 
                                    <?= isset($notifications['email_enabled']) && $notifications['email_enabled'] ? 'checked' : '' ?>>
                             <label class="form-check-label" for="emailNotification">
-                                Terima penyata bulanan melalui emel
+                                Terima penyata secara automatik
                             </label>
                         </div>
                         
-                        <div class="email-settings <?= isset($notifications['email_enabled']) && $notifications['email_enabled'] ? '' : 'd-none' ?>">
-                            <div class="mb-4">
-                                <label class="form-label">Emel</label>
-                                <input type="email" class="form-control" name="email" id="emailInput"
-                                       value="<?= htmlspecialchars($notifications['email'] ?? '') ?>" 
-                                       placeholder="Masukkan alamat emel anda"
-                                       required>
-                                <div class="form-text">
-                                    Penyata akan dihantar ke emel ini pada setiap 28 haribulan.
+                        <div class="notification-settings <?= isset($notifications['email_enabled']) && $notifications['email_enabled'] ? '' : 'd-none' ?>">
+                            <!-- Delivery Method -->
+                            <div class="mb-3">
+                                <label class="form-label">Kaedah Penghantaran</label>
+                                <select class="form-select" name="delivery_method" id="deliveryMethod" required>
+                                    <option value="email" <?= isset($notifications['delivery_method']) && $notifications['delivery_method'] == 'email' ? 'selected' : '' ?>>Emel</option>
+                                    <option value="sms" <?= isset($notifications['delivery_method']) && $notifications['delivery_method'] == 'sms' ? 'selected' : '' ?>>SMS</option>
+                                </select>
+                            </div>
+
+                            <!-- Frequency -->
+                            <div class="mb-3">
+                                <label class="form-label">Kekerapan</label>
+                                <select class="form-select" name="frequency" id="frequency" required>
+                                    <option value="daily" <?= isset($notifications['frequency']) && $notifications['frequency'] == 'daily' ? 'selected' : '' ?>>Harian</option>
+                                    <option value="weekly" <?= isset($notifications['frequency']) && $notifications['frequency'] == 'weekly' ? 'selected' : '' ?>>Mingguan</option>
+                                    <option value="monthly" <?= isset($notifications['frequency']) && $notifications['frequency'] == 'monthly' ? 'selected' : '' ?>>Bulanan</option>
+                                    <option value="yearly" <?= isset($notifications['frequency']) && $notifications['frequency'] == 'yearly' ? 'selected' : '' ?>>Tahunan</option>
+                                </select>
+                            </div>
+
+                            <!-- Email Field -->
+                            <div class="email-field <?= isset($notifications['delivery_method']) && $notifications['delivery_method'] == 'sms' ? 'd-none' : '' ?>">
+                                <div class="mb-4">
+                                    <label class="form-label">Emel</label>
+                                    <input type="email" class="form-control bg-light" name="email" id="emailInput"
+                                           value="kada.ecopioneer@gmail.com" 
+                                           placeholder="Masukkan alamat emel anda">
+                                </div>
+                            </div>
+
+                            <!-- Phone Field -->
+                            <div class="phone-field <?= isset($notifications['delivery_method']) && $notifications['delivery_method'] == 'email' ? 'd-none' : '' ?>">
+                                <div class="mb-4">
+                                    <label class="form-label">Nombor Telefon</label>
+                                    <input type="tel" class="form-control bg-light" name="phone" id="phoneInput"
+                                           value="0123928471" 
+                                           placeholder="Masukkan nombor telefon anda">
+                    
                                 </div>
                             </div>
                         </div>
@@ -244,46 +274,54 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const emailNotification = document.getElementById('emailNotification');
-    const emailSettings = document.querySelector('.email-settings');
+    const notificationSettings = document.querySelector('.notification-settings');
+    const emailField = document.querySelector('.email-field');
+    const phoneField = document.querySelector('.phone-field');
+    const deliveryMethod = document.getElementById('deliveryMethod');
     const emailInput = document.getElementById('emailInput');
+    const phoneInput = document.getElementById('phoneInput');
     const form = document.querySelector('.notification-form');
 
     // Handle checkbox change
     emailNotification.addEventListener('change', function() {
-        emailSettings.classList.toggle('d-none', !this.checked);
-        if (this.checked) {
-            emailInput.setAttribute('required', '');
-        } else {
-            emailInput.removeAttribute('required');
-        }
+        notificationSettings.classList.toggle('d-none', !this.checked);
+        updateRequiredFields();
     });
+
+    // Handle delivery method change
+    deliveryMethod.addEventListener('change', function() {
+        emailField.classList.toggle('d-none', this.value === 'sms');
+        phoneField.classList.toggle('d-none', this.value === 'email');
+        updateRequiredFields();
+    });
+
+    function updateRequiredFields() {
+        const isEnabled = emailNotification.checked;
+        const isSMS = deliveryMethod.value === 'sms';
+
+        emailInput.required = isEnabled && !isSMS;
+        phoneInput.required = isEnabled && isSMS;
+    }
 
     // Handle form submission
     form.addEventListener('submit', function(e) {
-        if (emailNotification.checked && !emailInput.value) {
+        if (!emailNotification.checked) return;
+
+        if (deliveryMethod.value === 'email' && !emailInput.value) {
             e.preventDefault();
             alert('Sila masukkan alamat emel anda');
             return;
         }
-    });
 
-    // If there's an email value, ensure checkbox is checked
-    if (emailInput.value) {
-        emailNotification.checked = true;
-        emailSettings.classList.remove('d-none');
-    }
-
-    // Update bell icon when settings change
-    form.addEventListener('submit', function() {
-        const bellIcon = document.querySelector('.btn-light .bi-bell, .btn-light .bi-bell-fill');
-        if (emailNotification.checked) {
-            bellIcon.classList.remove('bi-bell');
-            bellIcon.classList.add('bi-bell-fill');
-        } else {
-            bellIcon.classList.remove('bi-bell-fill');
-            bellIcon.classList.add('bi-bell');
+        if (deliveryMethod.value === 'sms' && !phoneInput.value) {
+            e.preventDefault();
+            alert('Sila masukkan nombor telefon anda');
+            return;
         }
     });
+
+    // Initial setup
+    updateRequiredFields();
 });
 
 // Keep existing date update function

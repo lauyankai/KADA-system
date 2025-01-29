@@ -329,22 +329,23 @@ class Director extends BaseModel
         }
     }
 
-    public function updateLoanStatus($loanId, $status, $remarks)
+    public function updateLoanStatus($data)
     {
         try {
             $this->getConnection()->beginTransaction();
 
-            $sql = "SELECT * FROM pendingloans WHERE id = :loan_id";
+            // First get the loan details
+            $sql = "SELECT * FROM pendingloans WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':loan_id' => $loanId]);
-            $loanData = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->execute([':id' => $data['id']]);
+            $loan = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$loanData) {
+            if (!$loan) {
                 throw new \Exception('Pembiayaan tidak dijumpai');
             }
 
-            if ($status === 'approved') {
-                // Insert into loans table
+            if ($data['status'] === 'approved') {
+                // Move to approved loans table
                 $sql = "INSERT INTO loans (
                     member_id, reference_no, loan_type, amount, 
                     duration, monthly_payment, bank_name, bank_account,
@@ -357,26 +358,21 @@ class Director extends BaseModel
 
                 $stmt = $this->getConnection()->prepare($sql);
                 $stmt->execute([
-                    ':member_id' => $loanData['member_id'],
-                    ':reference_no' => $loanData['reference_no'],
-                    ':loan_type' => $loanData['loan_type'],
-                    ':amount' => $loanData['amount'],
-                    ':duration' => $loanData['duration'],
-                    ':monthly_payment' => $loanData['monthly_payment'],
-                    ':bank_name' => $loanData['bank_name'],
-                    ':bank_account' => $loanData['bank_account'],
-                    ':date_received' => $loanData['date_received'],
-                    ':approved_by' => $_SESSION['director_id'],
-                    ':remarks' => $remarks
+                    ':member_id' => $loan['member_id'],
+                    ':reference_no' => $loan['reference_no'],
+                    ':loan_type' => $loan['loan_type'],
+                    ':amount' => $loan['amount'],
+                    ':duration' => $loan['duration'],
+                    ':monthly_payment' => $loan['monthly_payment'],
+                    ':bank_name' => $loan['bank_name'],
+                    ':bank_account' => $loan['bank_account'],
+                    ':date_received' => $loan['date_received'],
+                    ':approved_by' => $data['updated_by'],
+                    ':remarks' => $data['remarks']
                 ]);
 
-                // Delete from pendingloans
-                $sql = "DELETE FROM pendingloans WHERE id = :loan_id";
-                $stmt = $this->getConnection()->prepare($sql);
-                $stmt->execute([':loan_id' => $loanId]);
-
-            } else if ($status === 'rejected') {
-                // Insert into loans table
+            } elseif ($data['status'] === 'rejected') {
+                // Move to rejected loans table
                 $sql = "INSERT INTO rejectedloans (
                     member_id, reference_no, loan_type, amount, 
                     duration, monthly_payment, bank_name, bank_account,
@@ -389,24 +385,24 @@ class Director extends BaseModel
 
                 $stmt = $this->getConnection()->prepare($sql);
                 $stmt->execute([
-                    ':member_id' => $loanData['member_id'],
-                    ':reference_no' => $loanData['reference_no'],
-                    ':loan_type' => $loanData['loan_type'],
-                    ':amount' => $loanData['amount'],
-                    ':duration' => $loanData['duration'],
-                    ':monthly_payment' => $loanData['monthly_payment'],
-                    ':bank_name' => $loanData['bank_name'],
-                    ':bank_account' => $loanData['bank_account'],
-                    ':date_received' => $loanData['date_received'],
-                    ':rejected_by' => $_SESSION['director_id'],
-                    ':remarks' => $remarks
+                    ':member_id' => $loan['member_id'],
+                    ':reference_no' => $loan['reference_no'],
+                    ':loan_type' => $loan['loan_type'],
+                    ':amount' => $loan['amount'],
+                    ':duration' => $loan['duration'],
+                    ':monthly_payment' => $loan['monthly_payment'],
+                    ':bank_name' => $loan['bank_name'],
+                    ':bank_account' => $loan['bank_account'],
+                    ':date_received' => $loan['date_received'],
+                    ':rejected_by' => $data['updated_by'],
+                    ':remarks' => $data['remarks']
                 ]);
-
-                // Delete from pendingloans
-                $sql = "DELETE FROM pendingloans WHERE id = :loan_id";
-                $stmt = $this->getConnection()->prepare($sql);
-                $stmt->execute([':loan_id' => $loanId]);
             }
+
+            // Delete from pending loans
+            $sql = "DELETE FROM pendingloans WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $data['id']]);
 
             $this->getConnection()->commit();
             return true;
@@ -415,8 +411,8 @@ class Director extends BaseModel
             if ($this->getConnection()->inTransaction()) {
                 $this->getConnection()->rollBack();
             }
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal mengemaskini status pembiayaan');
+            error_log('Database Error in updateLoanStatus: ' . $e->getMessage());
+            return false;
         }
     }
 
