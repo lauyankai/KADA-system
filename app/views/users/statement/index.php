@@ -98,7 +98,7 @@
                                                             <i class="bi bi-box-arrow-up-right ms-1 small"></i>
                                                         </a>
                                                     </td>
-                                                    <td>RM<?= number_format($loan['remaining_amount'] ?? 0, 2) ?></td>
+                                                    <td>RM<?= number_format($loan['amount'] ?? 0, 2) ?></td>
                                                     <td><span class="badge bg-success">Aktif</span></td>
                                                 </tr>
                                             <?php endforeach; ?>

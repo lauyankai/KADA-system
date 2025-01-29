@@ -128,4 +128,24 @@ class AnnualReport extends BaseModel
             throw new \Exception('Gagal memadam laporan');
         }
     }
+
+    public function getLatestReports($limit = 6)
+    {
+        try {
+            $sql = "SELECT * FROM annual_report 
+                    WHERE status = 'active' 
+                    ORDER BY year DESC, uploaded_at DESC 
+                    LIMIT :limit";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in getLatestReports: ' . $e->getMessage());
+            return [];
+        }
+    }
 } 
