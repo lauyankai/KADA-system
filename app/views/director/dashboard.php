@@ -167,7 +167,7 @@ error_log('Current session data: ' . print_r($_SESSION, true));
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title mb-4">Agihan Kewangan</h5>
-                    <!-- <canvas id="financialDistChart" height="300"></canvas> -->
+                    <canvas id="financialDistChart" height="300"></canvas>
                 </div>
             </div>
         </div>
@@ -415,7 +415,8 @@ new Chart(financialCtx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
+        aspectRatio: 1.8,
         plugins: {
             legend: {
                 position: 'bottom',
