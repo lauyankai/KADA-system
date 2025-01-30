@@ -14,25 +14,26 @@ class Admin extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            // Get member data first
-            $memberData = $this->getMemberById($id);
-            if (!$memberData) {
-                throw new \Exception("Member not found");
-            }
-
             if ($status === 'Lulus') {
-                // Migrate to members table
-                $this->migrateToMembers($id, $memberData, false);
+                // Get member data first
+                $memberData = $this->getMemberById($id);
+                if (!$memberData) {
+                    throw new \Exception("Member not found");
+                }
 
-                // Generate member ID (you should have this method)
+                // Migrate to members table and get the new ID
+                $newMemberId = $this->migrateToMembers($id, $memberData, false);
+
+                // Generate member ID
                 $memberId = $this->generateMemberId();
 
-                // Send approval email
+                // Send approval email with the correct database ID
                 $this->sendStatusEmail(
                     $memberData['email'],
                     $memberData['name'],
                     'Lulus',
-                    $memberId
+                    $memberId,
+                    $newMemberId  // Pass the actual database ID
                 );
 
                 // Delete from pending table
@@ -175,6 +176,7 @@ class Admin extends BaseModel
                 deposit_funds, welfare_fund, fixed_deposit,
                 other_contributions,
                 family_relationship, family_name, family_ic,
+                password,
                 status,
                 created_at
             ) VALUES (
@@ -187,6 +189,7 @@ class Admin extends BaseModel
                 :deposit_funds, :welfare_fund, :fixed_deposit,
                 :other_contributions,
                 :family_relationship, :family_name, :family_ic,
+                NULL,
                 'Active',
                 NOW()
             )";
@@ -221,7 +224,7 @@ class Admin extends BaseModel
                 ':other_contributions' => $memberData['other_contributions'],
                 ':family_relationship' => $memberData['family_relationship'],
                 ':family_name' => $memberData['family_name'],
-                ':family_ic' => $memberData['family_ic']
+                ':family_ic' => $memberData['family_ic'],
             ]);
 
             // Get the new member's ID
@@ -266,7 +269,7 @@ class Admin extends BaseModel
             if ($useTransaction) {
                 $this->getConnection()->commit();
             }
-            return true;
+            return $newMemberId;
 
         } catch (\Exception $e) {
             if ($useTransaction && $this->getConnection()->inTransaction()) {
@@ -614,7 +617,7 @@ class Admin extends BaseModel
         }
     }
 
-    private function sendStatusEmail($email, $name, $status, $memberId = null) {
+    private function sendStatusEmail($email, $name, $status, $memberId = null, $databaseId = null) {
         require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
         require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/SMTP.php';
         require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/Exception.php';
@@ -642,6 +645,16 @@ class Admin extends BaseModel
             $mail->isHTML(true);
             
             if ($status === 'Lulus') {
+                // Store the actual database ID in the session token
+                $token = bin2hex(random_bytes(32));
+                $_SESSION['setup_password_tokens'][$token] = [
+                    'member_id' => $databaseId, // Use the actual database ID
+                    'expires' => time() + (24 * 60 * 60) // 24 hours
+                ];
+
+                // Create password setup link
+                $setupLink = "http://" . $_SERVER['HTTP_HOST'] . "/auth/setup-password?token=" . $token;
+
                 $mail->Subject = 'Tahniah! Permohonan Keahlian Anda Telah Diluluskan';
                 $mail->Body = "
                     <div style='font-family: Arial, sans-serif; padding: 20px;'>
@@ -652,9 +665,13 @@ class Admin extends BaseModel
                         
                         <div style='background-color: #f5f5f5; padding: 15px; margin: 20px 0;'>
                             <p><strong>ID Ahli:</strong> {$memberId}</p>
+                            <p><strong>ID Pengguna:</strong> No. Kad Pengenalan Anda</p>
+                            <p>Untuk menetapkan kata laluan akaun anda, sila klik pautan di bawah:</p>
+                            <p><a href='{$setupLink}' style='background-color: #198754; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>Tetapkan Kata Laluan</a></p>
+                            <p style='font-size: 0.9em; color: #666;'>Pautan ini sah untuk 24 jam sahaja.</p>
                         </div>
                         
-                        <p>Anda kini boleh log masuk ke sistem menggunakan nombor kad pengenalan anda.</p>
+                        <p>Selepas menetapkan kata laluan, anda boleh log masuk menggunakan nombor kad pengenalan anda sebagai ID Pengguna.</p>
                         
                         <p>Selamat datang ke keluarga Koperasi KADA!</p>
                         

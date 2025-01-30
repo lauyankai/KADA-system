@@ -73,6 +73,8 @@ $router = new App\Core\Router();
     $router->addRoute('GET', '/auth/register', 'AuthController', 'showRegister');
     $router->addRoute('POST', '/auth/register', 'AuthController', 'register');
     $router->addRoute('GET', '/auth/logout', 'AuthController', 'logout');
+    $router->addRoute('GET', '/auth/setup-password', 'AuthController', 'showSetupPassword');
+    $router->addRoute('POST', '/auth/setup-password', 'AuthController', 'setupPassword');
 
 // Admin basic routes --login, register, logout
     $router->addRoute('GET', '/admin', 'AdminController', 'index');
