@@ -20,7 +20,7 @@ class Guest extends BaseModel
             $hashedPassword = password_hash($cleanIC, PASSWORD_DEFAULT);
 
             $sql = "INSERT INTO pendingmember (
-                name, ic_no, gender, religion, race, marital_status,
+                name, ic_no, gender, religion, race, marital_status, email,
                 position, grade, monthly_salary,
                 home_address, home_postcode, home_state,
                 office_address, office_postcode,
@@ -32,7 +32,7 @@ class Guest extends BaseModel
                 reference_no, birthday, age,
                 status
             ) VALUES (
-                :name, :ic_no, :gender, :religion, :race, :marital_status,
+                :name, :ic_no, :gender, :religion, :race, :marital_status, :email,
                 :position, :grade, :monthly_salary,
                 :home_address, :home_postcode, :home_state,
                 :office_address, :office_postcode,
@@ -54,6 +54,7 @@ class Guest extends BaseModel
                 ':religion' => $data['religion'],
                 ':race' => $data['race'],
                 ':marital_status' => $data['marital_status'],
+                ':email' => $data['email'],
                 ':position' => $data['position'],
                 ':grade' => $data['grade'],
                 ':monthly_salary' => $data['monthly_salary'],
@@ -255,13 +256,13 @@ class Guest extends BaseModel
         try {
             $sql = "INSERT INTO members (
                 name, ic_no, birthday, age, gender, religion, race, 
-                marital_status, monthly_salary, position, grade,
+                marital_status, email, monthly_salary, position, grade,
                 home_address, home_postcode, home_state, home_phone,
                 office_address, office_postcode, office_phone, fax, birthday, age,
                 status
             ) VALUES (
                 :name, :ic_no, :birthday, :age, :gender, :religion, :race,
-                :marital_status, :monthly_salary, :position, :grade,
+                :marital_status, :email, :monthly_salary, :position, :grade,
                 :home_address, :home_postcode, :home_state, :home_phone,
                 :office_address, :office_postcode, :office_phone, :fax,
                 :birthday, :age,
@@ -278,6 +279,7 @@ class Guest extends BaseModel
                 ':religion' => $data['religion'],
                 ':race' => $data['race'],
                 ':marital_status' => $data['marital_status'],
+                ':email' => $data['email'],
                 ':monthly_salary' => $data['monthly_salary'],
                 ':position' => $data['position'],
                 ':grade' => $data['grade'],
