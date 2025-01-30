@@ -139,23 +139,25 @@ error_log('Current session data: ' . print_r($_SESSION, true));
     <!-- Charts Row -->
     <div class="row g-4 mb-4">
         <!-- Membership Growth -->
-        <div class="col-xl-8">
+        <div class="col-xl-4">
             <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="card-title mb-0">Trend Keahlian</h5>
-                        <div class="chart-legend d-flex gap-3">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="card-title mb-4">Trend Keahlian</h5>
+                        <div class="chart-legend d-flex gap-2">
                             <div class="d-flex align-items-center">
                                 <span class="legend-indicator bg-primary"></span>
-                                <small>Ahli Baru</small>
+                                <span class="small">Ahli Baru</span>
                             </div>
                             <div class="d-flex align-items-center">
                                 <span class="legend-indicator bg-success"></span>
-                                <small>Jumlah Ahli</small>
+                                <span class="small">Jumlah Ahli</span>
                             </div>
                         </div>
                     </div>
-                    <!-- <canvas id="membershipChart" height="300"></canvas> -->
+                    <div style="height: 250px;">
+                        <canvas id="membershipChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -244,11 +246,14 @@ error_log('Current session data: ' . print_r($_SESSION, true));
 }
 
 .legend-indicator {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    margin-right: 0.5rem;
+    margin-right: 0.3rem;
+}
+
+.chart-legend .small {
+    font-size: 0.75rem;
 }
 
 .status-dot {
@@ -286,73 +291,93 @@ function getStatusColor(status) {
     }
 }
 
-// Membership Chart
+// Membership Growth Chart
 const membershipCtx = document.getElementById('membershipChart').getContext('2d');
-const membershipData = {
-    labels: ['Ahli Aktif', 'Menunggu', 'Ditolak'],
-    datasets: [{
-        label: 'Status Keahlian',
-        data: [
-            <?= $membershipStats['memberCount'] ?? 0 ?>, 
-            <?= $membershipStats['pendingCount'] ?? 0 ?>, 
-            <?= $membershipStats['rejectedCount'] ?? 0 ?>
-        ],
-        backgroundColor: [
-            'rgba(25, 135, 84, 0.8)',   // Green for Active
-            'rgba(255, 193, 7, 0.8)',   // Yellow for Pending
-            'rgba(220, 53, 69, 0.8)'    // Red for Rejected
-        ],
-        borderColor: [
-            'rgba(25, 135, 84, 1)',
-            'rgba(255, 193, 7, 1)',
-            'rgba(220, 53, 69, 1)'
-        ],
-        borderWidth: 1,
-        hoverOffset: 4
-    }]
-};
+const membershipData = <?= json_encode($membershipTrends) ?>;
 
 new Chart(membershipCtx, {
-    type: 'doughnut',
-    data: membershipData,
+    type: 'line',
+    data: {
+        labels: membershipData.map(item => item.month),
+        datasets: [
+            {
+                label: 'Ahli Baru',
+                data: membershipData.map(item => item.new_members),
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                borderWidth: 1.5,
+                fill: true,
+                tension: 0.4
+            },
+            {
+                label: 'Jumlah Ahli',
+                data: membershipData.map(item => item.total_members),
+                borderColor: '#198754',
+                backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                borderWidth: 1.5,
+                fill: true,
+                tension: 0.4
+            }
+        ]
+    },
     options: {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
+        aspectRatio: 1.8,
         plugins: {
             legend: {
-                position: 'bottom',
-                labels: {
-                    padding: 20,
-                    usePointStyle: true,
-                    pointStyle: 'circle'
-                }
-            },
-            title: {
-                display: true,
-                text: 'Status Keahlian',
-                font: {
-                    size: 16,
-                    weight: 'bold'
-                },
-                padding: {
-                    top: 10,
-                    bottom: 30
-                }
+                display: false
             },
             tooltip: {
+                mode: 'index',
+                intersect: false,
                 callbacks: {
                     label: function(context) {
-                        let label = context.label || '';
-                        let value = context.raw || 0;
-                        return `${label}: ${value} ahli`;
+                        return context.dataset.label + ': ' + context.parsed.y + ' org';
                     }
+                },
+                titleFont: { size: 11 },
+                bodyFont: { size: 11 },
+                padding: 8
+            }
+        },
+        scales: {
+            x: {
+                grid: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    font: { size: 10 },
+                    maxRotation: 0,
+                    autoSkip: true,
+                    maxTicksLimit: 6
+                },
+                border: {
+                    display: false
+                }
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    borderDash: [2, 2],
+                    drawBorder: false
+                },
+                ticks: {
+                    font: { size: 10 },
+                    maxTicksLimit: 5,
+                    padding: 5,
+                    callback: function(value) {
+                        return value + ' orang';
+                    }
+                },
+                border: {
+                    display: false
                 }
             }
         },
-        cutout: '60%',
-        animation: {
-            animateScale: true,
-            animateRotate: true
+        layout: {
+            padding: 0
         }
     }
 });

@@ -12,7 +12,7 @@ class StatementController extends BaseController
     private $saving;
     private $loan;
     private $statement;
-
+    
     public function __construct()
     {
         $this->saving = new Saving();
@@ -99,7 +99,7 @@ class StatementController extends BaseController
             foreach ($transactions as $trans) {
                 if (in_array($trans['type'], ['deposit', 'transfer_in'])) {
                     $openingBalance -= $trans['amount'];
-                } else {
+            } else {
                     $openingBalance += $trans['amount'];
                 }
             }
@@ -263,8 +263,8 @@ class StatementController extends BaseController
                 if (file_exists($logoPath)) {
                     $pdf->Image($logoPath, 15, 10, 40);
                 }
-
-                // Add header
+            
+            // Add header
                 $pdf->SetY(10);
                 $pdf->SetX(60);
                 $pdf->SetFont('helvetica', 'B', 16);
@@ -310,7 +310,7 @@ class StatementController extends BaseController
                 for($i = 0; $i < count($header); $i++) {
                     $pdf->Cell($widths[$i], 7, $header[$i], 1, 0, 'C', true);
                 }
-                $pdf->Ln();
+            $pdf->Ln();
 
                 // Calculate opening balance
                 $runningBalance = $account['current_amount'] ?? 0;
