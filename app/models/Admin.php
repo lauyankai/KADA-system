@@ -145,7 +145,7 @@ class Admin extends BaseModel
 
             // Insert into members table
             $sql = "INSERT INTO members (
-                member_id, name, ic_no, gender, religion, race, marital_status,
+                member_id, name, ic_no, gender, religion, race, marital_status, email,
                 position, grade, monthly_salary,
                 home_address, home_postcode, home_state,
                 office_address, office_postcode,
@@ -157,7 +157,7 @@ class Admin extends BaseModel
                 status,
                 created_at
             ) VALUES (
-                :member_id, :name, :ic_no, :gender, :religion, :race, :marital_status,
+                :member_id, :name, :ic_no, :gender, :religion, :race, :marital_status, :email,
                 :position, :grade, :monthly_salary,
                 :home_address, :home_postcode, :home_state,
                 :office_address, :office_postcode,
@@ -179,6 +179,7 @@ class Admin extends BaseModel
                 ':religion' => $memberData['religion'],
                 ':race' => $memberData['race'],
                 ':marital_status' => $memberData['marital_status'],
+                ':email' => $memberData['email'],
                 ':position' => $memberData['position'],
                 ':grade' => $memberData['grade'],
                 ':monthly_salary' => $memberData['monthly_salary'],
@@ -278,7 +279,7 @@ class Admin extends BaseModel
             }
 
             $sql = "INSERT INTO rejectedmember (
-                name, ic_no, gender, religion, race, marital_status,
+                name, ic_no, gender, religion, race, marital_status, email,
                 position, grade, monthly_salary,
                 home_address, home_postcode, home_state,
                 office_address, office_postcode,
@@ -291,7 +292,7 @@ class Admin extends BaseModel
                 status,
                 created_at
             ) VALUES (
-                :name, :ic_no, :gender, :religion, :race, :marital_status,
+                :name, :ic_no, :gender, :religion, :race, :marital_status, :email,
                 :position, :grade, :monthly_salary,
                 :home_address, :home_postcode, :home_state,
                 :office_address, :office_postcode,
@@ -313,6 +314,7 @@ class Admin extends BaseModel
                 ':religion' => $memberData['religion'],
                 ':race' => $memberData['race'],
                 ':marital_status' => $memberData['marital_status'],
+                ':email' => $memberData['email'],
                 ':position' => $memberData['position'],
                 ':grade' => $memberData['grade'],
                 ':monthly_salary' => $memberData['monthly_salary'],
@@ -442,6 +444,7 @@ class Admin extends BaseModel
                     religion COLLATE utf8mb4_general_ci as religion,
                     race COLLATE utf8mb4_general_ci as race,
                     marital_status COLLATE utf8mb4_general_ci as marital_status,
+                    email COLLATE utf8mb4_general_ci as email,
                     position COLLATE utf8mb4_general_ci as position,
                     grade COLLATE utf8mb4_general_ci as grade,
                     monthly_salary,
@@ -470,11 +473,12 @@ class Admin extends BaseModel
                 SELECT 
                     id,
                     name COLLATE utf8mb4_general_ci,
-                    ic_no COLLATE utf8mb4_general_ci,
+                    ic_no COLLATE utf8mb4_general_ci as ic_no,
                     gender COLLATE utf8mb4_general_ci,
                     religion COLLATE utf8mb4_general_ci,
                     race COLLATE utf8mb4_general_ci,
                     marital_status COLLATE utf8mb4_general_ci,
+                    email COLLATE utf8mb4_general_ci,
                     position COLLATE utf8mb4_general_ci,
                     grade COLLATE utf8mb4_general_ci,
                     monthly_salary,
@@ -508,6 +512,7 @@ class Admin extends BaseModel
                     religion COLLATE utf8mb4_general_ci,
                     race COLLATE utf8mb4_general_ci,
                     marital_status COLLATE utf8mb4_general_ci,
+                    email COLLATE utf8mb4_general_ci,
                     position COLLATE utf8mb4_general_ci,
                     grade COLLATE utf8mb4_general_ci,
                     monthly_salary,

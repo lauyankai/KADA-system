@@ -115,6 +115,14 @@
                                         <option value="Married">Kahwin</option>
                                     </select>
                                 </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">E-mel</label>
+                                    <input type="email" 
+                                           name="email" 
+                                           class="form-control" 
+                                           placeholder="contoh@email.com"
+                                           required>
+                                </div>
                             </div>
                         </div>
 
