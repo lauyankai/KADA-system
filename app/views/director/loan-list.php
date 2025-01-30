@@ -2,7 +2,7 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show">
             <?= $_SESSION['success']; unset($_SESSION['success']); ?>
@@ -17,58 +17,145 @@
         </div>
     <?php endif; ?>
 
-    <div class="card shadow">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="card-title mb-0">
-                    <i class="bi bi-file-text me-2"></i>Senarai Permohonan Pembiayaan
-                </h4>
-                <a href="/director" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Kembali
-                </a>
+    <div class="row">
+        <!-- Stats Cards -->
+        <div class="col-12 mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stats-icon bg-warning bg-opacity-10 me-3">
+                                <i class="bi bi-clock text-warning"></i>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle text-muted mb-1">Menunggu Kelulusan</h6>
+                                <h3 class="card-title mb-0"><?= $metrics['pending_count'] ?? 0 ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stats-icon bg-success bg-opacity-10 me-3">
+                                <i class="bi bi-check-circle text-success"></i>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle text-muted mb-1">Diluluskan Bulan Ini</h6>
+                                <h3 class="card-title mb-0"><?= $metrics['approved_month'] ?? 0 ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stats-icon bg-danger bg-opacity-10 me-3">
+                                <i class="bi bi-x-circle text-danger"></i>
+                            </div>
+                            <div>
+                                <h6 class="card-subtitle text-muted mb-1">Ditolak Bulan Ini</h6>
+                                <h3 class="card-title mb-0"><?= $metrics['rejected_month'] ?? 0 ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>No. Rujukan</th>
-                            <th>Nama Pemohon</th>
-                            <th>No. K/P</th>
-                            <th>Jenis</th>
-                            <th>Jumlah (RM)</th>
-                            <th>Tarikh Mohon</th>
-                            <th>Tindakan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($loans)): ?>
-                            <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    Tiada permohonan pembiayaan baharu
-                                </td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($loans as $loan): ?>
+        <!-- Main Content -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="card-title mb-1">
+                                <i class="bi bi-file-text me-2"></i>Senarai Permohonan Pembiayaan
+                            </h4>
+                            <p class="text-muted mb-0">Urus permohonan pembiayaan ahli koperasi</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="bi bi-funnel me-1"></i>Status
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="?status=all">Semua</a></li>
+                                    <li><a class="dropdown-item" href="?status=pending">Menunggu</a></li>
+                                    <li><a class="dropdown-item" href="?status=approved">Diluluskan</a></li>
+                                    <li><a class="dropdown-item" href="?status=rejected">Ditolak</a></li>
+                                </ul>
+                            </div>
+                            <a href="/director" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left me-2"></i>Kembali
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
                                 <tr>
-                                    <td><?= htmlspecialchars($loan['reference_no']) ?></td>
-                                    <td><?= htmlspecialchars($loan['member_name']) ?></td>
-                                    <td><?= htmlspecialchars($loan['ic_no']) ?></td>
-                                    <td><?= htmlspecialchars($loan['loan_type']) ?></td>
-                                    <td><?= number_format($loan['amount'], 2) ?></td>
-                                    <td><?= date('d/m/Y', strtotime($loan['date_received'])) ?></td>
-                                    <td>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-success"
-                                                onclick="showReviewModal('<?= $loan['id'] ?>')">
-                                            <i class="bi bi-check-circle me-1"></i>Semak
-                                        </button>
-                                    </td>
+                                    <th>No. Rujukan</th>
+                                    <th>Nama Pemohon</th>
+                                    <th>No. K/P</th>
+                                    <th>Jenis</th>
+                                    <th>Jumlah (RM)</th>
+                                    <th>Tarikh Mohon</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Tindakan</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($loans)): ?>
+                                    <tr>
+                                        <td colspan="8" class="text-center py-5">
+                                            <p class="text-muted mb-0">Tiada permohonan pembiayaan baharu</p>
+                                        </td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($loans as $loan): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($loan['reference_no']) ?></td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-light rounded-circle p-2 me-2">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                    <?= htmlspecialchars($loan['member_name']) ?>
+                                                </div>
+                                            </td>
+                                            <td><?= htmlspecialchars($loan['ic_no']) ?></td>
+                                            <td><span class="badge bg-primary"><?= htmlspecialchars($loan['loan_type']) ?></span></td>
+                                            <td>RM <?= number_format($loan['amount'], 2) ?></td>
+                                            <td><?= date('d/m/Y', strtotime($loan['date_received'])) ?></td>
+                                            <td>
+                                                <?php
+                                                    $statusClass = match($loan['status']) {
+                                                        'pending' => 'warning',
+                                                        'approved' => 'success',
+                                                        'rejected' => 'danger',
+                                                        default => 'secondary'
+                                                    };
+                                                ?>
+                                                <span class="badge bg-<?= $statusClass ?> bg-opacity-10 text-<?= $statusClass ?>">
+                                                    <?= ucfirst($loan['status']) ?>
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-primary"
+                                                        onclick="showReviewModal('<?= $loan['id'] ?>')">
+                                                    <i class="bi bi-check-circle me-1"></i>Semak
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -79,7 +166,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="/director/loans/update-status" method="POST">
-                <div class="modal-header">
+                <div class="modal-header border-0">
                     <h5 class="modal-title">Semak Permohonan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -95,21 +182,55 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Catatan</label>
-                        <textarea name="remarks" class="form-control" rows="3"></textarea>
+                        <textarea name="remarks" class="form-control" rows="3" placeholder="Masukkan catatan jika ada..."></textarea>
                     </div>
-                    <!-- Add CSRF token if you're using it -->
                     <?php if (isset($_SESSION['csrf_token'])): ?>
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <?php endif; ?>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-success">Hantar</button>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2 me-1"></i>Hantar
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<style>
+.table > :not(caption) > * > * {
+    padding: 1rem 0.75rem;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+.modal-content {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.stats-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.stats-icon i {
+    font-size: 24px;
+}
+</style>
 
 <script>
 function showReviewModal(loanId) {

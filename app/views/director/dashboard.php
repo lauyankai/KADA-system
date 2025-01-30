@@ -208,7 +208,7 @@ error_log('Current session data: ' . print_r($_SESSION, true));
                             </span>
                         </div>
                         <div class="mt-2">
-                            <a href="loan-list.php?status=pending" class="btn btn-primary w-100">
+                            <a href="director/loans" class="btn btn-primary w-100">
                                 <i class="bi bi-check2-square me-2"></i>Proses Kelulusan
                             </a>
                         </div>
