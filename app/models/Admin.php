@@ -3,6 +3,9 @@ namespace App\Models;
 
 use App\Core\BaseModel;
 use PDO;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 class Admin extends BaseModel
 {
@@ -11,28 +14,46 @@ class Admin extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
-            if ($status === 'Lulus') {
-                // Get member data from pending table
-                $memberData = $this->getMemberById($id);
-                if (!$memberData) {
-                    throw new \Exception("Member not found");
-                }
+            // Get member data first
+            $memberData = $this->getMemberById($id);
+            if (!$memberData) {
+                throw new \Exception("Member not found");
+            }
 
+            if ($status === 'Lulus') {
                 // Migrate to members table
                 $this->migrateToMembers($id, $memberData, false);
+
+                // Generate member ID (you should have this method)
+                $memberId = $this->generateMemberId();
+
+                // Send approval email
+                $this->sendStatusEmail(
+                    $memberData['email'],
+                    $memberData['name'],
+                    'Lulus',
+                    $memberId
+                );
 
                 // Delete from pending table
                 $sql = "DELETE FROM pendingmember WHERE id = :id";
                 $stmt = $this->getConnection()->prepare($sql);
                 $stmt->execute([':id' => $id]);
             } else {
-                // For other status updates
+                // For rejections
                 $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
                 $stmt = $this->getConnection()->prepare($sql);
                 $stmt->execute([
                     ':status' => $status,
                     ':id' => $id
                 ]);
+
+                // Send rejection email
+                $this->sendStatusEmail(
+                    $memberData['email'],
+                    $memberData['name'],
+                    'Tolak'
+                );
             }
 
             $this->getConnection()->commit();
@@ -269,15 +290,13 @@ class Admin extends BaseModel
         try {
             $this->db->beginTransaction();
 
-            $sql = "SELECT * FROM PendingMember WHERE id = :id";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute(['id' => $id]);
-            $memberData = $stmt->fetch(PDO::FETCH_ASSOC);
-
+            // Get member data first
+            $memberData = $this->getMemberById($id);
             if (!$memberData) {
                 throw new \Exception("Ahli tidak dijumpai");
             }
 
+            // Move to rejected table
             $sql = "INSERT INTO rejectedmember (
                 name, ic_no, gender, religion, race, marital_status, email,
                 position, grade, monthly_salary,
@@ -350,6 +369,13 @@ class Admin extends BaseModel
             if (!$result) {
                 throw new \Exception("Gagal memadamkan data dari PendingMember");
             }
+
+            // Send rejection email
+            $this->sendStatusEmail(
+                $memberData['email'],
+                $memberData['name'],
+                'Tolak'
+            );
 
             $this->db->commit();
             return true;
@@ -585,6 +611,77 @@ class Admin extends BaseModel
             }
             error_log('Error in migrateFromRejected: ' . $e->getMessage());
             throw $e;
+        }
+    }
+
+    private function sendStatusEmail($email, $name, $status, $memberId = null) {
+        require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+        require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/SMTP.php';
+        require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/Exception.php';
+
+        $mail = new PHPMailer(true);
+
+        try {
+            $config = require __DIR__ . '/../../config/mail.php';
+
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = $config['smtp_host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $config['smtp_username'];
+            $mail->Password = $config['smtp_password'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = $config['smtp_port'];
+            $mail->CharSet = 'UTF-8';
+
+            // Recipients
+            $mail->setFrom($config['from_address'], $config['from_name']);
+            $mail->addAddress($email, $name);
+
+            // Content
+            $mail->isHTML(true);
+            
+            if ($status === 'Lulus') {
+                $mail->Subject = 'Tahniah! Permohonan Keahlian Anda Telah Diluluskan';
+                $mail->Body = "
+                    <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                        <h2>Permohonan Keahlian Diluluskan</h2>
+                        <p>Salam sejahtera {$name},</p>
+                        
+                        <p>Tahniah! Permohonan keahlian anda telah diluluskan.</p>
+                        
+                        <div style='background-color: #f5f5f5; padding: 15px; margin: 20px 0;'>
+                            <p><strong>ID Ahli:</strong> {$memberId}</p>
+                        </div>
+                        
+                        <p>Anda kini boleh log masuk ke sistem menggunakan nombor kad pengenalan anda.</p>
+                        
+                        <p>Selamat datang ke keluarga Koperasi KADA!</p>
+                        
+                        <p>Sekian, terima kasih.</p>
+                    </div>
+                ";
+            } else {
+                $mail->Subject = 'Status Permohonan Keahlian Anda';
+                $mail->Body = "
+                    <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                        <h2>Keputusan Permohonan Keahlian</h2>
+                        <p>Salam sejahtera {$name},</p>
+                        
+                        <p>Harap maaf dimaklumkan bahawa permohonan keahlian anda tidak berjaya.</p>
+                        
+                        <p>Anda boleh membuat permohonan baharu.</p>
+                        
+                        <p>Sekian, terima kasih.</p>
+                    </div>
+                ";
+            }
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log("Failed to send status email to {$email}: " . $mail->ErrorInfo);
+            return false;
         }
     }
 }
