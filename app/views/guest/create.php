@@ -55,7 +55,8 @@
                                            name="ic_no" 
                                            class="form-control" 
                                            maxlength="14" 
-                                           oninput="formatIC(this); calculateAgeAndBirthday(this.value.replace(/\D/g, ''))" 
+                                           oninput="formatIC(this)" 
+                                           onchange="calculateAgeAndBirthday(this.value.replace(/\D/g, ''))" 
                                            placeholder="e.g., 880101-01-1234" 
                                            required>
                                 </div>
@@ -734,8 +735,8 @@
                                                         if (value.length >= 6) {
                                                             value = value.substring(0, 6) + '-' + value.substring(6);
                                                         }
-                                                        if (value.length >= 9) {
-                                                            value = value.substring(0, 9) + '-' + value.substring(9);
+                                                        if (value.length > 9) {
+                                                            value = value.substring(0,9) + '-' + value.substring(9);
                                                         }
                                                         input.value = value;
                                                     }
@@ -835,80 +836,62 @@ function isValidDate(year, month, day) {
 }
 
 function formatIC(input) {
-    // Remove non-digits
+    // Remove all non-digits
     let value = input.value.replace(/\D/g, '');
     
-    // Extract date components if we have enough digits
-    if (value.length >= 6) {
-        const year = value.substring(0, 2);
-        const month = value.substring(2, 4);
-        const day = value.substring(4, 6);
-        
-        // Validate date
-        if (!isValidDate(year, month, day)) {
-            input.setCustomValidity('Tarikh tidak sah');
-            input.reportValidity();
-            // Keep only the first two digits (year)
-            value = value.substring(0, 2);
-        } else {
-            input.setCustomValidity('');
-        }
+    // Format with hyphens
+    if (value.length > 6) {
+        value = value.substring(0,6) + '-' + value.substring(6);
     }
-    
-    // Format with dashes
-    if (value.length >= 6) {
-        value = value.substring(0, 6) + '-' + value.substring(6);
+    if (value.length > 9) {
+        value = value.substring(0,9) + '-' + value.substring(9);
     }
-    if (value.length >= 9) {
-        value = value.substring(0, 9) + '-' + value.substring(9);
-    }
-    
-    // Limit to 14 characters (12 digits + 2 dashes)
-    value = value.substring(0, 14);
     
     input.value = value;
-    
-    // Calculate age and birthday only if we have a valid date
-    if (value.replace(/\D/g, '').length === 12 && input.validity.valid) {
-        calculateAgeAndBirthday(value.replace(/\D/g, ''));
-    }
 }
 
-function calculateAgeAndBirthday(icNo) {
-    if (icNo.length === 12) {
-        const year = icNo.substring(0, 2);
-        const month = icNo.substring(2, 4);
-        const day = icNo.substring(4, 6);
-        
-        if (!isValidDate(year, month, day)) {
-            return;
-        }
-        
-        // Determine century
-        const currentYear = new Date().getFullYear();
-        const century = parseInt(year) > (currentYear - 2000) ? '19' : '20';
-        const fullYear = century + year;
-        
-        // Set birthday with proper zero-padding
-        const formattedMonth = month.padStart(2, '0');
-        const formattedDay = day.padStart(2, '0');
-        const formattedDate = `${fullYear}-${formattedMonth}-${formattedDay}`;
-        const birthdayInput = document.getElementById('birthday');
-        birthdayInput.value = formattedDate;
-        
-        // Calculate age
-        const birthDate = new Date(formattedDate);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        
-        // Adjust age if birthday hasn't occurred this year
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        
-        document.getElementById('age').value = age;
+function calculateAgeAndBirthday(icNumber) {
+    if (icNumber.length !== 12) return;
+
+    // Extract date components
+    let year = icNumber.substring(0, 2);
+    let month = icNumber.substring(2, 4);
+    let day = icNumber.substring(4, 6);
+    
+    // Determine century
+    let fullYear = parseInt(year);
+    if (fullYear >= 0 && fullYear <= 30) {
+        fullYear += 2000;
+    } else {
+        fullYear += 1900;
     }
+
+    // Validate date
+    let birthDate = new Date(fullYear, parseInt(month) - 1, parseInt(day));
+    if (birthDate.getDate() != parseInt(day) || 
+        (birthDate.getMonth() + 1) != parseInt(month) || 
+        birthDate.getFullYear() != fullYear) {
+        alert('Tarikh tidak sah. Sila masukkan nombor KP yang betul.');
+        return;
+    }
+
+    // Calculate age
+    let today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    let monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    // Format birthday for input field (YYYY-MM-DD)
+    const formattedMonth = (birthDate.getMonth() + 1).toString().padStart(2, '0');
+    const formattedDay = birthDate.getDate().toString().padStart(2, '0');
+    const formattedBirthday = `${birthDate.getFullYear()}-${formattedMonth}-${formattedDay}`;
+
+    // Update the form fields
+    document.getElementById('birthday').value = formattedBirthday;
+    document.getElementById('age').value = age;
 }
 
 // Add form submission validation
