@@ -298,7 +298,10 @@ const membershipData = <?= json_encode($membershipTrends) ?>;
 new Chart(membershipCtx, {
     type: 'line',
     data: {
-        labels: membershipData.map(item => item.month),
+        labels: membershipData.map(item => {
+            const date = new Date(item.month + '-01');
+            return date.toLocaleDateString('ms-MY', { month: 'short', year: 'numeric' });
+        }),
         datasets: [
             {
                 label: 'Ahli Baru',
