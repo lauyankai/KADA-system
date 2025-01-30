@@ -171,6 +171,51 @@ error_log('Current session data: ' . print_r($_SESSION, true));
                 </div>
             </div>
         </div>
+
+        <!-- Loan Approvals -->
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">Kelulusan Pembiayaan</h5>
+                    </div>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                            <div>
+                                <span>Menunggu Kelulusan</span>
+                                <?php if ($metrics['loan_stats']['pending_count'] == 0): ?>
+                                    <small class="d-block text-muted">Tiada permohonan baru</small>
+                                <?php endif; ?>
+                            </div>
+                            <span class="badge bg-warning rounded-pill">
+                                <?= $metrics['loan_stats']['pending_count'] ?? 0 ?>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                            <div>
+                                <span>Diluluskan</span>
+                            </div>
+                            <span class="badge bg-success rounded-pill">
+                                <?= $metrics['loan_stats']['approved_loans'] ?? 0 ?>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                            <div>
+                                <span>Ditolak</span>
+                            </div>
+                            <span class="badge bg-danger rounded-pill">
+                                <?= $metrics['loan_stats']['rejected_count'] ?? 0 ?>
+                            </span>
+                        </div>
+                        <div class="mt-2">
+                            <a href="loan-list.php?status=pending" class="btn btn-primary w-100">
+                                <i class="bi bi-check2-square me-2"></i>Proses Kelulusan
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Recent Activities -->
