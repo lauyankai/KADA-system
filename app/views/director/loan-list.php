@@ -29,7 +29,7 @@
                             </div>
                             <div>
                                 <h6 class="card-subtitle text-muted mb-1">Menunggu Kelulusan</h6>
-                                <h3 class="card-title mb-0"><?= $metrics['pending_count'] ?? 0 ?></h3>
+                                <h3 class="card-title mb-0"><?= $metrics['loan_stats']['pending_count'] ?? 0 ?></h3>
                             </div>
                         </div>
                     </div>
@@ -41,8 +41,8 @@
                                 <i class="bi bi-check-circle text-success"></i>
                             </div>
                             <div>
-                                <h6 class="card-subtitle text-muted mb-1">Diluluskan Bulan Ini</h6>
-                                <h3 class="card-title mb-0"><?= $metrics['approved_month'] ?? 0 ?></h3>
+                                <h6 class="card-subtitle text-muted mb-1">Diluluskan</h6>
+                                <h3 class="card-title mb-0"><?= $metrics['loan_stats']['approved_loans'] ?? 0 ?></h3>
                             </div>
                         </div>
                     </div>
@@ -54,8 +54,8 @@
                                 <i class="bi bi-x-circle text-danger"></i>
                             </div>
                             <div>
-                                <h6 class="card-subtitle text-muted mb-1">Ditolak Bulan Ini</h6>
-                                <h3 class="card-title mb-0"><?= $metrics['rejected_month'] ?? 0 ?></h3>
+                                <h6 class="card-subtitle text-muted mb-1">Ditolak</h6>
+                                <h3 class="card-title mb-0"><?= $metrics['loan_stats']['rejected_count'] ?? 0 ?></h3>
                             </div>
                         </div>
                     </div>
