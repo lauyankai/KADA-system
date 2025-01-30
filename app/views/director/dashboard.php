@@ -15,7 +15,7 @@ error_log('Current session data: ' . print_r($_SESSION, true));
             <p class="text-muted mb-0">Selamat datang, <?= htmlspecialchars($_SESSION['director_name']) ?></p>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-success" onclick="window.print()">
+            <button class="btn btn-outline-success">
                 <i class="bi bi-printer me-2"></i>Cetak Laporan
             </button>
             <div class="dropdown">
@@ -333,7 +333,7 @@ new Chart(membershipCtx, {
                 intersect: false,
                 callbacks: {
                     label: function(context) {
-                        return context.dataset.label + ': ' + context.parsed.y + ' org';
+                        return context.dataset.label + ': ' + context.parsed.y + ' orang';
                     }
                 },
                 titleFont: { size: 11 },
