@@ -1050,4 +1050,49 @@ class SavingController extends BaseController
             }
         }
 
+        public function showRecurring()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                $memberId = $_SESSION['member_id'];
+                $loans = $this->saving->getActiveLoansWithRecurring($memberId);
+
+                $this->view('users/savings/recurring/index', [
+                    'loans' => $loans
+                ]);
+
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /users/savings');
+                exit;
+            }
+        }
+
+        public function updateRecurring($loanId)
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                $data = json_decode(file_get_contents('php://input'), true);
+                $result = $this->saving->updateRecurringPayment($loanId, $data);
+
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true]);
+                exit;
+
+            } catch (\Exception $e) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+                exit;
+            }
+        }
+
 }

@@ -47,6 +47,7 @@ require_once '../app/Controllers/AnnualReportController.php';
 
 // Include middleware
 require_once '../app/Middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../app/Middleware/FeeMiddleware.php';
 
 // Instantiate the Router
 $router = new App\Core\Router();
@@ -165,4 +166,7 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Dispatch the route
-$router->dispatch();    
+$router->dispatch();
+
+// Add after session_start()
+\App\Middleware\FeeMiddleware::checkInitialFees();    

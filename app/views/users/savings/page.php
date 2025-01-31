@@ -170,6 +170,62 @@
         </div>
     </div>
 
+    <!-- Recurring Payments Summary Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-arrow-repeat me-2"></i>Pembayaran Berulang
+                </h5>
+                <a href="/users/savings/recurring" class="btn btn-primary btn-sm">
+                    <i class="bi bi-gear me-2"></i>Urus Pembayaran Berulang
+                </a>
+            </div>
+            
+            <?php if (empty($recurring_payments)): ?>
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Tiada pembayaran berulang aktif
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Jenis</th>
+                                <th>Jumlah (RM)</th>
+                                <th>Kekerapan</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            $total = 0;
+                            foreach ($recurring_payments as $payment): 
+                                $total += $payment['amount'];
+                            ?>
+                                <tr>
+                                    <td><?= $payment['type'] ?></td>
+                                    <td>RM <?= number_format($payment['amount'], 2) ?></td>
+                                    <td><?= ucfirst($payment['frequency']) ?></td>
+                                    <td>
+                                        <span class="badge bg-<?= $payment['status'] === 'active' ? 'success' : 'warning' ?>">
+                                            <?= ucfirst($payment['status']) ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <tr class="table-active fw-bold">
+                                <td colspan="1">Jumlah</td>
+                                <td>RM <?= number_format($total, 2) ?></td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <!-- Recent Transactions -->
     <div class="card">
         <div class="card-body">
