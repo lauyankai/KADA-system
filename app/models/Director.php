@@ -19,14 +19,24 @@ class Director extends BaseModel
             $stmt = $this->getConnection()->query($sql);
             $totalSavings = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-            // Total Loans
+            // Get loan statistics
             $sql = "SELECT 
-                    COUNT(*) as total_loans,
-                    SUM(amount) as total_amount,
-                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_loans
-                    FROM loans";
+                    (SELECT COUNT(*) FROM loans WHERE status = 'approved') as approved_loans,
+                    (SELECT COUNT(*) FROM rejectedloans) as rejected_count,
+                    (SELECT COUNT(*) FROM pendingloans WHERE status = 'pending') as pending_count,
+                    (SELECT SUM(amount) FROM loans WHERE status = 'approved') as total_amount";
+            
             $stmt = $this->getConnection()->query($sql);
             $loanStats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Calculate total loans (including all statuses)
+            $loanStats['total_loans'] = $loanStats['approved_loans'];
+            
+            // Ensure we have numeric values
+            $loanStats['approved_loans'] = (int)($loanStats['approved_loans'] ?? 0);
+            $loanStats['rejected_count'] = (int)($loanStats['rejected_count'] ?? 0);
+            $loanStats['pending_count'] = (int)($loanStats['pending_count'] ?? 0);
+            $loanStats['total_amount'] = (float)($loanStats['total_amount'] ?? 0);
 
             // New Members This Month
             $sql = "SELECT COUNT(*) as total FROM members 
@@ -108,6 +118,17 @@ class Director extends BaseModel
     public function getFinancialMetrics()
     {
         try {
+            // Add this temporary debug code at the start of getFinancialMetrics()
+            try {
+                $debugSql = "SELECT COUNT(*) as count, status FROM rejectedloans GROUP BY status";
+                $debugStmt = $this->getConnection()->query($debugSql);
+                $debugResults = $debugStmt->fetchAll(PDO::FETCH_ASSOC);
+                error_log('Debug - Rejected loans by status:');
+                error_log(print_r($debugResults, true));
+            } catch (\PDOException $e) {
+                error_log('Debug query error: ' . $e->getMessage());
+            }
+
             // Get total savings with error handling
             try {
                 $sql = "SELECT COALESCE(SUM(current_amount), 0) as total FROM savings_accounts WHERE status = 'active'";
@@ -118,14 +139,51 @@ class Director extends BaseModel
                 $totalSavings = 0;
             }
 
-            // Get total loans with error handling
+            // Get loan statistics with error handling
             try {
-                $sql = "SELECT COALESCE(SUM(amount), 0) as total FROM loans WHERE status = 'approved'";
+                // Modified query to ensure we're counting correctly
+                $sql = "SELECT 
+                    (SELECT COUNT(*) FROM loans WHERE status = 'active') as approved_count,
+                    (SELECT COUNT(*) FROM rejectedloans WHERE status = 'rejected') as rejected_count,
+                    (SELECT COUNT(*) FROM pendingloans WHERE status = 'pending') as pending_count,
+                    (
+                        SELECT COUNT(*) 
+                        FROM (
+                            SELECT id FROM loans WHERE status = 'active'
+                            UNION ALL
+                            SELECT id FROM rejectedloans WHERE status = 'rejected'
+                            UNION ALL
+                            SELECT id FROM pendingloans WHERE status = 'pending'
+                        ) as all_loans
+                    ) as total_count";
+                
                 $stmt = $this->getConnection()->query($sql);
-                $totalLoans = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+                $loanStats = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                // Detailed debug logging
+                error_log('Detailed Loan Statistics:');
+                error_log('- Approved loans: ' . $loanStats['approved_count']);
+                error_log('- Rejected loans: ' . $loanStats['rejected_count']);
+                error_log('- Pending loans: ' . $loanStats['pending_count']);
+                error_log('- Total count: ' . $loanStats['total_count']);
+                
+                // Calculate total loans (all loans from all tables)
+                $totalLoans = $loanStats['total_count'];
+                
+                // Calculate approval rate
+                $approvalRate = $totalLoans > 0 
+                    ? ($loanStats['approved_count'] / $totalLoans) * 100 
+                    : 0;
+                
+                // Debug: Log the final calculations
+                error_log('Final calculations:');
+                error_log('Total Loans: ' . $totalLoans);
+                error_log('Approval Rate: ' . $approvalRate . '%');
+                
             } catch (\PDOException $e) {
                 error_log('Error getting loans: ' . $e->getMessage());
                 $totalLoans = 0;
+                $approvalRate = 0;
             }
 
             // Get total fees with error handling
@@ -142,17 +200,18 @@ class Director extends BaseModel
             try {
                 $sql = "SELECT COALESCE(SUM(amount), 0) as total FROM other_transactions WHERE status = 'completed'";
                 $stmt = $this->getConnection()->query($sql);
-                $otherAmounts = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+                $totalOther = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             } catch (\PDOException $e) {
                 error_log('Error getting other amounts: ' . $e->getMessage());
-                $otherAmounts = 0;
+                $totalOther = 0;
             }
 
             return [
                 'total_savings' => $totalSavings,
                 'total_loans' => $totalLoans,
                 'total_fees' => $totalFees,
-                'other_amounts' => $otherAmounts
+                'total_other' => $totalOther,
+                'loan_approval_rate' => round($approvalRate, 1)
             ];
 
         } catch (\PDOException $e) {
@@ -161,7 +220,8 @@ class Director extends BaseModel
                 'total_savings' => 0,
                 'total_loans' => 0,
                 'total_fees' => 0,
-                'other_amounts' => 0
+                'total_other' => 0,
+                'loan_approval_rate' => 0
             ];
         }
     }
@@ -329,94 +389,132 @@ class Director extends BaseModel
         }
     }
 
-    public function updateLoanStatus($loanId, $status, $remarks)
+    public function updateLoanStatus($data)
     {
         try {
+            error_log('Starting updateLoanStatus in Director model');
+            error_log('Input data: ' . print_r($data, true));
+
             $this->getConnection()->beginTransaction();
+            error_log('Transaction started');
 
-            $sql = "SELECT * FROM pendingloans WHERE id = :loan_id";
+            // Get loan details first
+            $sql = "SELECT * FROM pendingloans WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':loan_id' => $loanId]);
-            $loanData = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->execute([':id' => $data['id']]);
+            $loan = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$loanData) {
-                throw new \Exception('Pembiayaan tidak dijumpai');
+            if (!$loan) {
+                error_log('Loan not found with ID: ' . $data['id']);
+                throw new \Exception('Permohonan pembiayaan tidak dijumpai');
             }
 
-            if ($status === 'approved') {
-                // Insert into loans table
+            error_log('Found loan: ' . print_r($loan, true));
+
+            // Get director details to ensure they exist
+            $directorSql = "SELECT id FROM directors WHERE id = :director_id";
+            $directorStmt = $this->getConnection()->prepare($directorSql);
+            $directorStmt->execute([':director_id' => $data['updated_by']]);
+            
+            if (!$directorStmt->fetch()) {
+                error_log('Director not found with ID: ' . $data['updated_by']);
+                throw new \Exception('Pengarah tidak sah');
+            }
+
+            if ($data['status'] === 'approved') {
+                error_log('Processing approved loan');
+                
+                // Insert into approved loans
                 $sql = "INSERT INTO loans (
-                    member_id, reference_no, loan_type, amount, 
-                    duration, monthly_payment, bank_name, bank_account,
-                    status, date_received, approved_by, approved_at, remarks
+                    member_id, reference_no, loan_type, amount, duration,
+                    monthly_payment, bank_name, bank_account, approved_at,
+                    approved_by, status
                 ) VALUES (
-                    :member_id, :reference_no, :loan_type, :amount,
-                    :duration, :monthly_payment, :bank_name, :bank_account,
-                    'approved', :date_received, :approved_by, NOW(), :remarks
+                    :member_id, :reference_no, :loan_type, :amount, :duration,
+                    :monthly_payment, :bank_name, :bank_account, :approved_at,
+                    :approved_by, 'active'
                 )";
 
                 $stmt = $this->getConnection()->prepare($sql);
-                $stmt->execute([
-                    ':member_id' => $loanData['member_id'],
-                    ':reference_no' => $loanData['reference_no'],
-                    ':loan_type' => $loanData['loan_type'],
-                    ':amount' => $loanData['amount'],
-                    ':duration' => $loanData['duration'],
-                    ':monthly_payment' => $loanData['monthly_payment'],
-                    ':bank_name' => $loanData['bank_name'],
-                    ':bank_account' => $loanData['bank_account'],
-                    ':date_received' => $loanData['date_received'],
-                    ':approved_by' => $_SESSION['director_id'],
-                    ':remarks' => $remarks
+                $success = $stmt->execute([
+                    ':member_id' => $loan['member_id'],
+                    ':reference_no' => $loan['reference_no'],
+                    ':loan_type' => $loan['loan_type'],
+                    ':amount' => $loan['amount'],
+                    ':duration' => $loan['duration'],
+                    ':monthly_payment' => $loan['monthly_payment'],
+                    ':bank_name' => $loan['bank_name'],
+                    ':bank_account' => $loan['bank_account'],
+                    ':approved_at' => $data['updated_at'],
+                    ':approved_by' => $data['updated_by']
                 ]);
 
-                // Delete from pendingloans
-                $sql = "DELETE FROM pendingloans WHERE id = :loan_id";
-                $stmt = $this->getConnection()->prepare($sql);
-                $stmt->execute([':loan_id' => $loanId]);
+                error_log('Insert into loans result: ' . ($success ? 'success' : 'failed'));
+                if (!$success) {
+                    error_log('Insert error: ' . print_r($stmt->errorInfo(), true));
+                }
 
-            } else if ($status === 'rejected') {
-                // Insert into loans table
+            } else {
+                error_log('Processing rejected loan');
+                
+                // Insert into rejected loans
                 $sql = "INSERT INTO rejectedloans (
-                    member_id, reference_no, loan_type, amount, 
-                    duration, monthly_payment, bank_name, bank_account,
-                    status, date_received, rejected_by, rejected_at, remarks
+                    member_id, reference_no, loan_type, amount, duration,
+                    monthly_payment, bank_name, bank_account, date_received,
+                    rejected_by, rejected_at, remarks, status
                 ) VALUES (
-                    :member_id, :reference_no, :loan_type, :amount,
-                    :duration, :monthly_payment, :bank_name, :bank_account,
-                    'rejected', :date_received, :rejected_by, NOW(), :remarks
+                    :member_id, :reference_no, :loan_type, :amount, :duration,
+                    :monthly_payment, :bank_name, :bank_account, :date_received,
+                    :rejected_by, :rejected_at, :remarks, 'rejected'
                 )";
 
                 $stmt = $this->getConnection()->prepare($sql);
-                $stmt->execute([
-                    ':member_id' => $loanData['member_id'],
-                    ':reference_no' => $loanData['reference_no'],
-                    ':loan_type' => $loanData['loan_type'],
-                    ':amount' => $loanData['amount'],
-                    ':duration' => $loanData['duration'],
-                    ':monthly_payment' => $loanData['monthly_payment'],
-                    ':bank_name' => $loanData['bank_name'],
-                    ':bank_account' => $loanData['bank_account'],
-                    ':date_received' => $loanData['date_received'],
-                    ':rejected_by' => $_SESSION['director_id'],
-                    ':remarks' => $remarks
+                $success = $stmt->execute([
+                    ':member_id' => $loan['member_id'],
+                    ':reference_no' => $loan['reference_no'],
+                    ':loan_type' => $loan['loan_type'],
+                    ':amount' => $loan['amount'],
+                    ':duration' => $loan['duration'],
+                    ':monthly_payment' => $loan['monthly_payment'],
+                    ':bank_name' => $loan['bank_name'],
+                    ':bank_account' => $loan['bank_account'],
+                    ':date_received' => $loan['date_received'],
+                    ':rejected_by' => $data['updated_by'],
+                    ':rejected_at' => $data['updated_at'],
+                    ':remarks' => $data['remarks']
                 ]);
 
-                // Delete from pendingloans
-                $sql = "DELETE FROM pendingloans WHERE id = :loan_id";
-                $stmt = $this->getConnection()->prepare($sql);
-                $stmt->execute([':loan_id' => $loanId]);
+                error_log('Insert into rejectedloans result: ' . ($success ? 'success' : 'failed'));
+                if (!$success) {
+                    error_log('Insert error: ' . print_r($stmt->errorInfo(), true));
+                    throw new \PDOException('Failed to insert into rejectedloans');
+                }
+            }
+
+            // Delete from pending loans
+            $sql = "DELETE FROM pendingloans WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $success = $stmt->execute([':id' => $data['id']]);
+
+            error_log('Delete from pendingloans result: ' . ($success ? 'success' : 'failed'));
+            if (!$success) {
+                error_log('Delete error: ' . print_r($stmt->errorInfo(), true));
             }
 
             $this->getConnection()->commit();
+            error_log('Transaction committed successfully');
             return true;
 
         } catch (\PDOException $e) {
+            error_log('Database Error in updateLoanStatus: ' . $e->getMessage());
+            error_log('Error code: ' . $e->getCode());
+            error_log('Error info: ' . print_r($e->errorInfo, true));
+            
             if ($this->getConnection()->inTransaction()) {
                 $this->getConnection()->rollBack();
+                error_log('Transaction rolled back');
             }
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal mengemaskini status pembiayaan');
+            throw new \Exception('Database error: ' . $e->getMessage());
         }
     }
 

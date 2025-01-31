@@ -143,38 +143,55 @@ class DirectorController extends BaseController
     public function updateLoanStatus()
     {
         try {
-            if (!isset($_SESSION['director_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
-            }
-
-            if (!isset($_POST['loan_id']) || !isset($_POST['status'])) {
-                throw new \Exception('ID pembiayaan dan status diperlukan');
-            }
-
-            $loanId = $_POST['loan_id'];
-            $status = $_POST['status'];
+            $loanId = $_POST['loan_id'] ?? null;
+            $status = $_POST['status'] ?? null;
             $remarks = $_POST['remarks'] ?? '';
+
+            // Debug logging
+            error_log('Starting updateLoanStatus');
+            error_log('POST data: ' . print_r($_POST, true));
+
+            // Validate inputs
+            if (!$loanId || !$status) {
+                error_log('Missing required fields');
+                throw new \Exception('ID dan status diperlukan');
+            }
 
             // Validate status
             if (!in_array($status, ['approved', 'rejected'])) {
+                error_log('Invalid status: ' . $status);
                 throw new \Exception('Status tidak sah');
             }
 
-            $result = $this->director->updateLoanStatus($loanId, $status, $remarks);
+            $updateData = [
+                'id' => $loanId,
+                'status' => $status,
+                'remarks' => $remarks,
+                'updated_by' => $_SESSION['director_id'],
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            error_log('Update data: ' . print_r($updateData, true));
+
+            $result = $this->director->updateLoanStatus($updateData);
+            error_log('Update result: ' . ($result ? 'success' : 'failed'));
+
             if ($result) {
-                $_SESSION['success'] = 'Status pembiayaan telah dikemaskini';
+                $_SESSION['success'] = $status === 'approved' 
+                    ? 'Permohonan pembiayaan telah diluluskan' 
+                    : 'Permohonan pembiayaan telah ditolak';
             } else {
                 throw new \Exception('Gagal mengemaskini status pembiayaan');
             }
 
-            header('Location: /director/loans');
-            exit;
-
         } catch (\Exception $e) {
+            error_log('Error in updateLoanStatus: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /director/loans');
-            exit;
         }
+
+        header('Location: /director/loans');
+        exit;
     }
 
     public function showLoans()

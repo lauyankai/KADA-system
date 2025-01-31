@@ -13,6 +13,13 @@
                     </div>
                     
                     <h3 class="mb-4">Permohonan Berjaya Dihantar!</h3>
+
+                    <?php if (isset($success_message)): ?>
+                        <div class="alert alert-success mb-4">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <?= $success_message ?>
+                        </div>
+                    <?php endif; ?>
                     
                     <div class="alert alert-light border bg-light-subtle mb-4">
                         <p class="mb-2">Nombor rujukan anda ialah:</p>

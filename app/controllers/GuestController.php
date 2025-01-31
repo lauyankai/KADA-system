@@ -26,9 +26,10 @@ class GuestController extends BaseController
             $createdGuest = $this->guest->create($_POST);
             
             if ($createdGuest) {
-                // Pass the reference number to the success view
+                // Remove success message from session since we'll show it directly in success view
                 $this->view('guest/success', [
-                    'reference_no' => $createdGuest['reference_no']
+                    'reference_no' => $createdGuest['reference_no'],
+                    'success_message' => "Pendaftaran berjaya! Sila semak emel anda untuk maklumat lanjut."
                 ]);
                 exit;
             }

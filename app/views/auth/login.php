@@ -39,14 +39,16 @@
                                    name="username" 
                                    class="form-control form-control-lg" 
                                    required
-                                   oninput="formatInput(this); togglePassword(this);"
-                                   placeholder="Masukkan ID Admin atau ID Pengguna">
+                                   oninput="formatInput(this);"
+                                   placeholder="Masukkan ID Admin atau No. K/P">
                         </div>
-                        <div class="mb-4" id="passwordField" style="display: none;">
+                        <div class="mb-4" id="passwordField">
                             <label class="form-label">Kata Laluan</label>
                             <input type="password" 
                                    name="password" 
-                                   class="form-control form-control-lg">
+                                   class="form-control form-control-lg"
+                                   required
+                                   placeholder="Masukkan kata laluan">
                         </div>
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success btn-lg">
@@ -91,37 +93,16 @@
 <script>
 function formatInput(input) {
     let value = input.value;
-    
-    
-        // Limit to 14 characters (12 digits + 2 hyphens)
-        value = value.substring(0, 14);
-    }
-    
+    value = value.substring(0, 14);
     input.value = value;
-
-
-function togglePassword(input) {
-        value = value.substring(0, 14);
-    }
-    
-    input.value = value;
-
+}
 
 function togglePassword(input) {
     const passwordField = document.getElementById('passwordField');
     const passwordInput = passwordField.querySelector('input');
     
-    // Check if input contains only numbers and hyphens (IC number)
-    const isIC = /^\d[-\d]*$/.test(input.value);
-    
-    if (isIC) {
-        // Member login (no password needed)
-        passwordField.style.display = 'none';
-        passwordInput.removeAttribute('required');
-    } else {
-        // Admin or Director login (password required)
-        passwordField.style.display = 'block';
-        passwordInput.setAttribute('required', 'required');
-    }
+    // Always show password field for all types of users
+    passwordField.style.display = 'block';
+    passwordInput.setAttribute('required', 'required');
 }
 </script>

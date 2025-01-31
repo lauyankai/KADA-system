@@ -32,6 +32,10 @@
                                         <th class="text-muted">Agama</th>
                                         <td><?= htmlspecialchars($data['member']->religion ?? '-'); ?></td>
                                     </tr>
+                                    <tr>
+                                        <th class="text-muted">E-mel</th>
+                                        <td><?= htmlspecialchars($data['member']->email ?? '-'); ?></td>
+                                    </tr>
                                 </table>
                             </div>
                             <div class="col-md-6">
