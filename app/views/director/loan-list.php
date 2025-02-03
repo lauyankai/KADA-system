@@ -22,40 +22,49 @@
         <div class="col-12 mb-4">
             <div class="row g-3">
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm h-100">
                         <div class="card-body d-flex align-items-center">
                             <div class="stats-icon bg-warning bg-opacity-10 me-3">
-                                <i class="bi bi-clock text-warning"></i>
+                                <i class="bi bi-clock-history text-warning"></i>
                             </div>
                             <div>
                                 <h6 class="card-subtitle text-muted mb-1">Menunggu Kelulusan</h6>
-                                <h3 class="card-title mb-0"><?= $metrics['loan_stats']['pending_count'] ?? 0 ?></h3>
+                                <div class="d-flex align-items-baseline">
+                                    <h3 class="card-title mb-0"><?= $metrics['loan_stats']['pending_count'] ?? 0 ?></h3>
+                                    <small class="text-muted ms-2">permohonan</small>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm h-100">
                         <div class="card-body d-flex align-items-center">
                             <div class="stats-icon bg-success bg-opacity-10 me-3">
                                 <i class="bi bi-check-circle text-success"></i>
                             </div>
                             <div>
                                 <h6 class="card-subtitle text-muted mb-1">Diluluskan</h6>
-                                <h3 class="card-title mb-0"><?= $metrics['loan_stats']['approved_loans'] ?? 0 ?></h3>
+                                <div class="d-flex align-items-baseline">
+                                    <h3 class="card-title mb-0"><?= $metrics['loan_stats']['approved_loans'] ?? 0 ?></h3>
+                                    <small class="text-muted ms-2">permohonan</small>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm h-100">
                         <div class="card-body d-flex align-items-center">
                             <div class="stats-icon bg-danger bg-opacity-10 me-3">
                                 <i class="bi bi-x-circle text-danger"></i>
                             </div>
                             <div>
                                 <h6 class="card-subtitle text-muted mb-1">Ditolak</h6>
-                                <h3 class="card-title mb-0"><?= $metrics['loan_stats']['rejected_count'] ?? 0 ?></h3>
+                                <div class="d-flex align-items-baseline">
+                                    <h3 class="card-title mb-0"><?= $metrics['loan_stats']['rejected_count'] ?? 0 ?></h3>
+                                    <small class="text-muted ms-2">permohonan</small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -67,12 +76,17 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                         <div>
-                            <h4 class="card-title mb-1">
-                                <i class="bi bi-file-text me-2"></i>Senarai Permohonan Pembiayaan
-                            </h4>
-                            <p class="text-muted mb-0">Urus permohonan pembiayaan ahli koperasi</p>
+                            <div class="d-flex align-items-center gap-2">
+                                <h4 class="card-title mb-0">
+                                    <i class="bi bi-file-text me-2"></i>Senarai Permohonan
+                                </h4>
+                                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary">
+                                    <?= count($loans) ?> permohonan
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-0 mt-1">Urus permohonan pembiayaan ahli koperasi</p>
                         </div>
                         <div class="d-flex gap-2">
                             <div class="status-filter">
@@ -88,7 +102,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <a href="/director" class="btn btn-outline-primary">
+                            <a href="/director" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-2"></i>Kembali
                             </a>
                         </div>
@@ -96,20 +110,20 @@
 
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
-                                    <th>No. Rujukan</th>
-                                    <th>Nama Pemohon</th>
-                                    <th>No. K/P</th>
-                                    <th>Jenis</th>
-                                    <th>Jumlah (RM)</th>
-                                    <th>Tempoh</th>
-                                    <th>Tarikh Mohon</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Tindakan</th>
+                                    <th class="bg-light">No. Rujukan</th>
+                                    <th class="bg-light">Nama Pemohon</th>
+                                    <th class="bg-light">No. K/P</th>
+                                    <th class="bg-light">Jenis</th>
+                                    <th class="bg-light">Jumlah (RM)</th>
+                                    <th class="bg-light">Tempoh</th>
+                                    <th class="bg-light">Tarikh Mohon</th>
+                                    <th class="bg-light">Status</th>
+                                    <th class="bg-light text-end">Tindakan</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="table-group-divider">
                                 <?php if (empty($loans)): ?>
                                     <tr>
                                         <td colspan="9" class="text-center py-5">
@@ -144,7 +158,12 @@
                                                 </span>
                                             </td>
                                             <td><?= htmlspecialchars($loan['duration']) ?> bulan</td>
-                                            <td><?= date('d/m/Y', strtotime($loan['date_received'])) ?></td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="bi bi-calendar3 text-muted"></i>
+                                                    <span><?= date('d/m/Y', strtotime($loan['date_received'])) ?></span>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <?php
                                                 $statusBadge = match($loan['status']) {
@@ -228,21 +247,12 @@
     background-color: #fff;
 }
 
-.avatar-circle {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.avatar-circle i {
-    font-size: 1.2rem;
-}
-
 .table > :not(caption) > * > * {
     padding: 1rem 0.75rem;
+}
+
+.table-group-divider {
+    border-top: 2px solid #f5f5f5;
 }
 
 .badge {
@@ -251,7 +261,7 @@
 }
 
 .empty-state {
-    padding: 2rem;
+    padding: 3rem;
     text-align: center;
 }
 
@@ -259,9 +269,23 @@
     opacity: 0.5;
 }
 
+.stats-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.stats-icon i {
+    font-size: 1.5rem;
+}
+
 /* Hover effects */
 .btn-sm {
     transition: all 0.2s;
+    border-radius: 6px;
 }
 
 .btn-sm:hover {
@@ -277,6 +301,23 @@
 /* Status badge styles */
 .bg-opacity-10 {
     --bs-bg-opacity: 0.1;
+}
+
+/* Card hover effect */
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .status-filter .form-select {
+        width: 100%;
+        min-width: auto;
+    }
 }
 </style>
 
