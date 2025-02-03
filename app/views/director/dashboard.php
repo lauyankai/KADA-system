@@ -217,62 +217,6 @@ error_log('Current session data: ' . print_r($_SESSION, true));
             </div>
         </div>
     </div>
-
-    <!-- Recent Activities -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title mb-0">Aktiviti Terkini</h5>
-                <a href="#" class="btn btn-sm btn-outline-success">
-                    Lihat Semua <i class="bi bi-arrow-right ms-1"></i>
-                </a>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Tarikh</th>
-                            <th>Ahli</th>
-                            <th>Jenis</th>
-                            <th>Amaun</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($recentActivities as $activity): ?>
-                            <tr>
-                                <td>
-                                    <div class="d-flex flex-column">
-                                        <span><?= date('d/m/Y', strtotime($activity['created_at'])) ?></span>
-                                        <small class="text-muted"><?= date('H:i', strtotime($activity['created_at'])) ?></small>
-                                    </div>
-                                </td>
-                                <td><?= htmlspecialchars($activity['member_name']) ?></td>
-                                <td>
-                                    <?php if ($activity['type'] === 'savings'): ?>
-                                        <span class="badge bg-success rounded-pill">Simpanan</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-primary rounded-pill">Pembiayaan</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>RM <?= "RM " . number_format($activity['amount'] ?? 0, 2) ?></td>
-                                <td>
-                                    <span class="status-dot bg-<?= getStatusColor($activity['transaction_type']) ?>"></span>
-                                    <?= ucfirst($activity['transaction_type']) ?>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-light" title="Lihat butiran">
-                                        <i class="bi bi-three-dots"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Add custom CSS -->
@@ -307,12 +251,6 @@ error_log('Current session data: ' . print_r($_SESSION, true));
     height: 8px;
     border-radius: 50%;
     margin-right: 0.5rem;
-}
-
-@media print {
-    .btn, .dropdown {
-        display: none !important;
-    }
 }
 </style>
 

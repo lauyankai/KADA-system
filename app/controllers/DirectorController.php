@@ -201,14 +201,43 @@ class DirectorController extends BaseController
                 throw new \Exception('Sila log masuk untuk mengakses');
             }
 
-            $pendingloans = $this->director->getPendingLoans();
+            $status = $_GET['status'] ?? 'pending';
+            
+            // Get loans based on status
+            $loans = $this->director->getLoansByStatus($status);
+            
+            // Get metrics for the stats cards
+            $metrics = $this->director->getMetrics();
+
             $this->view('director/loan-list', [
-                'loans' => $pendingloans
+                'loans' => $loans,
+                'metrics' => $metrics
             ]);
 
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             header('Location: /director');
+            exit;
+        }
+    }
+
+    public function getFinancialTrends()
+    {
+        try {
+            if (!isset($_SESSION['director_id'])) {
+                throw new \Exception('Unauthorized access');
+            }
+
+            $months = $_GET['months'] ?? 6;
+            $trends = $this->director->getFinancialTrends($months);
+
+            header('Content-Type: application/json');
+            echo json_encode($trends);
+            exit;
+
+        } catch (\Exception $e) {
+            header('HTTP/1.1 500 Internal Server Error');
+            echo json_encode(['error' => $e->getMessage()]);
             exit;
         }
     }
