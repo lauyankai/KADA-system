@@ -200,10 +200,12 @@ class DirectorController extends BaseController
             if (!isset($_SESSION['director_id'])) {
                 throw new \Exception('Sila log masuk untuk mengakses');
             }
-
+            
+            $metrics = $this->director->getMetrics();
             $pendingloans = $this->director->getPendingLoans();
             $this->view('director/loan-list', [
-                'loans' => $pendingloans
+                'loans' => $pendingloans,
+                'metrics' => $metrics
             ]);
 
         } catch (\Exception $e) {
