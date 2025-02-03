@@ -304,28 +304,40 @@
                                 <div class="accordion-item border-0">
                                     <h4 class="accordion-header">
                                         <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven">
-                                            Pindaan Akta
+                                            Akta Koperasi 1993 (Akta 502)
                                         </button>
                                     </h4>
                                     <div id="collapseSeven" class="accordion-collapse collapse" data-bs-parent="#structureAccordion">
                                         <div class="accordion-body">
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-file-text me-2 text-primary"></i>Akta A155 (1972)
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-file-text me-2 text-primary"></i>Akta 160 (1975)
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-file-text me-2 text-primary"></i>Akta A762 (1990)
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-file-text me-2 text-primary"></i>Akta 478 (1992)
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-file-text me-2 text-primary"></i>Akta A1052 (1999)
-                                                </li>
-                                            </ul>
+                                            <div class="mb-4">
+                                                <h5 class="text-primary">1. Menyokong Petani dan Perniagaan Pertanian</h5>
+                                                <div class="ms-3">
+                                                    <p><strong>Seksyen 20: Pelupusan Hasil kepada atau Melalui Sesuatu Koperasi Berdaftar</strong></p>
+                                                    <p>Membenarkan koperasi memasukkan dalam undang-undang kecilnya peruntukan yang mewajibkan anggota menjual hasil pertanian mereka melalui koperasi.</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <h5 class="text-primary">2. Menyediakan Bantuan Kewangan, Bekalan, atau Perkhidmatan</h5>
+                                                <div class="ms-3">
+                                                    <p><strong>Seksyen 51: Pinjaman oleh Sesuatu Koperasi Berdaftar</strong></p>
+                                                    <p>Membenarkan koperasi memberikan pinjaman atau kemudahan kredit kepada anggotanya.</p>
+                                                    
+                                                    <p><strong>Seksyen 50: Dana Sesuatu Koperasi Berdaftar</strong></p>
+                                                    <p>Menggariskan sumber dana koperasi untuk menyediakan bekalan dan perkhidmatan kepada anggota.</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <h5 class="text-primary">3. Pengurusan Operasi</h5>
+                                                <div class="ms-3">
+                                                    <p><strong>Seksyen 19: Penubuhan Anak Syarikat</strong></p>
+                                                    <p>Membolehkan koperasi menubuhkan entiti khusus untuk menguruskan aspek tertentu operasi.</p>
+                                                    
+                                                    <p><strong>Seksyen 44: Tugas dan Kuasa Lembaga</strong></p>
+                                                    <p>Memberikan kuasa kepada Lembaga koperasi untuk menguruskan perniagaan dan operasi koperasi.</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
