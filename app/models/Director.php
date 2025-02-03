@@ -539,4 +539,45 @@ class Director extends BaseModel
             throw new \Exception('Gagal mendapatkan senarai pembiayaan: ' . $e->getMessage());
         }
     }
+
+    public function getLoansByStatus($status)
+    {
+        try {
+            switch ($status) {
+                case 'pending':
+                    $sql = "SELECT l.*, m.name as member_name, m.ic_no 
+                            FROM pendingloans l
+                            JOIN members m ON l.member_id = m.id
+                            WHERE l.status = 'pending'
+                            ORDER BY l.date_received DESC";
+                    break;
+                    
+                case 'approved':
+                    $sql = "SELECT l.*, m.name as member_name, m.ic_no 
+                            FROM loans l
+                            JOIN members m ON l.member_id = m.id
+                            WHERE l.status = 'approved'
+                            ORDER BY l.date_received DESC";
+                    break;
+                    
+                case 'rejected':
+                    $sql = "SELECT l.*, m.name as member_name, m.ic_no 
+                            FROM rejectedloans l
+                            JOIN members m ON l.member_id = m.id
+                            ORDER BY l.rejected_at DESC";
+                    break;
+                    
+                default:
+                    throw new \Exception('Invalid status');
+            }
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in getLoansByStatus: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai pembiayaan');
+        }
+    }
 } 

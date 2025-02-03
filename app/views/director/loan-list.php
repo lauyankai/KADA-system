@@ -74,21 +74,12 @@
                             </h4>
                             <p class="text-muted mb-0">Urus permohonan pembiayaan ahli koperasi</p>
                         </div>
-                        <div class="d-flex gap-2">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                    <i class="bi bi-funnel me-1"></i>Status
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="?status=all">Semua</a></li>
-                                    <li><a class="dropdown-item" href="?status=pending">Menunggu</a></li>
-                                    <li><a class="dropdown-item" href="?status=approved">Diluluskan</a></li>
-                                    <li><a class="dropdown-item" href="?status=rejected">Ditolak</a></li>
-                                </ul>
-                            </div>
-                            <a href="/director" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Kembali
-                            </a>
+                        <div>
+                            <select class="form-select" id="statusFilter" onchange="filterLoans(this.value)">
+                                <option value="pending" <?= ($_GET['status'] ?? 'pending') === 'pending' ? 'selected' : '' ?>>Menunggu</option>
+                                <option value="approved" <?= ($_GET['status'] ?? '') === 'approved' ? 'selected' : '' ?>>Diluluskan</option>
+                                <option value="rejected" <?= ($_GET['status'] ?? '') === 'rejected' ? 'selected' : '' ?>>Ditolak</option>
+                            </select>
                         </div>
                     </div>
 
@@ -101,9 +92,10 @@
                                     <th>No. K/P</th>
                                     <th>Jenis</th>
                                     <th>Jumlah (RM)</th>
+                                    <th>Tempoh</th>
                                     <th>Tarikh Mohon</th>
                                     <th>Status</th>
-                                    <th class="text-end">Tindakan</th>
+                                    <th>Tindakan</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,37 +109,34 @@
                                     <?php foreach ($loans as $loan): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($loan['reference_no']) ?></td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="bg-light rounded-circle p-2 me-2">
-                                                        <i class="bi bi-person"></i>
-                                                    </div>
-                                                    <?= htmlspecialchars($loan['member_name']) ?>
-                                                </div>
-                                            </td>
+                                            <td><?= htmlspecialchars($loan['member_name']) ?></td>
                                             <td><?= htmlspecialchars($loan['ic_no']) ?></td>
-                                            <td><span class="badge bg-primary"><?= htmlspecialchars($loan['loan_type']) ?></span></td>
-                                            <td>RM <?= number_format($loan['amount'], 2) ?></td>
+                                            <td><?= htmlspecialchars($loan['loan_type']) ?></td>
+                                            <td><?= number_format($loan['amount'], 2) ?></td>
+                                            <td><?= htmlspecialchars($loan['duration']) ?> bulan</td>
                                             <td><?= date('d/m/Y', strtotime($loan['date_received'])) ?></td>
                                             <td>
                                                 <?php
-                                                    $statusClass = match($loan['status']) {
-                                                        'pending' => 'warning',
-                                                        'approved' => 'success',
-                                                        'rejected' => 'danger',
-                                                        default => 'secondary'
-                                                    };
+                                                $statusBadge = match($loan['status']) {
+                                                    'pending' => '<span class="badge bg-warning">Menunggu</span>',
+                                                    'approved' => '<span class="badge bg-success">Diluluskan</span>',
+                                                    'rejected' => '<span class="badge bg-danger">Ditolak</span>',
+                                                    default => '<span class="badge bg-secondary">-</span>'
+                                                };
+                                                echo $statusBadge;
                                                 ?>
-                                                <span class="badge bg-<?= $statusClass ?> bg-opacity-10 text-<?= $statusClass ?>">
-                                                    <?= ucfirst($loan['status']) ?>
-                                                </span>
                                             </td>
-                                            <td class="text-end">
-                                                <button type="button" 
-                                                        class="btn btn-sm btn-primary"
-                                                        onclick="showReviewModal('<?= $loan['id'] ?>')">
-                                                    <i class="bi bi-check-circle me-1"></i>Semak
-                                                </button>
+                                            <td>
+                                                <?php if ($loan['status'] === 'pending'): ?>
+                                                    <button onclick="showReviewModal(<?= $loan['id'] ?>)" 
+                                                            class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button class="btn btn-sm btn-secondary" disabled>
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -236,6 +225,10 @@
 function showReviewModal(loanId) {
     document.getElementById('loanId').value = loanId;
     new bootstrap.Modal(document.getElementById('reviewModal')).show();
+}
+
+function filterLoans(status) {
+    window.location.href = `/director/loans?status=${status}`;
 }
 </script>
 
