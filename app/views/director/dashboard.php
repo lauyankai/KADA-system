@@ -29,10 +29,13 @@ error_log('Current session data: ' . print_r($_SESSION, true));
                             </div>
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="card-subtitle text-muted">Jumlah Ahli</h6>
-                            <h2 class="card-title mb-0"><?= number_format($metrics['total_members']) ?></h2>
-                            <small class="text-muted ms-2">orang</small>
+                            <h6 class="card-subtitle">Jumlah Ahli</h6>
+                            <div class="d-flex align-items-baseline">
+                                <h2 class="card-title mb-0"><?= number_format($metrics['total_members']) ?></h2>
+                                <small class="text-muted ms-2">orang</small>
+                            </div>
                         </div>
+
                     </div>
                     <div class="d-flex align-items-center">
                         <span class="badge bg-success me-2">
@@ -55,7 +58,7 @@ error_log('Current session data: ' . print_r($_SESSION, true));
                             </div>
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="card-subtitle text-muted">Jumlah Keseluruhan Simpanan</h6>
+                            <h6 class="card-subtitle">Jumlah Keseluruhan Simpanan</h6>
                             <h2 class="card-title mb-0"><?= "RM " . number_format($metrics['total_savings'] ?? 0, 2) ?></h2>
                         </div>
                     </div>
@@ -74,12 +77,15 @@ error_log('Current session data: ' . print_r($_SESSION, true));
                             </div>
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="card-subtitle text-muted">Pembiayaan Aktif</h6>
-                            <h2 class="card-title mb-0"><?= $metrics['loan_stats']['approved_loans'] ?></h2>
-                            <small class="text-muted ms-2">permohonan</small>
+                            <h6 class="card-subtitle">Pembiayaan Aktif</h6>
+                            <div class="d-flex align-items-baseline">
+                                <h2 class="card-title mb-0"><?= $metrics['loan_stats']['approved_loans'] ?></h2>
+                                <small class="text-muted ms-2">permohonan</small>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex align-items-center">
+
                         <h6 class="mb-0 me-2"><?= "RM " . number_format($metrics['loan_stats']['total_amount'] ?? 0, 2) ?></h6>
                         <small class="text-muted">Jumlah pembiayaan</small>
                     </div>
@@ -98,7 +104,7 @@ error_log('Current session data: ' . print_r($_SESSION, true));
                             </div>
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="card-subtitle text-muted">Kadar Kelulusan</h6>
+                            <h6 class="card-subtitle">Kadar Kelulusan</h6>
                             <?php
                                 $approvedLoans = $metrics['loan_stats']['approved_loans'] ?? 0;
                                 $totalLoans = ($metrics['loan_stats']['total_loans'] ?? 0) + 
@@ -156,6 +162,42 @@ error_log('Current session data: ' . print_r($_SESSION, true));
                         <h5 class="card-title mb-0">Trend Kewangan</h5>
                     </div>
                     <canvas id="financialTrendChart" height="280"></canvas>
+                    
+                    <!-- Add this insights section below the chart -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="stats-trend-indicator rounded-circle bg-primary bg-opacity-10 p-2">
+                                            <i class="bi bi-graph-up text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="small text-muted">Pembiayaan Bulan Ini</div>
+                                        <div class="fw-medium">
+                                            RM <?= number_format(end($financialTrends['loans']), 2) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="stats-trend-indicator rounded-circle bg-success bg-opacity-10 p-2">
+                                            <i class="bi bi-piggy-bank text-success"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="small text-muted">Simpanan Bulan Ini</div>
+                                        <div class="fw-medium">
+                                            RM <?= number_format(end($financialTrends['savings']), 2) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -240,6 +282,17 @@ error_log('Current session data: ' . print_r($_SESSION, true));
     height: 8px;
     border-radius: 50%;
     margin-right: 0.5rem;
+}
+
+.stats-trend-indicator {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.stats-trend-indicator i {
+    font-size: 1rem;
 }
 </style>
 
