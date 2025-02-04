@@ -25,15 +25,16 @@ class DirectorController extends BaseController
             $membershipTrends = $this->director->getMembershipTrends();
             $financialMetrics = $this->director->getFinancialMetrics();
             $membershipStats = $this->director->getMembershipStats();
+            $financialTrends = $this->director->getFinancialTrends();
 
-            // Merge financial metrics with general metrics
             $metrics = array_merge($metrics, $financialMetrics);
 
             $this->view('director/dashboard', [
                 'metrics' => $metrics,
                 'recentActivities' => $recentActivities,
                 'membershipTrends' => $membershipTrends,
-                'membershipStats' => $membershipStats
+                'membershipStats' => $membershipStats,
+                'financialTrends' => $financialTrends
             ]);
         } catch (\Exception $e) {
             error_log('Error in director dashboard: ' . $e->getMessage());
@@ -228,16 +229,10 @@ class DirectorController extends BaseController
                 throw new \Exception('Unauthorized access');
             }
 
-            $months = $_GET['months'] ?? 6;
-            $trends = $this->director->getFinancialTrends($months);
-
-            header('Content-Type: application/json');
-            echo json_encode($trends);
-            exit;
+            $trends = $this->director->getFinancialTrends();
 
         } catch (\Exception $e) {
-            header('HTTP/1.1 500 Internal Server Error');
-            echo json_encode(['error' => $e->getMessage()]);
+            error_log('Error in getFinancialTrends: ' . $e->getMessage());
             exit;
         }
     }
