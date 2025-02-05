@@ -2,7 +2,7 @@
     $title = 'Maklumat Pembiayaan';
     require_once '../app/views/layouts/header.php';
 ?>
-
+<link rel="stylesheet" href="/css/landing.css">
 <div class="container my-5">
     <div class="text-center mb-5">
         <h1 class="display-5 fw-bold text-gradient">Jenis-jenis Pembiayaan</h1>
@@ -161,26 +161,5 @@
         </a>
     </div>
 </div>
-
-<style>
-.icon-circle {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-}
-
-.hover-shadow {
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.hover-shadow:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-}
-</style>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>
