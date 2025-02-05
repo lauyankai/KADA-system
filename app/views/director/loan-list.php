@@ -1,7 +1,7 @@
 <?php 
     require_once '../app/views/layouts/header.php';
 ?>
-
+<link rel="stylesheet" href="/css/director.css">
 <div class="container-fluid mt-4">
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show">
@@ -237,99 +237,15 @@
     </div>
 </div>
 
-<style>
-/* Modern styling */
-.status-filter .form-select {
-    min-width: 220px;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    background-color: #fff;
-}
-
-.table > :not(caption) > * > * {
-    padding: 1rem 0.75rem;
-}
-
-.table-group-divider {
-    border-top: 2px solid #f5f5f5;
-}
-
-.badge {
-    padding: 0.5em 0.8em;
-    font-weight: 500;
-}
-
-.empty-state {
-    padding: 3rem;
-    text-align: center;
-}
-
-.empty-state i {
-    opacity: 0.5;
-}
-
-.stats-icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-}
-
-.stats-icon i {
-    font-size: 1.5rem;
-}
-
-/* Hover effects */
-.btn-sm {
-    transition: all 0.2s;
-    border-radius: 6px;
-}
-
-.btn-sm:hover {
-    transform: translateY(-1px);
-}
-
-/* Table row hover effect */
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 0, 0, 0.02);
-    transition: background-color 0.2s;
-}
-
-/* Status badge styles */
-.bg-opacity-10 {
-    --bs-bg-opacity: 0.1;
-}
-
-/* Card hover effect */
-.card {
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .status-filter .form-select {
-        width: 100%;
-        min-width: auto;
-    }
-}
-</style>
-
 <script>
-function showReviewModal(loanId) {
-    document.getElementById('loanId').value = loanId;
-    new bootstrap.Modal(document.getElementById('reviewModal')).show();
-}
+    function showReviewModal(loanId) {
+        document.getElementById('loanId').value = loanId;
+        new bootstrap.Modal(document.getElementById('reviewModal')).show();
+    }
 
-function filterLoans(status) {
-    window.location.href = `/director/loans?status=${status}`;
-}
+    function filterLoans(status) {
+        window.location.href = `/director/loans?status=${status}`;
+    }
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>
