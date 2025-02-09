@@ -1,7 +1,7 @@
 <?php 
     require_once '../app/views/layouts/header.php';
 ?>
-
+<link rel="stylesheet" href="/css/director.css">
 <div class="container-fluid mt-4">
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show">
@@ -22,40 +22,49 @@
         <div class="col-12 mb-4">
             <div class="row g-3">
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm h-100">
                         <div class="card-body d-flex align-items-center">
                             <div class="stats-icon bg-warning bg-opacity-10 me-3">
-                                <i class="bi bi-clock text-warning"></i>
+                                <i class="bi bi-clock-history text-warning"></i>
                             </div>
                             <div>
                                 <h6 class="card-subtitle text-muted mb-1">Menunggu Kelulusan</h6>
-                                <h3 class="card-title mb-0"><?= $metrics['loan_stats']['pending_count'] ?? 0 ?></h3>
+                                <div class="d-flex align-items-baseline">
+                                    <h3 class="card-title mb-0"><?= $metrics['loan_stats']['pending_count'] ?? 0 ?></h3>
+                                    <small class="text-muted ms-2">permohonan</small>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm h-100">
                         <div class="card-body d-flex align-items-center">
                             <div class="stats-icon bg-success bg-opacity-10 me-3">
                                 <i class="bi bi-check-circle text-success"></i>
                             </div>
                             <div>
                                 <h6 class="card-subtitle text-muted mb-1">Diluluskan</h6>
-                                <h3 class="card-title mb-0"><?= $metrics['loan_stats']['approved_loans'] ?? 0 ?></h3>
+                                <div class="d-flex align-items-baseline">
+                                    <h3 class="card-title mb-0"><?= $metrics['loan_stats']['approved_loans'] ?? 0 ?></h3>
+                                    <small class="text-muted ms-2">permohonan</small>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm h-100">
                         <div class="card-body d-flex align-items-center">
                             <div class="stats-icon bg-danger bg-opacity-10 me-3">
                                 <i class="bi bi-x-circle text-danger"></i>
                             </div>
                             <div>
                                 <h6 class="card-subtitle text-muted mb-1">Ditolak</h6>
-                                <h3 class="card-title mb-0"><?= $metrics['loan_stats']['rejected_count'] ?? 0 ?></h3>
+                                <div class="d-flex align-items-baseline">
+                                    <h3 class="card-title mb-0"><?= $metrics['loan_stats']['rejected_count'] ?? 0 ?></h3>
+                                    <small class="text-muted ms-2">permohonan</small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -67,26 +76,33 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                         <div>
-                            <h4 class="card-title mb-1">
-                                <i class="bi bi-file-text me-2"></i>Senarai Permohonan Pembiayaan
-                            </h4>
-                            <p class="text-muted mb-0">Urus permohonan pembiayaan ahli koperasi</p>
+                            <div class="d-flex align-items-center gap-2">
+                                <h4 class="card-title mb-0">
+                                    <i class="bi bi-file-text me-2"></i>Senarai Permohonan
+                                </h4>
+                                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary">
+                                    <?= count($loans) ?> permohonan
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-0 mt-1">Urus permohonan pembiayaan ahli koperasi</p>
                         </div>
                         <div class="d-flex gap-2">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                    <i class="bi bi-funnel me-1"></i>Status
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="?status=all">Semua</a></li>
-                                    <li><a class="dropdown-item" href="?status=pending">Menunggu</a></li>
-                                    <li><a class="dropdown-item" href="?status=approved">Diluluskan</a></li>
-                                    <li><a class="dropdown-item" href="?status=rejected">Ditolak</a></li>
-                                </ul>
+                            <div class="status-filter">
+                                <select class="form-select shadow-sm" id="statusFilter" onchange="filterLoans(this.value)">
+                                    <option value="pending" <?= ($_GET['status'] ?? 'pending') === 'pending' ? 'selected' : '' ?>>
+                                        <i class="bi bi-clock-history"></i> Menunggu Kelulusan
+                                    </option>
+                                    <option value="approved" <?= ($_GET['status'] ?? '') === 'approved' ? 'selected' : '' ?>>
+                                        <i class="bi bi-check-circle"></i> Diluluskan
+                                    </option>
+                                    <option value="rejected" <?= ($_GET['status'] ?? '') === 'rejected' ? 'selected' : '' ?>>
+                                        <i class="bi bi-x-circle"></i> Ditolak
+                                    </option>
+                                </select>
                             </div>
-                            <a href="/director" class="btn btn-outline-primary">
+                            <a href="/director" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-2"></i>Kembali
                             </a>
                         </div>
@@ -94,60 +110,82 @@
 
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
-                                    <th>No. Rujukan</th>
-                                    <th>Nama Pemohon</th>
-                                    <th>No. K/P</th>
-                                    <th>Jenis</th>
-                                    <th>Jumlah (RM)</th>
-                                    <th>Tarikh Mohon</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Tindakan</th>
+                                    <th class="bg-light">No. Rujukan</th>
+                                    <th class="bg-light">Nama Pemohon</th>
+                                    <th class="bg-light">No. K/P</th>
+                                    <th class="bg-light">Jenis</th>
+                                    <th class="bg-light">Jumlah (RM)</th>
+                                    <th class="bg-light">Tempoh</th>
+                                    <th class="bg-light">Tarikh Mohon</th>
+                                    <th class="bg-light">Status</th>
+                                    <th class="bg-light text-end">Tindakan</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="table-group-divider">
                                 <?php if (empty($loans)): ?>
                                     <tr>
-                                        <td colspan="8" class="text-center py-5">
-                                            <p class="text-muted mb-0">Tiada permohonan pembiayaan baharu</p>
+                                        <td colspan="9" class="text-center py-5">
+                                            <div class="empty-state">
+                                                <i class="bi bi-folder2-open display-6 text-muted"></i>
+                                                <p class="text-muted mb-0 mt-3">Tiada permohonan pembiayaan baharu</p>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($loans as $loan): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($loan['reference_no']) ?></td>
+                                            <td>
+                                                <span class="fw-medium"><?= htmlspecialchars($loan['reference_no']) ?></span>
+                                            </td>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <div class="bg-light rounded-circle p-2 me-2">
-                                                        <i class="bi bi-person"></i>
+                                                    <div>
+                                                        <span class="fw-medium"><?= htmlspecialchars($loan['member_name']) ?></span>
                                                     </div>
-                                                    <?= htmlspecialchars($loan['member_name']) ?>
                                                 </div>
                                             </td>
                                             <td><?= htmlspecialchars($loan['ic_no']) ?></td>
-                                            <td><span class="badge bg-primary"><?= htmlspecialchars($loan['loan_type']) ?></span></td>
-                                            <td>RM <?= number_format($loan['amount'], 2) ?></td>
-                                            <td><?= date('d/m/Y', strtotime($loan['date_received'])) ?></td>
                                             <td>
-                                                <?php
-                                                    $statusClass = match($loan['status']) {
-                                                        'pending' => 'warning',
-                                                        'approved' => 'success',
-                                                        'rejected' => 'danger',
-                                                        default => 'secondary'
-                                                    };
-                                                ?>
-                                                <span class="badge bg-<?= $statusClass ?> bg-opacity-10 text-<?= $statusClass ?>">
-                                                    <?= ucfirst($loan['status']) ?>
+                                                <span class="badge bg-primary bg-opacity-10 text-primary">
+                                                    <?= htmlspecialchars($loan['loan_type']) ?>
                                                 </span>
                                             </td>
+                                            <td>
+                                                <span class="fw-medium">
+                                                    <?= number_format($loan['amount'], 2) ?>
+                                                </span>
+                                            </td>
+                                            <td><?= htmlspecialchars($loan['duration']) ?> bulan</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="bi bi-calendar3 text-muted"></i>
+                                                    <span><?= date('d/m/Y', strtotime($loan['date_received'])) ?></span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                $statusBadge = match($loan['status']) {
+                                                    'pending' => '<span class="badge bg-warning bg-opacity-10 text-warning">Menunggu Kelulusan</span>',
+                                                    'approved' => '<span class="badge bg-success bg-opacity-10 text-success">Diluluskan</span>',
+                                                    'rejected' => '<span class="badge bg-danger bg-opacity-10 text-danger">Ditolak</span>',
+                                                    default => '<span class="badge bg-secondary bg-opacity-10 text-secondary">-</span>'
+                                                };
+                                                echo $statusBadge;
+                                                ?>
+                                            </td>
                                             <td class="text-end">
-                                                <button type="button" 
-                                                        class="btn btn-sm btn-primary"
-                                                        onclick="showReviewModal('<?= $loan['id'] ?>')">
-                                                    <i class="bi bi-check-circle me-1"></i>Semak
-                                                </button>
+                                                <?php if ($loan['status'] === 'pending'): ?>
+                                                    <button onclick="showReviewModal(<?= $loan['id'] ?>)" 
+                                                            class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-pencil-square me-1"></i>Semak
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button class="btn btn-sm btn-light" disabled>
+                                                        <i class="bi bi-check-circle me-1"></i>Selesai
+                                                    </button>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -199,44 +237,15 @@
     </div>
 </div>
 
-<style>
-.table > :not(caption) > * > * {
-    padding: 1rem 0.75rem;
-}
-
-.badge {
-    font-weight: 500;
-}
-
-.modal-content {
-    border: none;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.stats-icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-}
-
-.stats-icon i {
-    font-size: 24px;
-}
-</style>
-
 <script>
-function showReviewModal(loanId) {
-    document.getElementById('loanId').value = loanId;
-    new bootstrap.Modal(document.getElementById('reviewModal')).show();
-}
+    function showReviewModal(loanId) {
+        document.getElementById('loanId').value = loanId;
+        new bootstrap.Modal(document.getElementById('reviewModal')).show();
+    }
+
+    function filterLoans(status) {
+        window.location.href = `/director/loans?status=${status}`;
+    }
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>

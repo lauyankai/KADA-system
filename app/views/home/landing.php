@@ -14,6 +14,7 @@
     </div>
 <?php endif; ?>
 
+<link rel="stylesheet" href="/css/landing.css">
 <div class="animated-hero min-vh-100 d-flex align-items-center">
     <div class="hero-shapes">
         <div class="shape shape-1"></div>
@@ -405,24 +406,5 @@
         document.getElementById('monthlyPayment').textContent = monthlyPayment.toFixed(2);
     });
 </script>
-
-<style>
-.card {
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.bi-file-earmark-pdf {
-    font-size: 2rem;
-}
-
-.btn-outline-primary:hover {
-    background-color: #0d6efd;
-    color: white;
-}
-</style>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 

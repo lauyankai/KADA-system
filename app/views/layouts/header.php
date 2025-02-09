@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/styles.css">
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -55,22 +54,22 @@
                         <ul class="dropdown-menu" aria-labelledby="hubungiKamiDropdown">
                             <li>
                                 <a class="dropdown-item" href="#">
-                                    <i class="bi bi-geo-alt me-2"></i>127, Jalan Dato'Lundang 15710 Kota Bharu, Kelantan.
+                                    <i class="bi bi-geo-alt me-2"></i>D/A Lembaga Kemajuan Pertanian Kemubu, P/S 127, 15710 Kota Bharu, Kelantan.
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="tel:+6097455388">
-                                    <i class="bi bi-telephone me-2"></i>+609-7455388
+                                <a class="dropdown-item" href="tel:097447088">
+                                    <i class="bi bi-telephone me-2"></i>09-7447088 samb. 5339 @ 5312
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="mailto:prokada@kada.gov.my">
-                                    <i class="bi bi-envelope me-2"></i>prokada@kada.gov.my
+                                    <i class="bi bi-envelope me-2"></i>koperasi_kada@yahoo.com
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="#">
-                                    <i class="bi bi-clock me-2"></i>Waktu Operasi
+                                    <i class="bi bi-clock me-2"></i>Ahad - Khamis: 8:00 AM - 4:00 PM
                                 </a>
                             </li>
                         </ul>

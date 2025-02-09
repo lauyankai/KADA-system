@@ -25,15 +25,16 @@ class DirectorController extends BaseController
             $membershipTrends = $this->director->getMembershipTrends();
             $financialMetrics = $this->director->getFinancialMetrics();
             $membershipStats = $this->director->getMembershipStats();
+            $financialTrends = $this->director->getFinancialTrends();
 
-            // Merge financial metrics with general metrics
             $metrics = array_merge($metrics, $financialMetrics);
 
             $this->view('director/dashboard', [
                 'metrics' => $metrics,
                 'recentActivities' => $recentActivities,
                 'membershipTrends' => $membershipTrends,
-                'membershipStats' => $membershipStats
+                'membershipStats' => $membershipStats,
+                'financialTrends' => $financialTrends
             ]);
         } catch (\Exception $e) {
             error_log('Error in director dashboard: ' . $e->getMessage());
@@ -201,14 +202,37 @@ class DirectorController extends BaseController
                 throw new \Exception('Sila log masuk untuk mengakses');
             }
 
-            $pendingloans = $this->director->getPendingLoans();
+            $status = $_GET['status'] ?? 'pending';
+            
+            // Get loans based on status
+            $loans = $this->director->getLoansByStatus($status);
+            
+            // Get metrics for the stats cards
+            $metrics = $this->director->getMetrics();
+
             $this->view('director/loan-list', [
-                'loans' => $pendingloans
+                'loans' => $loans,
+                'metrics' => $metrics
             ]);
 
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             header('Location: /director');
+            exit;
+        }
+    }
+
+    public function getFinancialTrends()
+    {
+        try {
+            if (!isset($_SESSION['director_id'])) {
+                throw new \Exception('Unauthorized access');
+            }
+
+            $trends = $this->director->getFinancialTrends();
+
+        } catch (\Exception $e) {
+            error_log('Error in getFinancialTrends: ' . $e->getMessage());
             exit;
         }
     }

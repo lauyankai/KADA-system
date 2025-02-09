@@ -3,6 +3,9 @@ namespace App\Models;
 
 use App\Core\BaseModel;
 use PDO;
+use DateTime;
+use DateInterval;
+use DatePeriod;
 
 class Director extends BaseModel
 {
@@ -138,22 +141,20 @@ class Director extends BaseModel
                 error_log('Error getting savings: ' . $e->getMessage());
                 $totalSavings = 0;
             }
-
-            // Get loan statistics with error handling
+            
             try {
-                // Modified query to ensure we're counting correctly
                 $sql = "SELECT 
-                    (SELECT COUNT(*) FROM loans WHERE status = 'active') as approved_count,
-                    (SELECT COUNT(*) FROM rejectedloans WHERE status = 'rejected') as rejected_count,
-                    (SELECT COUNT(*) FROM pendingloans WHERE status = 'pending') as pending_count,
+                    (SELECT COUNT(*) FROM loans) as approved_count,
+                    (SELECT COUNT(*) FROM rejectedloans) as rejected_count,
+                    (SELECT COUNT(*) FROM pendingloans) as pending_count,
                     (
                         SELECT COUNT(*) 
                         FROM (
-                            SELECT id FROM loans WHERE status = 'active'
+                            SELECT id FROM loans
                             UNION ALL
-                            SELECT id FROM rejectedloans WHERE status = 'rejected'
+                            SELECT id FROM rejectedloans
                             UNION ALL
-                            SELECT id FROM pendingloans WHERE status = 'pending'
+                            SELECT id FROM pendingloans
                         ) as all_loans
                     ) as total_count";
                 
@@ -537,6 +538,117 @@ class Director extends BaseModel
             error_log('Error code: ' . $e->getCode());
             error_log('Error info: ' . print_r($e->errorInfo, true));
             throw new \Exception('Gagal mendapatkan senarai pembiayaan: ' . $e->getMessage());
+        }
+    }
+
+    public function getLoansByStatus($status)
+    {
+        try {
+            switch ($status) {
+                case 'pending':
+                    $sql = "SELECT l.*, m.name as member_name, m.ic_no 
+                            FROM pendingloans l
+                            JOIN members m ON l.member_id = m.id
+                            WHERE l.status = 'pending'
+                            ORDER BY l.date_received DESC";
+                    break;
+                    
+                case 'approved':
+                    $sql = "SELECT l.*, m.name as member_name, m.ic_no 
+                            FROM loans l
+                            JOIN members m ON l.member_id = m.id
+                            WHERE l.status = 'approved'
+                            ORDER BY l.date_received DESC";
+                    break;
+                    
+                case 'rejected':
+                    $sql = "SELECT l.*, m.name as member_name, m.ic_no 
+                            FROM rejectedloans l
+                            JOIN members m ON l.member_id = m.id
+                            ORDER BY l.rejected_at DESC";
+                    break;
+                    
+                default:
+                    throw new \Exception('Invalid status');
+            }
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in getLoansByStatus: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan senarai pembiayaan');
+        }
+    }
+
+    public function getFinancialTrends() 
+    {
+        try {
+            // Get monthly loan totals - fixed GROUP BY clause
+            $loanSql = "SELECT 
+                DATE_FORMAT(updated_at, '%b %Y') as month,
+                SUM(payment_amount) as loan_amount,
+                MIN(DATE_FORMAT(updated_at, '%Y-%m')) as sort_date
+                FROM loan_payments
+                WHERE updated_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+                GROUP BY DATE_FORMAT(updated_at, '%b %Y')
+                ORDER BY sort_date ASC";
+
+            // Get monthly savings totals - fixed GROUP BY clause
+            $savingsSql = "SELECT 
+                DATE_FORMAT(created_at, '%b %Y') as month,
+                SUM(amount) as savings_amount,
+                MIN(DATE_FORMAT(created_at, '%Y-%m')) as sort_date
+                FROM savings_transactions 
+                WHERE created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+                GROUP BY DATE_FORMAT(created_at, '%b %Y')
+                ORDER BY sort_date ASC";
+
+            // Execute loan query
+            $stmt = $this->getConnection()->prepare($loanSql);
+            $stmt->execute();
+            $loanResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Execute savings query
+            $stmt = $this->getConnection()->prepare($savingsSql);
+            $stmt->execute();
+            $savingsResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Initialize arrays for all months
+            $monthlyData = [];
+            $startDate = new \DateTime("-6 months");
+            $endDate = new \DateTime();
+            $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
+
+            // Initialize all months with zero values
+            foreach ($period as $date) {
+                $monthKey = $date->format('M Y');
+                $monthlyData[$monthKey] = ['loans' => 0, 'savings' => 0];
+            }
+
+            // Fill in loan data
+            foreach ($loanResults as $row) {
+                $monthlyData[$row['month']]['loans'] = (float)$row['loan_amount'];
+            }
+
+            // Fill in savings data
+            foreach ($savingsResults as $row) {
+                $monthlyData[$row['month']]['savings'] = (float)$row['savings_amount'];
+            }
+
+            // Convert to arrays for Chart.js
+            $trends = [
+                'labels' => array_keys($monthlyData),
+                'loans' => array_values(array_column($monthlyData, 'loans')),
+                'savings' => array_values(array_column($monthlyData, 'savings'))
+            ];
+
+            return $trends;
+
+        } catch (\PDOException $e) {
+            error_log('Database Error in getFinancialTrends: ' . $e->getMessage());
+            throw new \Exception('Failed to fetch financial trends: ' . $e->getMessage());
         }
     }
 } 
