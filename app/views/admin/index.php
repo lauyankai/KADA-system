@@ -70,6 +70,68 @@
             </div>
         </div>
         
+        <!-- Annual Report Section -->
+        <div class="col-lg-8">
+            <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-file-earmark-text me-2"></i>Laporan Tahunan
+                    </h4>
+                    <div>
+                        <a href="/admin/annual-reports/upload" class="btn btn-success">
+                            <i class="bi bi-upload me-2"></i>Muat Naik
+                        </a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tahun</th>
+                                <th>Tajuk</th>
+                                <th>Tarikh</th>
+                                <th>Saiz Fail</th>
+                                <th>Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (isset($annual_reports) && !empty($annual_reports)): ?>
+                                <?php foreach ($annual_reports as $report): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($report['year']) ?></td>
+                                        <td><?= htmlspecialchars($report['title']) ?></td>
+                                        <td><?= date('d/m/Y H:i', strtotime($report['uploaded_at'])) ?></td>
+                                        <td><?= formatFileSize($report['file_size']) ?></td>
+                                        <td>
+                                            <a href="<?= htmlspecialchars($report['file_path']) ?>" 
+
+                                            class="btn btn-sm btn-outline-primary"
+                                            target="_blank">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                            <button onclick="deleteReport(<?= $report['id'] ?>)" 
+                                                    class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <i class="bi bi-file-earmark-text display-6 d-block mb-3"></i>
+                                        Tiada laporan tahunan dimuat naik
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
 
         <!-- Quick Actions Section -->
         <div class="col-lg-4">
@@ -131,4 +193,19 @@
     background-color: #f8f9fa;
 }
 </style>
+
+<?php
+function formatFileSize($bytes) {
+    if ($bytes >= 1073741824) {
+        return number_format($bytes / 1073741824, 2) . ' GB';
+    } elseif ($bytes >= 1048576) {
+        return number_format($bytes / 1048576, 2) . ' MB';
+    } elseif ($bytes >= 1024) {
+        return number_format($bytes / 1024, 2) . ' KB';
+    } else {
+        return $bytes . ' bytes';
+    }
+}
+?>
+
 <?php require_once '../app/views/layouts/footer.php'; ?>
