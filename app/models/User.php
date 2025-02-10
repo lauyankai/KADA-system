@@ -103,7 +103,7 @@ class User extends BaseModel
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Database error occurred: ' . $e->getMessage());
         }
-}
+    }
 
     public function find($id)
     {
@@ -199,6 +199,23 @@ class User extends BaseModel
         } catch (\PDOException $e) {
             error_log('Database Error in getRecentActivities: ' . $e->getMessage());
             return [];
+        }
+    }
+
+    public function activateMember($memberId)
+    {
+        try {
+            $sql = "UPDATE members 
+                    SET status = 'Active', 
+                        activated_at = NOW() 
+                    WHERE id = :id";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            return $stmt->execute([':id' => $memberId]);
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in activateMember: ' . $e->getMessage());
+            throw new \Exception('Failed to activate member');
         }
     }
 
