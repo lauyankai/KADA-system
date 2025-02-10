@@ -79,9 +79,9 @@
                         <i class="bi bi-file-earmark-text me-2"></i>Laporan Tahunan
                     </h4>
                     <div>
-                        <a href="/admin/annual-reports/upload" class="btn btn-success">
+                        <button onclick="showUploadModal()" class="btn btn-success">
                             <i class="bi bi-upload me-2"></i>Muat Naik
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -162,6 +162,46 @@
     </div>
 </div>
 
+<!-- Upload Report Modal -->
+<div class="modal fade" id="uploadReportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/admin/upload-report" method="POST" enctype="multipart/form-data">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Muat Naik Laporan Tahunan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tahun</label> 
+                        <select name="year" class="form-select" required>
+                            <option value="">Pilih Tahun</option>
+                            <?php for($y = date('Y'); $y >= date('Y')-4; $y--): ?>
+                                <option value="<?= $y ?>"><?= $y ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>  
+                    <div class="mb-3">
+                        <label class="form-label">Tajuk</label> 
+                        <input type="text" name="title" class="form-control" required>
+                    </div>  
+                    <div class="mb-3">
+                        <label class="form-label">Fail</label>
+                        <input type="file" name="file" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2 me-1"></i>Hantar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <style>
 .stats-icon {
@@ -207,5 +247,12 @@ function formatFileSize($bytes) {
     }
 }
 ?>
+
+<script>
+    function showUploadModal() {
+        new bootstrap.Modal(document.getElementById('uploadReportModal')).show();
+    }
+
+</script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>
