@@ -12,12 +12,12 @@
                         <h4 class="card-title mb-0">
                             <i class="bi bi-arrow-repeat me-2"></i>Kemaskini Bayaran Berulang
                         </h4>
-                        <a href="/users/savings/page" class="btn btn-outline-secondary">
+                        <a href="/admin/savings" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>
 
-                    <form action="/users/savings/recurring/update" method="POST">
+                    <form action="/admin/savings/recurring/update" method="POST">
                         <div class="mb-4">
                             <label class="form-label">Jumlah Bulanan (RM)</label>
                             <input type="number" name="amount" class="form-control" 
