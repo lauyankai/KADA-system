@@ -80,7 +80,10 @@ $router = new App\Core\Router();
     $router->addRoute('GET', '/admin', 'AdminController', 'index');
     $router->addRoute('GET', '/admin/login', 'AdminController', 'login');
     $router->addRoute('GET', '/admin/member_list', 'AdminController', 'memberList');
-    
+    $router->addRoute('POST', '/admin/uploadReport', 'AdminController', 'uploadReport');
+    $router->addRoute('GET', '/admin/downloadReport/{id}', 'AdminController', 'downloadReport');
+    $router->addRoute('POST', '/admin/deleteReport/{id}', 'AdminController', 'deleteReport');
+
     // Admin routes --approve, reject, edit, viewMember
         $router->addRoute('GET', '/admin/approve/{id}', 'AdminController', 'approve');
         $router->addRoute('GET', '/admin/reject/{id}', 'AdminController', 'reject');
@@ -90,11 +93,11 @@ $router = new App\Core\Router();
         $router->addRoute('POST', '/admin/export-excel', 'AdminController', 'exportExcel');
     
     // Admin routes --annual reports
-        $router->addRoute('GET', '/admin/annual-reports', 'AnnualReportController', 'index');
-        $router->addRoute('GET', '/admin/annual-reports/upload', 'AnnualReportController', 'upload');
-        $router->addRoute('POST', '/admin/annual-reports/upload', 'AnnualReportController', 'upload');
-        $router->addRoute('GET', '/admin/annual-reports/download/{id}', 'AnnualReportController', 'download');
-        $router->addRoute('POST', '/admin/annual-reports/delete/{id}', 'AnnualReportController', 'delete');
+        // $router->addRoute('GET', '/admin/annual-reports', 'AnnualReportController', 'index');
+        // $router->addRoute('GET', '/admin/annual-reports/upload', 'AnnualReportController', 'upload');
+        // $router->addRoute('POST', '/admin/annual-reports/upload', 'AnnualReportController', 'upload');
+        // $router->addRoute('GET', '/admin/annual-reports/download/{id}', 'AnnualReportController', 'download');
+        // $router->addRoute('POST', '/admin/annual-reports/delete/{id}', 'AnnualReportController', 'delete');
 
 // User Dashboard Routes
     $router->addRoute('GET', '/users', 'UserController', 'dashboard');

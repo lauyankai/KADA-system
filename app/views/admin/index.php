@@ -166,35 +166,39 @@
 <div class="modal fade" id="uploadReportModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="/admin/upload-report" method="POST" enctype="multipart/form-data">
+            <form action="/admin/uploadReport" method="POST" enctype="multipart/form-data">
                 <div class="modal-header border-0">
                     <h5 class="modal-title">Muat Naik Laporan Tahunan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Tahun</label> 
+                        <label class="form-label">Tahun</label>
                         <select name="year" class="form-select" required>
                             <option value="">Pilih Tahun</option>
-                            <?php for($y = date('Y'); $y >= date('Y')-4; $y--): ?>
-                                <option value="<?= $y ?>"><?= $y ?></option>
-                            <?php endfor; ?>
+                            <?php 
+                                $currentYear = date('Y');
+                                for ($year = $currentYear; $year >= ($currentYear - 5); $year--) {
+                                    echo "<option value=\"$year\">$year</option>";
+                                }
+                            ?>
                         </select>
-                    </div>  
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Tajuk</label> 
                         <input type="text" name="title" class="form-control" required>
                     </div>  
                     <div class="mb-3">
-                        <label class="form-label">Fail</label>
-                        <input type="file" name="file" class="form-control" required>
+                        <label class="form-label">Fail PDF</label>
+                        <input type="file" name="report_file" class="form-control" accept=".pdf" required>
+                        <div class="form-text">Maksimum 100MB</div>
                     </div>
                 </div>
 
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check2 me-1"></i>Hantar
+                        <i class="bi bi-check2 me-1"></i>Muat Naik
                     </button>
                 </div>
             </form>
