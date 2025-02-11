@@ -456,32 +456,31 @@ class AdminController extends BaseController {
         }
     }
 
-    public function delete($id)
+    public function deleteReport($id)
     {
         try {
-            \App\Middleware\AuthMiddleware::validateAccess('admin');
-            
             $report = $this->annualReport->getById($id);
-            if (!$report) {
-                throw new \Exception('Laporan tidak dijumpai');
-            }
 
-            // Delete file
             $filepath = dirname(__DIR__, 2) . '/public/uploads/annual-reports/' . $report['filename'];
             if (file_exists($filepath)) {
-                unlink($filepath);
+                if (!unlink($filepath)) {
+                    throw new \Exception('Gagal memadam fail');
+                }
             }
 
             // Delete from database
-            $this->annualReport->delete($id);
+            if (!$this->annualReport->delete($id)) {
+                throw new \Exception('Gagal memadam rekod dari pangkalan data');
+            }
 
-            $_SESSION['success'] = 'Laporan tahunan berjaya dipadam';
-            header('Location: /admin/annual-reports');
+            $_SESSION['success'] = 'Laporan tahunan berjaya dipadam';   
+            header('Location: /admin');
             exit;
 
         } catch (\Exception $e) {
+            error_log('Delete Error: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /admin/annual-reports');
+            header('Location: /admin');
             exit;
         }
     }

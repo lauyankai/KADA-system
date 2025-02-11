@@ -4,6 +4,42 @@
 ?>
 
 <div class="container-fluid mt-4">
+    <?php if (isset($_SESSION['error']) || isset($_SESSION['success'])): ?>
+        <div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <?php if (isset($_SESSION['error'])): ?>
+                        <div class="modal-header border-0 bg-danger bg-opacity-10">
+                            <h5 class="modal-title text-danger">Error</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if (isset($_SESSION['success'])): ?>
+                        <div class="modal-header border-0 bg-success bg-opacity-10">
+                            <h5 class="modal-title text-success">Success</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                new bootstrap.Modal(document.getElementById('messageModal')).show();
+            });
+        </script>
+    <?php endif; ?>
+
     <!-- Main Content Row -->
     <div class="row g-4">
         <!-- Member Approval Section -->
@@ -257,6 +293,11 @@ function formatFileSize($bytes) {
         new bootstrap.Modal(document.getElementById('uploadReportModal')).show();
     }
 
+    function deleteReport(id) {
+        if (confirm('Adakah anda pasti untuk memadam laporan ini?')) {
+            window.location.href = `/admin/deleteReport/${id}`;
+        }
+    }
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>

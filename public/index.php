@@ -82,7 +82,7 @@ $router = new App\Core\Router();
     $router->addRoute('GET', '/admin/member_list', 'AdminController', 'memberList');
     $router->addRoute('POST', '/admin/uploadReport', 'AdminController', 'uploadReport');
     $router->addRoute('GET', '/admin/downloadReport/{id}', 'AdminController', 'downloadReport');
-    $router->addRoute('POST', '/admin/deleteReport/{id}', 'AdminController', 'deleteReport');
+    $router->addRoute('GET', '/admin/deleteReport/{id}', 'AdminController', 'deleteReport');
 
     // Admin routes --approve, reject, edit, viewMember
         $router->addRoute('GET', '/admin/approve/{id}', 'AdminController', 'approve');
