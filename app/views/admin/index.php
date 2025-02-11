@@ -28,16 +28,11 @@
                         </div>
                     <?php endif; ?>
                     <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                     </div>
                 </div>
             </div>
         </div>
-        <script>
-            window.addEventListener('DOMContentLoaded', () => {
-                new bootstrap.Modal(document.getElementById('messageModal')).show();
-            });
-        </script>
     <?php endif; ?>
 
     <!-- Main Content Row -->
@@ -298,6 +293,10 @@ function formatFileSize($bytes) {
             window.location.href = `/admin/deleteReport/${id}`;
         }
     }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        new bootstrap.Modal(document.getElementById('messageModal')).show();
+    });
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>
