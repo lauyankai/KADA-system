@@ -212,7 +212,7 @@ class StatementController extends BaseController
                     $endDate
                 );
 
-                // Generate PDF
+            // Generate PDF
                 $pdf = $this->generateLoanReport($loan, $transactions, $period);
                 
                 // Output PDF
@@ -257,7 +257,7 @@ class StatementController extends BaseController
                 $pdf->setPrintFooter(false);
 
                 // Add a page
-                $pdf->AddPage();
+            $pdf->AddPage();
                 $pdf->SetFont('helvetica', '', 10);
                 $logoPath = dirname(dirname(__DIR__)) . '/public/img/logo-kada.png';
                 if (file_exists($logoPath)) {

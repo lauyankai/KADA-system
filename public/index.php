@@ -79,7 +79,8 @@ $router = new App\Core\Router();
 // Admin basic routes --login, register, logout
     $router->addRoute('GET', '/admin', 'AdminController', 'index');
     $router->addRoute('GET', '/admin/login', 'AdminController', 'login');
-
+    $router->addRoute('GET', '/admin/member_list', 'AdminController', 'memberList');
+    
     // Admin routes --approve, reject, edit, viewMember
         $router->addRoute('GET', '/admin/approve/{id}', 'AdminController', 'approve');
         $router->addRoute('GET', '/admin/reject/{id}', 'AdminController', 'reject');

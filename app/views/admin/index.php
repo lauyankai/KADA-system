@@ -1,287 +1,258 @@
 <?php 
-    $title = 'Senarai Ahli';
+    $title = 'Dashboard Admin';
     require_once '../app/views/layouts/header.php';
-
-function getBadgeClass($memberType) {
-    switch ($memberType) {
-        case 'Pending':
-            return 'bg-warning';
-        case 'Ahli':
-            return 'bg-success';
-        case 'Rejected':
-            return 'bg-danger';
-        default:
-            return 'bg-secondary';
-    }
-}
 ?>
-<link rel="stylesheet" href="/css/admin.css">
-<div class="admin-dashboard">
-    <div class="main-content">
-        <div class="dashboard-header">
-            <div>
-                <h2 class="mb-1">Senarai Ahli</h2>
-            </div>
-            <div class="header-actions">
-                <div class="dropdown">
-                    <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-download me-2"></i>Export
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#" class="dropdown-item" onclick="handleExport('/admin/export-pdf', 'pdf')">
-                                <i class="bi bi-file-pdf me-2"></i>PDF
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="dropdown-item" onclick="handleExport('/admin/export-excel', 'excel')">
-                                <i class="bi bi-file-excel me-2"></i>Excel
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <form id="exportForm" method="POST" target="_blank" style="display: none;"></form>
-            </div>
-        </div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card total">
-                <div class="stat-icon">
-                    <i class="bi bi-people"></i>
-                </div>
-                <div class="stat-details">
-                    <h3><?= $stats['total'] ?></h3>
-                    <p>Jumlah Ahli</p>
-                </div>
-            </div>
-
-            <div class="stat-card pending">
-                <div class="stat-icon">
-                    <i class="bi bi-clock-history"></i>
-                </div>
-                <div class="stat-details">
-                    <h3><?= $stats['pending'] ?></h3>
-                    <p>Pending</p>
-                </div>
-            </div>
-
-            <div class="stat-card approved">
-                <div class="stat-icon">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-                <div class="stat-details">
-                    <h3><?= $stats['active'] ?></h3>
-                    <p>Ahli Aktif</p>
-                </div>
-            </div>
-
-            <div class="stat-card rejected">
-                <div class="stat-icon">
-                    <i class="bi bi-x-circle"></i>
-                </div>
-                <div class="stat-details">
-                    <h3><?= $stats['rejected'] ?></h3>
-                    <p>Ditolak</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Alerts -->
-        <?php if (isset($_SESSION['error']) || isset($_SESSION['success'])): ?>
-            <div class="alerts-wrapper">
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-modern alert-danger">
-                        <i class="bi bi-x-octagon"></i>
-                        <span><?= $_SESSION['error']; unset($_SESSION['error']); ?></span>
+<div class="container-fluid mt-4">
+    <!-- Main Content Row -->
+    <div class="row g-4">
+        <!-- Member Approval Section -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-person-plus-fill me-2"></i>Status Keahlian
+                        </h5>
+                        <a href="/admin/member_list" class="btn btn-sm btn-outline-primary">
+                            Lihat Semua
+                        </a>
                     </div>
-                <?php endif; ?>
-                
-                <?php if (isset($_SESSION['success'])): ?>
-                    <div class="alert alert-modern alert-success">
-                        <i class="bi bi-check-circle"></i>
-                        <span><?= $_SESSION['success']; unset($_SESSION['success']); ?></span>
-                    </div>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- Data Card -->
-        <div class="data-card">
-            <!-- Search and Filters -->
-            <div class="data-card-header">
-                <div class="search-wrapper">
-                    <i class="bi bi-search"></i>
-                    <input type="text" class="search-input" placeholder="Cari ahli..." onkeyup="searchTable(this.value)">
                 </div>
-                <div class="filters-wrapper">
-                    <select class="filter-select" onchange="filterTable(this.value)">
-                        <option value="">Semua Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Ahli">Ahli</option>
-                        <option value="Rejected">Tolak</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Table -->
-            <div class="table-responsive">
-                <table class="modern-table">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Nama</th>
-                            <th>No. K/P</th>
-                            <th>Jantina</th>
-                            <th>Jawatan</th>
-                            <th>Gaji</th>
-                            <th>Status</th>
-                            <th>Tindakan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php 
-                        $counter = 1;
-                        foreach ($members as $member): 
-                        ?>
-                        <tr class="member-row" data-status="<?= $member['member_type'] ?>">
-                            <td class="row-number"><?= $counter++ ?></td>
-                            <td class="member-name"><?= htmlspecialchars($member['name']) ?></td>
-                            <td><?= htmlspecialchars($member['ic_no']) ?></td>
-                            <td><?= htmlspecialchars($member['gender']) ?></td>
-                            <td><?= htmlspecialchars($member['position']) ?></td>
-                            <td>RM <?= number_format($member['monthly_salary'], 2) ?></td>
-                            <td>
-                                <span class="status-badge badge <?= getBadgeClass($member['member_type']) ?>">
-                                    <?php 
-                                    if ($member['member_type'] === 'Rejected') {
-                                        echo 'Tolak';
-                                    } else {
-                                        echo htmlspecialchars($member['member_type']);
-                                    }
-                                    ?>
-                                </span>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    <button class="action-btn view" 
-                                            onclick="window.location.href='/admin/view/<?= $member['id']; ?>'"
-                                            title="Lihat">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <?php if ($member['member_type'] === 'Pending'): ?>
-                                        <button onclick="confirmAction('approve', <?= $member['id'] ?>)" 
-                                                class="action-btn approve" 
-                                                data-bs-toggle="tooltip" 
-                                                title="Lulus">
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
-                                        <button onclick="confirmAction('reject', <?= $member['id'] ?>)" 
-                                                class="action-btn reject" 
-                                                data-bs-toggle="tooltip" 
-                                                title="Tolak">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    <?php elseif ($member['member_type'] === 'Rejected'): ?>
-                                        <button onclick="confirmAction('approve', <?= $member['id'] ?>)" 
-                                                class="action-btn approve" 
-                                                data-bs-toggle="tooltip" 
-                                                title="Lulus">
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
-                                    <?php endif; ?>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <!-- Pending Members -->
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="stats-icon bg-warning bg-opacity-10 me-3">
+                                    <i class="bi bi-hourglass-split text-warning"></i>
                                 </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+                                <div>
+                                    <h6 class="mb-1">Dalam Proses</h6>
+                                    <h4 class="mb-0 text-warning">
+                                        <?= count(array_filter($members, fn($m) => $m['member_type'] === 'Pending')) ?>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- Pagination -->
-            <div class="pagination-wrapper">
-                <span class="pagination-info">
-                    Menunjukkan 1-<?= count($members) ?> daripada <?= count($members) ?> rekod
-                </span>
-                <div class="pagination">
-                    <button class="page-btn" disabled><i class="bi bi-chevron-left"></i></button>
-                    <button class="page-btn active">1</button>
-                    <button class="page-btn" disabled><i class="bi bi-chevron-right"></i></button>
+                        <!-- Active Members -->
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="stats-icon bg-success bg-opacity-10 me-3">
+                                    <i class="bi bi-person-check-fill text-success"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Ahli Aktif</h6>
+                                    <h4 class="mb-0 text-success">
+                                        <?= count(array_filter($members, fn($m) => $m['member_type'] === 'Ahli')) ?>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rejected Members -->
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="stats-icon bg-danger bg-opacity-10 me-3">
+                                    <i class="bi bi-person-x-fill text-danger"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Ditolak</h6>
+                                    <h4 class="mb-0 text-danger">
+                                        <?= count(array_filter($members, fn($m) => $m['member_type'] === 'Rejected')) ?>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Annual Report Section -->
+        <div class="col-lg-8">
+            <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-file-earmark-text me-2"></i>Laporan Tahunan
+                    </h4>
+                    <div>
+                        <button onclick="showUploadModal()" class="btn btn-success">
+                            <i class="bi bi-upload me-2"></i>Muat Naik
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tahun</th>
+                                <th>Tajuk</th>
+                                <th>Tarikh</th>
+                                <th>Saiz Fail</th>
+                                <th>Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (isset($annual_reports) && !empty($annual_reports)): ?>
+                                <?php foreach ($annual_reports as $report): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($report['year']) ?></td>
+                                        <td><?= htmlspecialchars($report['title']) ?></td>
+                                        <td><?= date('d/m/Y H:i', strtotime($report['uploaded_at'])) ?></td>
+                                        <td><?= formatFileSize($report['file_size']) ?></td>
+                                        <td>
+                                            <a href="<?= htmlspecialchars($report['file_path']) ?>" 
+
+                                            class="btn btn-sm btn-outline-primary"
+                                            target="_blank">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                            <button onclick="deleteReport(<?= $report['id'] ?>)" 
+                                                    class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <i class="bi bi-file-earmark-text display-6 d-block mb-3"></i>
+                                        Tiada laporan tahunan dimuat naik
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightning-charge me-2"></i>Tindakan Pantas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/admin/member_list" class="btn btn-outline-primary">
+                            <i class="bi bi-people me-2"></i>Senarai Ahli
+                        </a>
+                        <a href="/admin/loans" class="btn btn-outline-success">
+                            <i class="bi bi-cash-coin me-2"></i>Pembiayaan
+                        </a>
+                        <a href="/admin/annual-reports" class="btn btn-outline-info">
+                            <i class="bi bi-file-earmark-text me-2"></i>Laporan Tahunan
+                        </a>
+                        <a href="/admin/settings" class="btn btn-outline-secondary">
+                            <i class="bi bi-gear me-2"></i>Tetapan Sistem
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-function confirmAction(action, id) {
-    const messages = {
-        approve: 'Adakah anda pasti untuk meluluskan permohonan ini?',
-        reject: 'Adakah anda pasti untuk menolak permohonan ini?'
-    };
-    
-    if (confirm(messages[action])) {
-        window.location.href = `/admin/${action}/${id}`;
+<!-- Upload Report Modal -->
+<div class="modal fade" id="uploadReportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/admin/upload-report" method="POST" enctype="multipart/form-data">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Muat Naik Laporan Tahunan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tahun</label> 
+                        <select name="year" class="form-select" required>
+                            <option value="">Pilih Tahun</option>
+                            <?php for($y = date('Y'); $y >= date('Y')-4; $y--): ?>
+                                <option value="<?= $y ?>"><?= $y ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>  
+                    <div class="mb-3">
+                        <label class="form-label">Tajuk</label> 
+                        <input type="text" name="title" class="form-control" required>
+                    </div>  
+                    <div class="mb-3">
+                        <label class="form-label">Fail</label>
+                        <input type="file" name="file" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2 me-1"></i>Hantar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<style>
+.stats-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.list-group-item {
+    transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+</style>
+
+<?php
+function formatFileSize($bytes) {
+    if ($bytes >= 1073741824) {
+        return number_format($bytes / 1073741824, 2) . ' GB';
+    } elseif ($bytes >= 1048576) {
+        return number_format($bytes / 1048576, 2) . ' MB';
+    } elseif ($bytes >= 1024) {
+        return number_format($bytes / 1024, 2) . ' KB';
+    } else {
+        return $bytes . ' bytes';
     }
 }
+?>
 
-document.addEventListener('DOMContentLoaded', function() {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
-});
+<script>
+    function showUploadModal() {
+        new bootstrap.Modal(document.getElementById('uploadReportModal')).show();
+    }
 
-function filterTable(status) {
-    const rows = document.querySelectorAll('.member-row');
-    let visibleCounter = 1;
-    
-    rows.forEach(row => {
-        const rowStatus = row.getAttribute('data-status');
-        const numberCell = row.querySelector('.row-number');
-        
-        if (!status || rowStatus === status) {
-            row.style.display = '';
-            numberCell.textContent = visibleCounter++;
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
-
-function searchTable(query) {
-    query = query.toLowerCase();
-    const rows = document.querySelectorAll('.member-row');
-    let visibleCounter = 1;
-    
-    rows.forEach(row => {
-        const name = row.querySelector('.member-name').textContent.toLowerCase();
-        const icNo = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-        const numberCell = row.querySelector('.row-number');
-        
-        if (name.includes(query) || icNo.includes(query)) {
-            row.style.display = '';
-            numberCell.textContent = visibleCounter++;
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
-        return new bootstrap.Dropdown(dropdownToggleEl);
-    });
-});
-
-function handleExport(url, type) {
-    const form = document.getElementById('exportForm');
-    form.action = url;
-    form.submit();
-    return false;
-}
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
