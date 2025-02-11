@@ -22,8 +22,7 @@ class UserController extends BaseController
     {
         try {
             if (!isset($_SESSION['member_id'])) {
-                header('Location: /auth/login');
-                exit;
+                throw new \Exception('Sila log masuk untuk mengakses dashboard');
             }
 
             $memberId = $_SESSION['member_id'];
@@ -53,7 +52,8 @@ class UserController extends BaseController
                 'activeLoans' => $activeLoans,
                 'totalSavings' => $totalSavings,
                 'totalLoanAmount' => $totalLoanAmount,
-                'recentActivities' => $recentActivities
+                'recentActivities' => $recentActivities,
+                'title' => 'Dashboard Ahli'
             ]);
 
         } catch (\Exception $e) {

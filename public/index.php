@@ -98,6 +98,7 @@ $router = new App\Core\Router();
 
 // User Dashboard Routes
     $router->addRoute('GET', '/users', 'UserController', 'dashboard');
+    $router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
 
     // User routes -- Savings Routes
         $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
@@ -128,7 +129,9 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/users/savings/recurring/edit', 'SavingController', 'editRecurringPayment');
         // $router->addRoute('POST', '/users/savings/recurring/update', 'SavingController', 'updateRecurringPayment');
         $router->addRoute('POST', '/users/savings/recurring/store', 'SavingController', 'storeRecurringPayment');
-
+        $router->addRoute('GET', '/users/savings/recurring', 'SavingController', 'viewRecurringPayments');
+        $router->addRoute('POST', '/users/savings/recurring/update/{id}', 'SavingController', 'updateRecurring');
+        
         // User routes --Loans
         $router->addRoute('GET', '/users/loans/request', 'LoanController', 'showRequest');
         $router->addRoute('POST', '/users/loans/submitRequest', 'LoanController', 'submitRequest');

@@ -42,9 +42,6 @@
                     <a href="/users/savings/deposit" class="btn btn-success">
                         <i class="bi bi-plus-lg me-2"></i>Deposit
                     </a>
-                    <a href="/KADA-system/users/savings/transfer?from_account=<?= $account['id'] ?>" class="btn btn-primary">
-                        <i class="bi bi-arrow-left-right me-2"></i>Pindah
-                    </a>
                 </div>
             </div>
         </div>
@@ -115,56 +112,36 @@
             </div>
         </div>
         <div class="col-md-4">
-            <!-- Recurring Payments -->
-            <div class="card h-100">
-                <div class="card-body">
+            <!-- Recurring Payment -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-calendar-check me-2"></i>Pembayaran Berulang
-                        </h5>
-                        <?php if (empty($recurringPayment)): ?>
-                            <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#newRecurringModal">
-                                <i class="bi bi-plus-lg me-2"></i>Tambah
-                            </button>
-                        <?php else: ?>
-                            <a href="/users/savings/recurring/edit" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-pencil me-2"></i>Kemaskini
-                            </a>
-                        <?php endif; ?>
+                        <div>
+                            <h5 class="card-title mb-1">
+                                <i class="bi bi-arrow-repeat me-2"></i>Pembayaran Berulang
+                            </h5>
+                            <p class="text-muted small mb-0">Pembayaran automatik untuk pembiayaan</p>
+                        </div>
+                        <a href="/users/savings/recurring" class="btn btn-primary btn-sm">
+                            <i class="bi bi-gear-fill me-2"></i>Urus
+                        </a>
                     </div>
 
-                    <?php if (isset($recurringPayment) && $recurringPayment): ?>
-                        <div class="recurring-details">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <h6 class="text-muted">Jumlah Bulanan</h6>
-                                    <p class="fs-5 mb-0">RM <?= number_format($recurringPayment['amount'], 2) ?></p>
+                    <?php if ($totalMonthlyPayments > 0): ?>
+                        <div class="alert alert-info mb-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Jumlah Bayaran Bulanan</h6>
+                                    <small class="text-muted">Potongan automatik dari akaun simpanan</small>
                                 </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-muted">Hari Potongan</h6>
-                                    <p class="fs-5 mb-0"><?= $recurringPayment['deduction_day'] ?> hb</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-muted">Kaedah Pembayaran</h6>
-                                    <p class="mb-0">
-                                        <?php if ($recurringPayment['payment_method'] === 'fpx'): ?>
-                                            <i class="bi bi-bank me-2"></i>FPX
-                                        <?php else: ?>
-                                            <i class="bi bi-credit-card me-2"></i>Kad Kredit/Debit
-                                        <?php endif; ?>
-                                    </p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-muted">Status</h6>
-                                    <span class="badge bg-<?= $recurringPayment['status'] === 'active' ? 'success' : 'warning' ?>">
-                                        <?= $recurringPayment['status'] === 'active' ? 'Aktif' : 'Tidak Aktif' ?>
-                                    </span>
-                                    <a href="/users/savings/recurring" class="btn btn-primary">Lihat Butiran Pembayaran Berulang</a>
-                                </div>
+                                <h5 class="mb-0">RM <?= number_format($totalMonthlyPayments, 2) ?></h5>
                             </div>
                         </div>
                     <?php else: ?>
-                        <p class="text-muted mb-0">Tiada pembayaran berulang yang aktif</p>
+                        <div class="alert alert-light mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Tiada pembayaran berulang aktif
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>

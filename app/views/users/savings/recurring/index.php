@@ -1,5 +1,5 @@
 <?php 
-    $title = 'Urus Pembayaran Berulang';
+    $title = 'Urus Pembayaran Berulang Pembiayaan';
     require_once '../app/views/layouts/header.php';
 ?>
 
@@ -10,7 +10,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="card-title mb-0">
-                            <i class="bi bi-arrow-repeat me-2"></i>Urus Pembayaran Berulang
+                            <i class="bi bi-arrow-repeat me-2"></i>Urus Pembayaran Pembiayaan
                         </h4>
                         <a href="/users/savings" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
@@ -32,55 +32,70 @@
                         <?php foreach ($loans as $loan): ?>
                             <div class="card mb-3">
                                 <div class="card-body">
-                                    <h6 class="card-subtitle mb-3 text-muted">
-                                        <?= $loan['loan_type'] ?> - <?= $loan['reference_no'] ?>
-                                    </h6>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="card-subtitle text-muted">
+                                            <?= ucfirst($loan['loan_type']) ?> - <?= $loan['reference_no'] ?>
+                                        </h5>
+                                        <span class="badge bg-<?= ($loan['payment_status'] ?? 'active') === 'active' ? 'success' : 'warning' ?>">
+                                            <?= ($loan['payment_status'] ?? 'active') === 'active' ? 'Aktif' : 'Tidak Aktif' ?>
+                                        </span>
+                                    </div>
 
                                     <div class="row g-3">
-                                        <div class="col-md-3">
-                                            <label class="form-label">Jumlah Bulanan</label>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Jumlah Bayaran Bulanan</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">RM</span>
-                                                <input type="text" class="form-control" 
-                                                       value="<?= number_format($loan['monthly_payment'], 2) ?>" 
-                                                       readonly>
+                                                <input type="number" class="form-control" 
+                                                       value="<?= $loan['monthly_payment'] ?>" 
+                                                       onchange="updateMonthlyPayment(<?= $loan['id'] ?>, this.value)"
+                                                       min="<?= $loan['monthly_payment'] * 0.8 ?>"
+                                                       max="<?= $loan['monthly_payment'] * 2 ?>"
+                                                       step="0.01">
                                             </div>
+                                            <small class="text-muted">
+                                                Minimum: RM <?= number_format($loan['monthly_payment'] * 0.8, 2) ?>
+                                            </small>
                                         </div>
 
-                                        <div class="col-md-3">
-                                            <label class="form-label">Kekerapan</label>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Hari Potongan</label>
                                             <select class="form-select" 
-                                                    onchange="updateFrequency(<?= $loan['id'] ?>, this.value)">
-                                                <option value="monthly" <?= $loan['frequency'] === 'monthly' ? 'selected' : '' ?>>
-                                                    Bulanan
-                                                </option>
-                                                <option value="biweekly" <?= $loan['frequency'] === 'biweekly' ? 'selected' : '' ?>>
-                                                    Dua Minggu
-                                                </option>
-                                                <option value="weekly" <?= $loan['frequency'] === 'weekly' ? 'selected' : '' ?>>
-                                                    Mingguan
-                                                </option>
+                                                    onchange="updateDeductionDay(<?= $loan['id'] ?>, this.value)">
+                                                <?php for($i = 1; $i <= 28; $i++): ?>
+                                                    <option value="<?= $i ?>" 
+                                                        <?= ($loan['deduction_day'] ?? 1) == $i ? 'selected' : '' ?>>
+                                                        <?= $i ?> hb
+                                                    </option>
+                                                <?php endfor; ?>
                                             </select>
+                                            <small class="text-muted">
+                                                Hari potongan dalam setiap bulan
+                                            </small>
                                         </div>
 
-                                        <div class="col-md-3">
-                                            <label class="form-label">Tarikh Bayaran</label>
-                                            <input type="date" class="form-control"
-                                                   value="<?= $loan['payment_date'] ?>"
-                                                   onchange="updatePaymentDate(<?= $loan['id'] ?>, this.value)">
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <label class="form-label">Status</label>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Status Potongan Automatik</label>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" 
-                                                       <?= $loan['status'] === 'active' ? 'checked' : '' ?>
+                                                       <?= ($loan['payment_status'] ?? 'active') === 'active' ? 'checked' : '' ?>
                                                        onchange="updateStatus(<?= $loan['id'] ?>, this.checked)">
                                                 <label class="form-check-label">
-                                                    <?= $loan['status'] === 'active' ? 'Aktif' : 'Tidak Aktif' ?>
+                                                    <?= ($loan['payment_status'] ?? 'active') === 'active' ? 'Aktif' : 'Tidak Aktif' ?>
                                                 </label>
                                             </div>
+                                            <small class="text-muted">
+                                                Potongan seterusnya: 
+                                                <?= $loan['next_deduction_date'] ? 
+                                                    date('d/m/Y', strtotime($loan['next_deduction_date'])) : 
+                                                    'Belum ditetapkan' ?>
+                                            </small>
                                         </div>
+                                    </div>
+
+                                    <div class="alert alert-info mt-3 mb-0">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Jumlah akan dipotong secara automatik dari akaun simpanan anda pada hari yang ditetapkan
                                     </div>
                                 </div>
                             </div>
@@ -93,20 +108,36 @@
 </div>
 
 <script>
-function updateFrequency(loanId, frequency) {
-    updateRecurringPayment(loanId, { frequency: frequency });
+function updateMonthlyPayment(loanId, amount) {
+    updateRecurringPayment(loanId, {
+        monthly_payment: parseFloat(amount)
+    });
 }
 
-function updatePaymentDate(loanId, date) {
-    updateRecurringPayment(loanId, { payment_date: date });
+function updateDeductionDay(loanId, day) {
+    updateRecurringPayment(loanId, {
+        deduction_day: parseInt(day),
+        next_deduction_date: calculateNextDeductionDate(day)
+    });
 }
 
 function updateStatus(loanId, isActive) {
-    updateRecurringPayment(loanId, { status: isActive ? 'active' : 'paused' });
+    updateRecurringPayment(loanId, {
+        status: isActive ? 'active' : 'inactive'
+    });
+}
+
+function calculateNextDeductionDate(day) {
+    let date = new Date();
+    date.setDate(day);
+    if (date < new Date()) {
+        date.setMonth(date.getMonth() + 1);
+    }
+    return date.toISOString().split('T')[0];
 }
 
 function updateRecurringPayment(loanId, data) {
-    fetch('/users/savings/recurring/update/' + loanId, {
+    fetch(`/users/savings/recurring/update/${loanId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -116,10 +147,8 @@ function updateRecurringPayment(loanId, data) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Show success message
-            alert('Pembayaran berulang berjaya dikemaskini');
+            location.reload();
         } else {
-            // Show error message
             alert('Ralat: ' + data.message);
         }
     })

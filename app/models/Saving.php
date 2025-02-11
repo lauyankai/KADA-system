@@ -631,7 +631,7 @@ public function processDeposit($data)
         }
     }
 
-    public function updateRecurringPayment($data)
+    /*public function updateRecurringPayment($data)
     {
         try {
             $sql = "UPDATE recurring_payments SET 
@@ -648,7 +648,7 @@ public function processDeposit($data)
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mengemaskini tetapan bayaran berulang');
         }
-    }
+    }*/
 
     public function getTransactionByReference($referenceNo)
     {
@@ -1495,6 +1495,170 @@ public function processDeposit($data)
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan sejarah transaksi');
+        }
+    }
+
+    public function getActiveLoansWithRecurring($memberId)
+    {
+        try {
+            $sql = "SELECT l.*, rp.id as recurring_id, rp.deduction_day, 
+                           rp.next_deduction_date, rp.status as payment_status
+                    FROM loans l
+                    LEFT JOIN recurring_payments rp ON l.id = rp.loan_id
+                    WHERE l.member_id = :member_id 
+                    AND l.status = 'approved'";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat pembiayaan');
+        }
+    }
+
+    public function getTotalMonthlyLoanPayments($memberId)
+    {
+        try {
+            $sql = "SELECT SUM(l.monthly_payment) as total_payment
+                    FROM loans l
+                    WHERE l.member_id = :member_id 
+                    AND l.status = 'approved'";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total_payment'] ?? 0;
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan jumlah bayaran bulanan');
+        }
+    }
+
+    public function updateRecurringPayment($loanId, $data)
+    {
+        try {
+            $sql = "UPDATE recurring_payments 
+                    SET deduction_day = :deduction_day,
+                        next_deduction_date = :next_deduction_date,
+                        status = :status
+                    WHERE loan_id = :loan_id";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            return $stmt->execute([
+                ':loan_id' => $loanId,
+                ':deduction_day' => $data['deduction_day'],
+                ':next_deduction_date' => $data['next_deduction_date'],
+                ':status' => $data['status']
+            ]);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mengemaskini pembayaran berulang');
+        }
+    }
+
+    public function processAutomaticDeductions()
+    {
+        try {
+            $sql = "SELECT rp.*, l.monthly_payment, l.member_id, sa.current_amount
+                    FROM recurring_payments rp
+                    JOIN loans l ON rp.loan_id = l.id
+                    JOIN savings_accounts sa ON l.member_id = sa.member_id
+                    WHERE rp.status = 'active'
+                    AND rp.next_deduction_date <= CURDATE()";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute();
+            $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($payments as $payment) {
+                if ($payment['current_amount'] >= $payment['monthly_payment']) {
+                    // Process the deduction
+                    $this->deductLoanPayment(
+                        $payment['loan_id'],
+                        $payment['member_id'],
+                        $payment['monthly_payment']
+                    );
+                    
+                    // Update next deduction date
+                    $this->updateNextDeductionDate($payment['id']);
+                } else {
+                    // Log insufficient funds
+                    $this->logFailedDeduction($payment['id'], 'insufficient_funds');
+                }
+            }
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal memproses potongan automatik');
+        }
+    }
+
+    private function deductLoanPayment($loanId, $memberId, $amount)
+    {
+        $this->getConnection()->beginTransaction();
+        
+        try {
+            // Deduct from savings
+            $sql = "UPDATE savings_accounts 
+                    SET current_amount = current_amount - :amount 
+                    WHERE member_id = :member_id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':amount' => $amount,
+                ':member_id' => $memberId
+            ]);
+
+            // Record the transaction
+            $sql = "INSERT INTO savings_transactions 
+                    (savings_account_id, amount, type, payment_method, reference_no, description) 
+                    VALUES 
+                    ((SELECT id FROM savings_accounts WHERE member_id = :member_id),
+                     :amount, 'withdrawal', 'auto_deduct', 
+                     :reference_no, 'Bayaran automatik pembiayaan')";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':member_id' => $memberId,
+                ':amount' => $amount,
+                ':reference_no' => 'LOAN-' . date('YmdHis')
+            ]);
+
+            $this->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->getConnection()->rollBack();
+            throw $e;
+        }
+    }
+
+    private function updateNextDeductionDate($recurringId)
+    {
+        try {
+            $sql = "UPDATE recurring_payments 
+                    SET next_deduction_date = DATE_ADD(CURDATE(), INTERVAL deduction_day DAY)
+                    WHERE id = :recurring_id";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':recurring_id' => $recurringId]);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mengemaskini tanggal potongan berikutnya');
+        }
+    }
+
+    private function logFailedDeduction($recurringId, $reason)
+    {
+        try {
+            $sql = "INSERT INTO failed_deductions (recurring_id, reason, created_at) 
+                    VALUES (:recurring_id, :reason, NOW())";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':recurring_id' => $recurringId,
+                ':reason' => $reason
+            ]);
+        } catch (\PDOException $e) {
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Gagal merekod kegagalan potongan');
         }
     }
 }

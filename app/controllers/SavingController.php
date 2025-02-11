@@ -455,7 +455,7 @@ class SavingController extends BaseController
 
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings');
+                header('Location: /users/dashboard');
                 exit;
             }
         }
@@ -515,7 +515,7 @@ class SavingController extends BaseController
                 }
 
                 $_SESSION['success'] = 'Pemindahan berjaya dilakukan';
-                header('Location: /users/savings');
+                header('Location: /users/dashboard');
                 exit;
                 
             } catch (\Exception $e) {
@@ -1105,14 +1105,14 @@ class SavingController extends BaseController
                 }
 
                 $memberId = $_SESSION['member_id'];
-                $recurringPayments = $this->saving->getRecurringPayments($memberId);
+                $loans = $this->saving->getActiveLoansWithRecurring($memberId);
 
                 $this->view('users/savings/recurring/index', [
-                    'recurringPayments' => $recurringPayments
+                    'loans' => $loans
                 ]);
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /auth/login');
+                header('Location: /users/savings');
                 exit;
             }
         }

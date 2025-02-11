@@ -78,18 +78,7 @@ class AuthController extends BaseController
                         $_SESSION['member_name'] = $member['name'];
                         $_SESSION['user_type'] = 'member';
                         
-                        // Check if initial fees are pending
-                        $stmt = $this->db->prepare(
-                            "SELECT payment_status FROM member_fees WHERE member_id = :member_id"
-                        );
-                        $stmt->execute([':member_id' => $member['id']]);
-                        $fees = $stmt->fetch(PDO::FETCH_ASSOC);
-                        
-                        if (!$fees || $fees['payment_status'] === 'pending') {
-                            header('Location: /users/fees/initial');
-                            exit;
-                        }
-                        
+                        // Directly redirect to dashboard without checking fees
                         header('Location: /users/dashboard');
                         exit;
                     } else {
