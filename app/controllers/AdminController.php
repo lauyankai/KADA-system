@@ -357,35 +357,20 @@ class AdminController extends BaseController {
     public function uploadReport()
     {
         try {
-            if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $this->view('admin/annual-reports/upload');
-                return;
-            }
-
-            // Create upload directory if it doesn't exist
-            $uploadDir = dirname(__DIR__, 2) . '/public/uploads/annual-reports';
-            if (!file_exists($uploadDir)) {
-                if (!mkdir($uploadDir, 0755, true)) {
-                    throw new \Exception('Gagal membuat direktori muat naik');
-                }
-            }
-
-            // Verify directory is writable
-            if (!is_writable($uploadDir)) {
-                chmod($uploadDir, 0755);
-                if (!is_writable($uploadDir)) {
-                    throw new \Exception('Direktori muat naik tidak boleh ditulis. Sila semak kebenaran direktori.');
-                }
-            }
-
-            // Validate file upload
+            // Check if file was uploaded
             if (!isset($_FILES['report_file']) || $_FILES['report_file']['error'] !== UPLOAD_ERR_OK) {
-                throw new \Exception('Ralat semasa memuat naik fail');
+                throw new \Exception('Sila pilih fail untuk dimuat naik');
             }
 
+            // Get form data
             $file = $_FILES['report_file'];
-            $year = $_POST['year'] ?? date('Y');
-            $description = $_POST['description'] ?? '';
+            $year = $_POST['year'] ?? '';
+            $title = $_POST['title'] ?? '';
+
+            // Validate inputs
+            if (empty($year) || empty($title)) {
+                throw new \Exception('Sila isi semua maklumat yang diperlukan');
+            }
 
             // Validate file type
             $allowedTypes = ['application/pdf'];
@@ -394,54 +379,53 @@ class AdminController extends BaseController {
             finfo_close($fileInfo);
 
             if (!in_array($mimeType, $allowedTypes)) {
-                throw new \Exception('Hanya fail PDF dibenarkan');
+                throw new \Exception('Hanya fail PDF diterima');
             }
 
-            // Validate file size
+            // Validate file size (10MB max)
             $maxSize = 10 * 1024 * 1024; // 10MB in bytes
             if ($file['size'] > $maxSize) {
-                throw new \Exception('Saiz fail terlalu besar. Had maksimum adalah 10MB');
+                throw new \Exception('Saiz fail tidak boleh melebihi 10MB');
+            }
+
+            // Create upload directory if it doesn't exist
+            $uploadDir = dirname(__DIR__, 2) . '/public/uploads/annual-reports/';
+            if (!file_exists($uploadDir)) {
+                if (!mkdir($uploadDir, 0777, true)) {
+                    throw new \Exception('Gagal membuat direktori');
+                }
             }
 
             // Generate unique filename
             $fileName = 'annual_report_' . $year . '_' . uniqid() . '.pdf';
-            $filePath = $uploadDir . '/' . $fileName;
-            error_log('Upload path: ' . $filePath);
+            $filePath = $uploadDir . $fileName;
 
             // Move uploaded file
             if (!move_uploaded_file($file['tmp_name'], $filePath)) {
-                throw new \Exception('Gagal memindahkan fail yang dimuat naik');
+                throw new \Exception('Gagal memuat naik fail');
             }
 
             error_log('File uploaded successfully to: ' . $filePath);
 
             // Save to database
-            try {
-                $data = [
-                    'year' => $year,
-                    'title' => 'Laporan Tahunan ' . $year,
-                    'description' => $description,
-                    'filename' => $fileName,
-                    'file_path' => '/uploads/annual-reports/' . $fileName,
-                    'uploaded_by' => $_SESSION['admin_id']
-                ];
-                $reportId = $this->annualReport->create($data);
-                error_log('Annual report saved to database with ID: ' . $reportId);
-            } catch (\Exception $e) {
-                // If database save fails, delete the uploaded file
-                unlink($filePath);
-                throw $e;
-            }
+            $data = [
+                'year' => $year,
+                'title' => $year,
+                'filename' => $fileName,
+                'file_path' => '/uploads/annual-reports/' . $fileName,
+                'uploaded_by' => $_SESSION['admin_id']
+            ];
+
+            $this->annualReport->create($data);
 
             $_SESSION['success'] = 'Laporan tahunan berjaya dimuat naik';
-            header('Location: /admin/annual-reports');
+            header('Location: /admin');
             exit;
 
         } catch (\Exception $e) {
-            error_log('Error in upload: ' . $e->getMessage());
-            error_log('Stack trace: ' . $e->getTraceAsString());
-            $_SESSION['error'] = $e->getMessage();
-            header('Location: /admin/annual-reports/upload');
+            error_log('Upload Error: ' . $e->getMessage());
+            $_SESSION['error'] = 'Ralat semasa memuat naik fail: ' . $e->getMessage();
+            header('Location: /admin');
             exit;
         }
     }
@@ -472,32 +456,31 @@ class AdminController extends BaseController {
         }
     }
 
-    public function delete($id)
+    public function deleteReport($id)
     {
         try {
-            \App\Middleware\AuthMiddleware::validateAccess('admin');
-            
             $report = $this->annualReport->getById($id);
-            if (!$report) {
-                throw new \Exception('Laporan tidak dijumpai');
-            }
 
-            // Delete file
             $filepath = dirname(__DIR__, 2) . '/public/uploads/annual-reports/' . $report['filename'];
             if (file_exists($filepath)) {
-                unlink($filepath);
+                if (!unlink($filepath)) {
+                    throw new \Exception('Gagal memadam fail');
+                }
             }
 
             // Delete from database
-            $this->annualReport->delete($id);
+            if (!$this->annualReport->delete($id)) {
+                throw new \Exception('Gagal memadam rekod dari pangkalan data');
+            }
 
-            $_SESSION['success'] = 'Laporan tahunan berjaya dipadam';
-            header('Location: /admin/annual-reports');
+            $_SESSION['success'] = 'Laporan tahunan berjaya dipadam';   
+            header('Location: /admin');
             exit;
 
         } catch (\Exception $e) {
+            error_log('Delete Error: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /admin/annual-reports');
+            header('Location: /admin');
             exit;
         }
     }

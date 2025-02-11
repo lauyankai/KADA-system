@@ -43,12 +43,12 @@ class Admin extends BaseModel
             } else {
                 // For rejections
                 $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
-                $stmt = $this->getConnection()->prepare($sql);
+            $stmt = $this->getConnection()->prepare($sql);
                 $stmt->execute([
-                    ':status' => $status,
-                    ':id' => $id
-                ]);
-
+                ':status' => $status,
+                ':id' => $id
+            ]);
+            
                 // Send rejection email
                 $this->sendStatusEmail(
                     $memberData['email'],
@@ -172,9 +172,6 @@ class Admin extends BaseModel
                 home_address, home_postcode, home_state,
                 office_address, office_postcode,
                 office_phone, home_phone, fax,
-                registration_fee, share_capital, fee_capital,
-                deposit_funds, welfare_fund, fixed_deposit,
-                other_contributions,
                 family_relationship, family_name, family_ic,
                 password,
                 status,
@@ -185,9 +182,6 @@ class Admin extends BaseModel
                 :home_address, :home_postcode, :home_state,
                 :office_address, :office_postcode,
                 :office_phone, :home_phone, :fax,
-                :registration_fee, :share_capital, :fee_capital,
-                :deposit_funds, :welfare_fund, :fixed_deposit,
-                :other_contributions,
                 :family_relationship, :family_name, :family_ic,
                 NULL,
                 'Active',
@@ -215,13 +209,6 @@ class Admin extends BaseModel
                 ':office_phone' => $memberData['office_phone'],
                 ':home_phone' => $memberData['home_phone'],
                 ':fax' => $memberData['fax'],
-                ':registration_fee' => $memberData['registration_fee'],
-                ':share_capital' => $memberData['share_capital'],
-                ':fee_capital' => $memberData['fee_capital'],
-                ':deposit_funds' => $memberData['deposit_funds'],
-                ':welfare_fund' => $memberData['welfare_fund'],
-                ':fixed_deposit' => $memberData['fixed_deposit'],
-                ':other_contributions' => $memberData['other_contributions'],
                 ':family_relationship' => $memberData['family_relationship'],
                 ':family_name' => $memberData['family_name'],
                 ':family_ic' => $memberData['family_ic'],
@@ -255,9 +242,6 @@ class Admin extends BaseModel
                 ':account_number' => $accountNumber,
                 ':member_id' => $newMemberId
             ]);
-            
-            // Debug log
-            error_log('Created savings account for member: ' . $newMemberId);
 
             // Delete from source table (pendingmember)
             if (!$memberData) {
