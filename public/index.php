@@ -48,7 +48,7 @@ require_once '../app/Controllers/AnnualReportController.php';
 // Include middleware
 require_once '../app/Middleware/AuthMiddleware.php';
 
-// Instantiate the Router
+// Initialize the router
 $router = new App\Core\Router();
 
 // Home route
@@ -160,6 +160,12 @@ $router = new App\Core\Router();
 // $router->addRoute('GET', '/users/savings/goals/{id}/edit', 'SavingController', 'editSavingsGoal');
 // $router->addRoute('POST', '/users/savings/goals/{id}/update', 'SavingController', 'updateSavingsGoal');
 // $router->addRoute('POST', '/users/savings/goals/{id}/delete', 'SavingController', 'deleteSavingsGoal');
+
+$router->addRoute('GET', '/users/fees/initial', 'UserFeeController', 'showInitialFees');
+$router->addRoute('POST', '/users/fees/confirm', 'UserFeeController', 'confirmPayment');
+$router->addRoute('GET', '/users/fees/success', 'UserFeeController', 'showSuccess');
+$router->addRoute('GET', '/auth/setup-password', 'AuthController', 'showSetupPassword');
+$router->addRoute('POST', '/auth/setup-password', 'AuthController', 'setupPassword'); 
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

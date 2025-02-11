@@ -9,6 +9,12 @@ class MemberFee extends BaseModel
     public function createInitialFees($memberId)
     {
         try {
+            // First check if fees already exist
+            $existingFees = $this->getFeesByMemberId($memberId);
+            if ($existingFees) {
+                return true;
+            }
+
             $sql = "INSERT INTO member_fees (
                 member_id,
                 registration_fee,
@@ -19,10 +25,10 @@ class MemberFee extends BaseModel
                 created_at
             ) VALUES (
                 :member_id,
-                20.00,  // Registration fee
-                100.00, // Share capital
-                10.00,  // Membership fee
-                10.00,  // Welfare fund
+                20.00,
+                100.00,
+                10.00,
+                10.00,
                 'pending',
                 NOW()
             )";
@@ -53,18 +59,42 @@ class MemberFee extends BaseModel
     public function updatePaymentStatus($memberId, $status)
     {
         try {
+            $this->getConnection()->beginTransaction();
+
+            // Update member_fees table
             $sql = "UPDATE member_fees 
                     SET payment_status = :status,
                         paid_at = NOW()
                     WHERE member_id = :member_id";
 
             $stmt = $this->getConnection()->prepare($sql);
-            return $stmt->execute([
+            $result = $stmt->execute([
                 ':status' => $status,
                 ':member_id' => $memberId
             ]);
 
-        } catch (\PDOException $e) {
+            if (!$result) {
+                throw new \Exception('Failed to update payment status');
+            }
+
+            // Update members table status
+            $sql = "UPDATE members 
+                    SET status = 'Active',
+                        activated_at = NOW() 
+                    WHERE id = :member_id";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            $result = $stmt->execute([':member_id' => $memberId]);
+
+            if (!$result) {
+                throw new \Exception('Failed to update member status');
+            }
+
+            $this->getConnection()->commit();
+            return true;
+
+        } catch (\Exception $e) {
+            $this->getConnection()->rollBack();
             error_log('Database Error in updatePaymentStatus: ' . $e->getMessage());
             throw new \Exception('Failed to update payment status');
         }

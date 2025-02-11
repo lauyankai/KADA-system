@@ -159,6 +159,7 @@
                                     <span class="badge bg-<?= $recurringPayment['status'] === 'active' ? 'success' : 'warning' ?>">
                                         <?= $recurringPayment['status'] === 'active' ? 'Aktif' : 'Tidak Aktif' ?>
                                     </span>
+                                    <a href="/users/savings/recurring" class="btn btn-primary">Lihat Butiran Pembayaran Berulang</a>
                                 </div>
                             </div>
                         </div>

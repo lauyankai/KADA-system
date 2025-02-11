@@ -47,8 +47,11 @@ class UserFeeController extends BaseController
                 throw new \Exception('Sila log masuk untuk mengakses');
             }
 
-            // Simply mark the payment as completed
+            // Update payment status to completed
             $this->memberFee->updatePaymentStatus($_SESSION['member_id'], 'completed');
+
+            // Activate the member's account
+            $this->user->activateMember($_SESSION['member_id']);
 
             $_SESSION['success'] = 'Pembayaran berjaya. Keahlian anda telah diaktifkan.';
             header('Location: /users/fees/success');

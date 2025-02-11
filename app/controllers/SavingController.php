@@ -123,6 +123,7 @@ class SavingController extends BaseController
                 }
 
                 $memberId = $_SESSION['member_id'];
+                $totalMonthlyPayments = $this->saving->getTotalMonthlyLoanPayments($memberId);
                 
                 $recurringPayments = $this->saving->getRecurringPayments($memberId);
                 
@@ -134,7 +135,8 @@ class SavingController extends BaseController
                     'transactions' => $this->saving->getRecentTransactions($memberId, 5),
                     'recurringPayment' => !empty($recurringPayments) ? $recurringPayments[0] : null,
                     'totalSavings' => $this->saving->getTotalSavings($memberId),
-                    'accountBalance' => $this->saving->getTotalSavings($memberId)
+                    'accountBalance' => $this->saving->getTotalSavings($memberId),
+                    'totalMonthlyPayments' => $totalMonthlyPayments
                 ];
 
                 $this->view('users/savings/page', $data);
@@ -1091,6 +1093,26 @@ class SavingController extends BaseController
                     'success' => false,
                     'message' => $e->getMessage()
                 ]);
+                exit;
+            }
+        }
+
+        public function viewRecurringPayments()
+        {
+            try {
+                if (!isset($_SESSION['member_id'])) {
+                    throw new \Exception('Sila log masuk untuk mengakses');
+                }
+
+                $memberId = $_SESSION['member_id'];
+                $recurringPayments = $this->saving->getRecurringPayments($memberId);
+
+                $this->view('users/savings/recurring/index', [
+                    'recurringPayments' => $recurringPayments
+                ]);
+            } catch (\Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: /auth/login');
                 exit;
             }
         }
