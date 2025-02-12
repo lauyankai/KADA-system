@@ -357,22 +357,18 @@ class AdminController extends BaseController {
     public function uploadReport()
     {
         try {
-            // Check if file was uploaded
             if (!isset($_FILES['report_file']) || $_FILES['report_file']['error'] !== UPLOAD_ERR_OK) {
                 throw new \Exception('Sila pilih fail untuk dimuat naik');
             }
 
-            // Get form data
             $file = $_FILES['report_file'];
             $year = $_POST['year'] ?? '';
             $title = $_POST['title'] ?? '';
 
-            // Validate inputs
             if (empty($year) || empty($title)) {
                 throw new \Exception('Sila isi semua maklumat yang diperlukan');
             }
 
-            // Validate file type
             $allowedTypes = ['application/pdf'];
             $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
             $mimeType = finfo_file($fileInfo, $file['tmp_name']);
@@ -382,13 +378,11 @@ class AdminController extends BaseController {
                 throw new \Exception('Hanya fail PDF diterima');
             }
 
-            // Validate file size (10MB max)
-            $maxSize = 10 * 1024 * 1024; // 10MB in bytes
+            $maxSize = 100 * 1024 * 1024; 
             if ($file['size'] > $maxSize) {
                 throw new \Exception('Saiz fail tidak boleh melebihi 10MB');
             }
 
-            // Create upload directory if it doesn't exist
             $uploadDir = dirname(__DIR__, 2) . '/public/uploads/annual-reports/';
             if (!file_exists($uploadDir)) {
                 if (!mkdir($uploadDir, 0777, true)) {
@@ -396,18 +390,13 @@ class AdminController extends BaseController {
                 }
             }
 
-            // Generate unique filename
             $fileName = 'annual_report_' . $year . '_' . uniqid() . '.pdf';
             $filePath = $uploadDir . $fileName;
 
-            // Move uploaded file
             if (!move_uploaded_file($file['tmp_name'], $filePath)) {
                 throw new \Exception('Gagal memuat naik fail');
             }
 
-            error_log('File uploaded successfully to: ' . $filePath);
-
-            // Save to database
             $data = [
                 'year' => $year,
                 'title' => $year,
@@ -421,9 +410,7 @@ class AdminController extends BaseController {
             $_SESSION['success'] = 'Laporan tahunan berjaya dimuat naik';
             header('Location: /admin');
             exit;
-
         } catch (\Exception $e) {
-            error_log('Upload Error: ' . $e->getMessage());
             $_SESSION['error'] = 'Ralat semasa memuat naik fail: ' . $e->getMessage();
             header('Location: /admin');
             exit;
@@ -464,28 +451,18 @@ class AdminController extends BaseController {
                 throw new \Exception('Laporan tidak dijumpai');
             }
 
-            // First delete from database
             if (!$this->annualReport->delete($id)) {
                 throw new \Exception('Gagal memadam rekod dari pangkalan data');
             }
 
-            // Then try to delete the physical file
             $filepath = dirname(__DIR__, 2) . '/public/uploads/annual-reports/' . $report['file_name'];
             
-            error_log('Attempting to delete: ' . $filepath);
-            error_log('File exists: ' . (file_exists($filepath) ? 'Yes' : 'No'));
-            
             if (file_exists($filepath)) {
-                // Try to make the file writable
                 chmod($filepath, 0777);
                 clearstatcache(true, $filepath);
                 
-                error_log('File permissions after chmod: ' . substr(sprintf('%o', fileperms($filepath)), -4));
-                error_log('File writable: ' . (is_writable($filepath) ? 'Yes' : 'No'));
-                
                 if (!unlink($filepath)) {
                     $error = error_get_last();
-                    error_log('Unlink error: ' . ($error['message'] ?? 'Unknown error'));
                     throw new \Exception('Gagal memadam fail: ' . ($error['message'] ?? 'Unknown error'));
                 }
             }
@@ -495,7 +472,6 @@ class AdminController extends BaseController {
             exit;
 
         } catch (\Exception $e) {
-            error_log('Delete Error: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
             header('Location: /admin');
             exit;
