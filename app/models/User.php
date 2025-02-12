@@ -219,7 +219,7 @@ class User extends BaseModel
         } catch (\PDOException $e) {
             error_log('Database Error in getMemberById: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan maklumat ahli');
-        }
+        } 
     }
 
     public function updateProfile($userId, $data)
@@ -251,6 +251,55 @@ class User extends BaseModel
             return true;
         } catch (\PDOException $e) {
             error_log('Database Error in updateProfile: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function submitResignation($userId, $reasons)
+    {
+        try {
+            $this->getConnection()->beginTransaction();
+
+            // Insert resignation request
+            $sql = "INSERT INTO resignation_requests (
+                        member_id, 
+                        request_date, 
+                        status
+                    ) VALUES (
+                        :member_id,
+                        NOW(),
+                        'pending'
+                    )";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $userId]);
+            $resignationId = $this->getConnection()->lastInsertId();
+
+            // Insert reasons
+            $sql = "INSERT INTO resignation_reasons (
+                        resignation_id,
+                        reason
+                    ) VALUES (
+                        :resignation_id,
+                        :reason
+                    )";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            foreach ($reasons as $reason) {
+                $stmt->execute([
+                    ':resignation_id' => $resignationId,
+                    ':reason' => $reason
+                ]);
+            }
+
+            $this->getConnection()->commit();
+            return true;
+
+        } catch (\PDOException $e) {
+            if ($this->getConnection()->inTransaction()) {
+                $this->getConnection()->rollBack();
+            }
+            error_log('Database Error in submitResignation: ' . $e->getMessage());
             return false;
         }
     }

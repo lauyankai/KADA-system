@@ -18,6 +18,11 @@
                         <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">
                             <i class="bi bi-check-circle me-1"></i>Ahli Aktif
                         </span>
+                        <div class="mt-4">
+                            <button class="btn btn-danger btn-sm" onclick="confirmResign()">
+                                <i class="bi bi-box-arrow-right me-2"></i>Berhenti Menjadi Ahli
+                            </button>
+                        </div>
                     </div>
 
                     <div class="border-top pt-4">
@@ -219,6 +224,12 @@
 </div>
 
 <script>
+function confirmResign() {
+    if (confirm('Adakah anda pasti untuk berhenti menjadi ahli koperasi?')) {
+        window.location.href = '/users/resign';
+    }
+}
+
 function toggleEdit() {
     const viewModes = document.querySelectorAll('.view-mode');
     const editModes = document.querySelectorAll('.edit-mode');

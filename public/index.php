@@ -104,6 +104,8 @@ $router = new App\Core\Router();
     $router->addRoute('GET', '/users', 'UserController', 'dashboard');
     $router->addRoute('GET', '/users/profile', 'UserController', 'profile');
     $router->addRoute('POST', '/users/profile/update', 'UserController', 'update');
+    $router->addRoute('GET', '/users/resign', 'UserController', 'showResignForm');
+    $router->addRoute('POST', '/users/resign/submit', 'UserController', 'submitResignation');
 
     // User routes -- Savings Routes
         $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
