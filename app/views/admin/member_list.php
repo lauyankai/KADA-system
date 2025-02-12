@@ -22,7 +22,7 @@ function getBadgeClass($memberType) {
             <div>
                 <h2 class="mb-1">Senarai Ahli</h2>
             </div>
-            <div class="header-actions">
+            <div class="header-actions d-flex gap-2">
                 <div class="dropdown">
                     <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-download me-2"></i>Export
@@ -40,7 +40,9 @@ function getBadgeClass($memberType) {
                         </li>
                     </ul>
                 </div>
-                <form id="exportForm" method="POST" target="_blank" style="display: none;"></form>
+                <a href="/admin" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Kembali
+                </a>
             </div>
         </div>
 
