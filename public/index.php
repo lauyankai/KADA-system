@@ -102,6 +102,7 @@ $router = new App\Core\Router();
 
 // User Dashboard Routes
     $router->addRoute('GET', '/users', 'UserController', 'dashboard');
+    $router->addRoute('GET', '/users/profile', 'UserController', 'profile');
 
     // User routes -- Savings Routes
         $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
@@ -165,6 +166,8 @@ $router = new App\Core\Router();
 // $router->addRoute('GET', '/users/savings/goals/{id}/edit', 'SavingController', 'editSavingsGoal');
 // $router->addRoute('POST', '/users/savings/goals/{id}/update', 'SavingController', 'updateSavingsGoal');
 // $router->addRoute('POST', '/users/savings/goals/{id}/delete', 'SavingController', 'deleteSavingsGoal');
+
+
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -63,4 +63,27 @@ class UserController extends BaseController
             exit;
         }
     }
+
+    public function profile()
+    {
+        try {
+            if (!isset($_SESSION['user_id'])) {
+                header('Location: /auth/login');
+                exit();
+            }
+
+            $user = new User();
+            $member = $user->getUserById($_SESSION['user_id']);
+
+            if (!$member) {
+                throw new \Exception('Member not found');
+            }
+
+            $this->view('users/profile', ['member' => $member]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /dashboard');
+            exit();
+        }
+    }
 }
