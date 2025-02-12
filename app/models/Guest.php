@@ -35,24 +35,16 @@ class Guest extends BaseModel
                 home_address, home_postcode, home_state,
                 office_address, office_postcode,
                 office_phone, home_phone, fax,
-                registration_fee, share_capital, fee_capital,
-                deposit_funds, welfare_fund, fixed_deposit,
-                other_contributions,
                 family_relationship, family_name, family_ic,
-                reference_no, birthday, age,
-                status
+                reference_no, status
             ) VALUES (
                 :name, :ic_no, :gender, :religion, :race, :marital_status, :email,
                 :position, :grade, :monthly_salary,
                 :home_address, :home_postcode, :home_state,
                 :office_address, :office_postcode,
                 :office_phone, :home_phone, :fax,
-                :registration_fee, :share_capital, :fee_capital,
-                :deposit_funds, :welfare_fund, :fixed_deposit,
-                :other_contributions,
                 :family_relationship, :family_name, :family_ic,
-                :reference_no, :birthday, :age,
-                'Pending'
+                :reference_no, 'Pending'
             )";
             
             $stmt = $this->getConnection()->prepare($sql);
@@ -76,19 +68,10 @@ class Guest extends BaseModel
                 ':office_phone' => $data['office_phone'],
                 ':home_phone' => $data['home_phone'],
                 ':fax' => $data['fax'] ?? null,
-                ':registration_fee' => $data['registration_fee'] ?? 0,
-                ':share_capital' => $data['share_capital'] ?? 0,
-                ':fee_capital' => $data['fee_capital'] ?? 0,
-                ':deposit_funds' => $data['deposit_funds'] ?? 0,
-                ':welfare_fund' => $data['welfare_fund'] ?? 0,
-                ':fixed_deposit' => $data['fixed_deposit'] ?? 0,
-                ':other_contributions' => $data['other_contributions'] ?? null,
                 ':family_relationship' => $data['family_relationship'][0] ?? null,
                 ':family_name' => $data['family_name'][0] ?? null,
                 ':family_ic' => $data['family_ic'][0] ?? null,
-                ':reference_no' => $reference_no,
-                ':birthday' => $data['birthday'],
-                ':age' => $data['age']
+                ':reference_no' => $reference_no
             ];
 
             $result = $stmt->execute($params);

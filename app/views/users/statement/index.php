@@ -1,6 +1,9 @@
 <?php 
     $title = 'Penyata Akaun';
     require_once '../app/views/layouts/header.php';
+
+    // Add this temporarily at the top of the file to debug
+    error_log('View member data: ' . print_r($member ?? 'not set', true));
 ?>
 
 <div class="container py-4">
@@ -119,76 +122,44 @@
         </div>
     </div>
 
-    <!-- Remove the old notification card and add this modal -->
+    <!-- Notification Modal -->
     <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header border-0">
+                <div class="modal-header">
                     <h5 class="modal-title" id="notificationModalLabel">
-                        <i class="bi bi-bell me-2"></i>
-                        Tetapan Notifikasi
+                        <i class="bi bi-bell me-2"></i>Tetapan Notifikasi
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/users/statements/notifications" method="POST" class="notification-form">
+                    <form id="notificationForm" action="/users/statement/update-notifications" method="POST">
+                        <!-- Toggle Switch -->
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" id="emailNotification" 
-                                   name="email_notification" 
+                                   name="email_notification"
                                    <?= isset($notifications['email_enabled']) && $notifications['email_enabled'] ? 'checked' : '' ?>>
                             <label class="form-check-label" for="emailNotification">
                                 Terima penyata secara automatik
                             </label>
                         </div>
-                        
-                        <div class="notification-settings <?= isset($notifications['email_enabled']) && $notifications['email_enabled'] ? '' : 'd-none' ?>">
-                            <!-- Delivery Method -->
-                            <div class="mb-3">
-                                <label class="form-label">Kaedah Penghantaran</label>
-                                <select class="form-select" name="delivery_method" id="deliveryMethod" required>
-                                    <option value="email" <?= isset($notifications['delivery_method']) && $notifications['delivery_method'] == 'email' ? 'selected' : '' ?>>Emel</option>
-                                    <option value="sms" <?= isset($notifications['delivery_method']) && $notifications['delivery_method'] == 'sms' ? 'selected' : '' ?>>SMS</option>
-                                </select>
-                            </div>
 
-                            <!-- Frequency -->
-                            <div class="mb-3">
-                                <label class="form-label">Kekerapan</label>
-                                <select class="form-select" name="frequency" id="frequency" required>
-                                    <option value="daily" <?= isset($notifications['frequency']) && $notifications['frequency'] == 'daily' ? 'selected' : '' ?>>Harian</option>
-                                    <option value="weekly" <?= isset($notifications['frequency']) && $notifications['frequency'] == 'weekly' ? 'selected' : '' ?>>Mingguan</option>
-                                    <option value="monthly" <?= isset($notifications['frequency']) && $notifications['frequency'] == 'monthly' ? 'selected' : '' ?>>Bulanan</option>
-                                    <option value="yearly" <?= isset($notifications['frequency']) && $notifications['frequency'] == 'yearly' ? 'selected' : '' ?>>Tahunan</option>
-                                </select>
-                            </div>
-
-                            <!-- Email Field -->
-                            <div class="email-field <?= isset($notifications['delivery_method']) && $notifications['delivery_method'] == 'sms' ? 'd-none' : '' ?>">
-                                <div class="mb-4">
-                                    <label class="form-label">Emel</label>
-                                    <input type="email" class="form-control bg-light" name="email" id="emailInput"
-                                           value="kada.ecopioneer@gmail.com" 
-                                           placeholder="Masukkan alamat emel anda">
-                                </div>
-                            </div>
-
-                            <!-- Phone Field -->
-                            <div class="phone-field <?= isset($notifications['delivery_method']) && $notifications['delivery_method'] == 'email' ? 'd-none' : '' ?>">
-                                <div class="mb-4">
-                                    <label class="form-label">Nombor Telefon</label>
-                                    <input type="tel" class="form-control bg-light" name="phone" id="phoneInput"
-                                           value="0123928471" 
-                                           placeholder="Masukkan nombor telefon anda">
-                    
-                                </div>
-                            </div>
+                        <!-- Email Field (Initially Hidden) -->
+                        <div id="emailField" class="mb-4" style="display: none;">
+                            <label class="form-label">Emel</label>
+                            <input type="email" 
+                                   class="form-control bg-light" 
+                                   name="email" 
+                                   id="emailInput" 
+                                   value="<?= htmlspecialchars($member['email']) ?>"
+                                   placeholder="Masukkan alamat emel anda">
                         </div>
 
-                        <div class="text-end">
-                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
+                        <!-- Modal Footer -->
+                        <div class="modal-footer border-0 px-0 pb-0">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save me-2"></i>
-                                Simpan Tetapan
+                                <i class="bi bi-save me-2"></i>Simpan Tetapan
                             </button>
                         </div>
                     </form>
@@ -274,57 +245,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const emailNotification = document.getElementById('emailNotification');
-    const notificationSettings = document.querySelector('.notification-settings');
-    const emailField = document.querySelector('.email-field');
-    const phoneField = document.querySelector('.phone-field');
-    const deliveryMethod = document.getElementById('deliveryMethod');
-    const emailInput = document.getElementById('emailInput');
-    const phoneInput = document.getElementById('phoneInput');
-    const form = document.querySelector('.notification-form');
+    const emailField = document.getElementById('emailField');
 
-    // Handle checkbox change
+    // Initial state
+    emailField.style.display = emailNotification.checked ? 'block' : 'none';
+
+    // Toggle email field visibility when checkbox changes
     emailNotification.addEventListener('change', function() {
-        notificationSettings.classList.toggle('d-none', !this.checked);
-        updateRequiredFields();
+        emailField.style.display = this.checked ? 'block' : 'none';
     });
-
-    // Handle delivery method change
-    deliveryMethod.addEventListener('change', function() {
-        emailField.classList.toggle('d-none', this.value === 'sms');
-        phoneField.classList.toggle('d-none', this.value === 'email');
-        updateRequiredFields();
-    });
-
-    function updateRequiredFields() {
-        const isEnabled = emailNotification.checked;
-        const isSMS = deliveryMethod.value === 'sms';
-
-        emailInput.required = isEnabled && !isSMS;
-        phoneInput.required = isEnabled && isSMS;
-    }
-
-    // Handle form submission
-    form.addEventListener('submit', function(e) {
-        if (!emailNotification.checked) return;
-
-        if (deliveryMethod.value === 'email' && !emailInput.value) {
-            e.preventDefault();
-            alert('Sila masukkan alamat emel anda');
-            return;
-        }
-
-        if (deliveryMethod.value === 'sms' && !phoneInput.value) {
-            e.preventDefault();
-            alert('Sila masukkan nombor telefon anda');
-            return;
-        }
-    });
-
-    // Initial setup
-    updateRequiredFields();
 });
 
-// Keep existing date update function
 document.addEventListener('DOMContentLoaded', function() {
     updateDates('today');
 });

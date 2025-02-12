@@ -4,6 +4,37 @@
 ?>
 
 <div class="container-fluid mt-4">
+    <?php if (isset($_SESSION['error']) || isset($_SESSION['success'])): ?>
+        <div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <?php if (isset($_SESSION['error'])): ?>
+                        <div class="modal-header border-0 bg-danger bg-opacity-10">
+                            <h5 class="modal-title text-danger">Error</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if (isset($_SESSION['success'])): ?>
+                        <div class="modal-header border-0 bg-success bg-opacity-10">
+                            <h5 class="modal-title text-success">Berjaya!</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Main Content Row -->
     <div class="row g-4">
         <!-- Member Approval Section -->
@@ -166,35 +197,39 @@
 <div class="modal fade" id="uploadReportModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="/admin/upload-report" method="POST" enctype="multipart/form-data">
+            <form action="/admin/uploadReport" method="POST" enctype="multipart/form-data">
                 <div class="modal-header border-0">
                     <h5 class="modal-title">Muat Naik Laporan Tahunan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Tahun</label> 
+                        <label class="form-label">Tahun</label>
                         <select name="year" class="form-select" required>
                             <option value="">Pilih Tahun</option>
-                            <?php for($y = date('Y'); $y >= date('Y')-4; $y--): ?>
-                                <option value="<?= $y ?>"><?= $y ?></option>
-                            <?php endfor; ?>
+                            <?php 
+                                $currentYear = date('Y');
+                                for ($year = $currentYear; $year >= ($currentYear - 5); $year--) {
+                                    echo "<option value=\"$year\">$year</option>";
+                                }
+                            ?>
                         </select>
-                    </div>  
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Tajuk</label> 
                         <input type="text" name="title" class="form-control" required>
                     </div>  
                     <div class="mb-3">
-                        <label class="form-label">Fail</label>
-                        <input type="file" name="file" class="form-control" required>
+                        <label class="form-label">Fail PDF</label>
+                        <input type="file" name="report_file" class="form-control" accept=".pdf" required>
+                        <div class="form-text">Maksimum 100MB</div>
                     </div>
                 </div>
 
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check2 me-1"></i>Hantar
+                        <i class="bi bi-check2 me-1"></i>Muat Naik
                     </button>
                 </div>
             </form>
@@ -253,6 +288,15 @@ function formatFileSize($bytes) {
         new bootstrap.Modal(document.getElementById('uploadReportModal')).show();
     }
 
+    function deleteReport(id) {
+        if (confirm('Adakah anda pasti untuk memadam laporan ini?')) {
+            window.location.href = `/admin/deleteReport/${id}`;
+        }
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        new bootstrap.Modal(document.getElementById('messageModal')).show();
+    });
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>

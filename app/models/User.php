@@ -202,20 +202,22 @@ class User extends BaseModel
         }
     }
 
-    public function activateMember($memberId)
+    public function getMemberById($id)
     {
         try {
-            $sql = "UPDATE members 
-                    SET status = 'Active', 
-                        activated_at = NOW() 
-                    WHERE id = :id";
-                    
+            $sql = "SELECT * FROM members WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
-            return $stmt->execute([':id' => $memberId]);
+            $stmt->execute([':id' => $id]);
             
+            $member = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Debug log
+            error_log('Fetched member data: ' . print_r($member, true));
+            
+            return $member;
         } catch (\PDOException $e) {
-            error_log('Database Error in activateMember: ' . $e->getMessage());
-            throw new \Exception('Failed to activate member');
+            error_log('Database Error in getMemberById: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat ahli');
         }
     }
 

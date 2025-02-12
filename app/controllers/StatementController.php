@@ -5,6 +5,7 @@ use App\Core\BaseController;
 use App\Models\Saving;
 use App\Models\Loan;
 use App\Models\Statement;
+use App\Models\User;
 use PDO;
 
 class StatementController extends BaseController
@@ -12,23 +13,31 @@ class StatementController extends BaseController
     private $saving;
     private $loan;
     private $statement;
+    private $user;
     
     public function __construct()
     {
         $this->saving = new Saving();
         $this->loan = new Loan();
         $this->statement = new Statement();
+        $this->user = new User();
     }
 
     public function index()
     {
         try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
+            // Get member ID from session
+            $memberId = $_SESSION['member_id'] ?? null;
+            if (!$memberId) {
+                throw new \Exception('Sesi telah tamat');
             }
 
-            $memberId = $_SESSION['member_id'];
-            
+            // Get member details including email
+            $member = $this->user->getMemberById($memberId);
+            if (!$member) {
+                throw new \Exception('Maklumat ahli tidak dijumpai');
+            }
+
             // Get savings account
             $account = $this->saving->getSavingsAccount($memberId);
             
@@ -47,15 +56,15 @@ class StatementController extends BaseController
             $notifications = $this->statement->getNotificationSettings($memberId);
             
             $this->view('users/statement/index', [
+                'member' => $member,
                 'account' => $account,
                 'loans' => $loans,
                 'notifications' => $notifications
             ]);
 
         } catch (\Exception $e) {
-            error_log('Error in statement index: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /users');
+            header('Location: /users/dashboard');
             exit;
         }
     }
