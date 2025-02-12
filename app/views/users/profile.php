@@ -47,7 +47,7 @@
         <!-- Details Card -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent border-0 pb-0">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
                     <ul class="nav nav-tabs card-header-tabs">
                         <li class="nav-item">
                             <a class="nav-link active" data-bs-toggle="tab" href="#personal">
@@ -65,38 +65,110 @@
                             </a>
                         </li>
                     </ul>
+                    <button class="btn btn-primary btn-sm" onclick="toggleEdit()">
+                        <i class="bi bi-pencil me-2"></i>Kemaskini
+                    </button>
                 </div>
 
                 <div class="card-body">
                     <div class="tab-content">
                         <!-- Personal Info Tab -->
                         <div class="tab-pane fade show active" id="personal">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">Jantina</label>
-                                    <p class="mb-0"><?= htmlspecialchars($member->gender) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">Agama</label>
-                                    <p class="mb-0"><?= htmlspecialchars($member->religion) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">Bangsa</label>
-                                    <p class="mb-0"><?= htmlspecialchars($member->race) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">Status Perkahwinan</label>
-                                    <p class="mb-0"><?= htmlspecialchars($member->marital_status) ?></p>
-                                </div>
-                                <div class="col-12">
-                                    <label class="text-muted small d-block">Alamat Rumah</label>
-                                    <p class="mb-1"><?= htmlspecialchars($member->home_address) ?></p>
-                                    <p class="mb-0">
-                                        <?= htmlspecialchars($member->home_postcode) ?>, 
-                                        <?= htmlspecialchars($member->home_state) ?>
-                                    </p>
+                            <!-- View Mode -->
+                            <div class="view-mode">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Jantina</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->gender) ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Agama</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->religion) ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Bangsa</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->race) ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Status Perkahwinan</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->marital_status) ?></p>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="text-muted small d-block">Alamat Rumah</label>
+                                        <p class="mb-1"><?= htmlspecialchars($member->home_address) ?></p>
+                                        <p class="mb-0">
+                                            <?= htmlspecialchars($member->home_postcode) ?>, 
+                                            <?= htmlspecialchars($member->home_state) ?>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <!-- Edit Mode (Initially Hidden) -->
+                            <form class="edit-mode d-none" action="/users/profile/update" method="POST">
+                                <div class="row g-4">
+                                    <!-- Read-only fields -->
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama</label>
+                                        <input type="text" class="form-control" value="<?= htmlspecialchars($member->name) ?>" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">No. K/P</label>
+                                        <input type="text" class="form-control" value="<?= htmlspecialchars($member->ic_no) ?>" readonly>
+                                    </div>
+                                    
+                                    <!-- Editable fields -->
+                                    <div class="col-md-6">
+                                        <label class="form-label">E-mel</label>
+                                        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($member->email) ?>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">No. Tel (HP)</label>
+                                        <input type="tel" name="home_phone" class="form-control" value="<?= htmlspecialchars($member->home_phone) ?>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">No. Tel (Pejabat)</label>
+                                        <input type="tel" name="office_phone" class="form-control" value="<?= htmlspecialchars($member->office_phone) ?>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Status Perkahwinan</label>
+                                        <select name="marital_status" class="form-select">
+                                            <option value="Bujang" <?= $member->marital_status == 'Bujang' ? 'selected' : '' ?>>Bujang</option>
+                                            <option value="Berkahwin" <?= $member->marital_status == 'Berkahwin' ? 'selected' : '' ?>>Berkahwin</option>
+                                            <option value="Bercerai" <?= $member->marital_status == 'Bercerai' ? 'selected' : '' ?>>Bercerai</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Alamat Rumah</label>
+                                        <input type="text" name="home_address" class="form-control mb-2" value="<?= htmlspecialchars($member->home_address) ?>">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <input type="text" name="home_postcode" class="form-control" placeholder="Poskod" value="<?= htmlspecialchars($member->home_postcode) ?>">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <select name="home_state" class="form-select">
+                                                    <?php
+                                                    $states = ['Kelantan', 'Terengganu', 'Pahang', 'Kedah', 'Perlis', 'Perak', 'Selangor', 'Negeri Sembilan', 'Melaka', 'Johor', 'Sabah', 'Sarawak', 'Pulau Pinang', 'Wilayah Persekutuan'];
+                                                    foreach ($states as $state) {
+                                                        $selected = ($member->home_state == $state) ? 'selected' : '';
+                                                        echo "<option value=\"$state\" $selected>$state</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save me-2"></i>Simpan
+                                    </button>
+                                    <button type="button" class="btn btn-light ms-2" onclick="toggleEdit()">
+                                        <i class="bi bi-x me-2"></i>Batal
+                                    </button>
+                                </div>
+                            </form>
                         </div>
 
                         <!-- Employment Info Tab -->
@@ -146,6 +218,21 @@
     </div>
 </div>
 
+<script>
+function toggleEdit() {
+    const viewModes = document.querySelectorAll('.view-mode');
+    const editModes = document.querySelectorAll('.edit-mode');
+    
+    viewModes.forEach(view => {
+        view.classList.toggle('d-none');
+    });
+    
+    editModes.forEach(edit => {
+        edit.classList.toggle('d-none');
+    });
+}
+</script>
+
 <style>
 .profile-image {
     width: 120px;
@@ -172,6 +259,20 @@
 
 .nav-tabs .nav-link:hover:not(.active) {
     border-bottom: 2px solid #e9ecef;
+}
+
+.form-control:read-only {
+    background-color: #f8f9fa;
+}
+
+.edit-mode .row {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
 }
 </style>
 

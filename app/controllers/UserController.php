@@ -86,4 +86,40 @@ class UserController extends BaseController
             exit();
         }
     }
+
+    public function update()
+    {
+        try {
+            if (!isset($_SESSION['user_id'])) {
+                header('Location: /auth/login');
+                exit();
+            }
+
+            $userId = $_SESSION['user_id'];
+            $data = [
+                'email' => $_POST['email'],
+                'home_phone' => $_POST['home_phone'],
+                'office_phone' => $_POST['office_phone'],
+                'marital_status' => $_POST['marital_status'],
+                'home_address' => $_POST['home_address'],
+                'home_postcode' => $_POST['home_postcode'],
+                'home_state' => $_POST['home_state'],
+                // Add other fields as needed
+            ];
+
+            $user = new User();
+            if ($user->updateProfile($userId, $data)) {
+                $_SESSION['success'] = 'Profil berjaya dikemaskini';
+            } else {
+                throw new \Exception('Gagal mengemaskini profil');
+            }
+
+            header('Location: /users/profile');
+            exit();
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/profile');
+            exit();
+        }
+    }
 }

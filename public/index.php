@@ -103,6 +103,7 @@ $router = new App\Core\Router();
 // User Dashboard Routes
     $router->addRoute('GET', '/users', 'UserController', 'dashboard');
     $router->addRoute('GET', '/users/profile', 'UserController', 'profile');
+    $router->addRoute('POST', '/users/profile/update', 'UserController', 'update');
 
     // User routes -- Savings Routes
         $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');

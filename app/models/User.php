@@ -103,7 +103,7 @@ class User extends BaseModel
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Database error occurred: ' . $e->getMessage());
         }
-}
+    }
 
     public function find($id)
     {
@@ -219,6 +219,39 @@ class User extends BaseModel
         } catch (\PDOException $e) {
             error_log('Database Error in getMemberById: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan maklumat ahli');
+        }
+    }
+
+    public function updateProfile($userId, $data)
+    {
+        try {
+            $sql = "UPDATE members SET 
+                    email = :email,
+                    home_phone = :home_phone,
+                    office_phone = :office_phone,
+                    marital_status = :marital_status,
+                    home_address = :home_address,
+                    home_postcode = :home_postcode,
+                    home_state = :home_state,
+                    updated_at = NOW()
+                    WHERE id = :id";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':id' => $userId,
+                ':email' => $data['email'],
+                ':home_phone' => $data['home_phone'],
+                ':office_phone' => $data['office_phone'],
+                ':marital_status' => $data['marital_status'],
+                ':home_address' => $data['home_address'],
+                ':home_postcode' => $data['home_postcode'],
+                ':home_state' => $data['home_state']
+            ]);
+
+            return true;
+        } catch (\PDOException $e) {
+            error_log('Database Error in updateProfile: ' . $e->getMessage());
+            return false;
         }
     }
 
