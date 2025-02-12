@@ -256,7 +256,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Keep existing date update function
 document.addEventListener('DOMContentLoaded', function() {
     updateDates('today');
 });
