@@ -177,13 +177,18 @@
                                             </td>
                                             <td class="text-end">
                                                 <?php if ($loan['status'] === 'pending'): ?>
+                                                    <button onclick="showLoanDetails(<?= htmlspecialchars(json_encode($loan)) ?>)" 
+                                                            class="btn btn-sm btn-light me-1">
+                                                        <i class="bi bi-eye me-1"></i>Lihat
+                                                    </button>
                                                     <button onclick="showReviewModal(<?= $loan['id'] ?>)" 
                                                             class="btn btn-sm btn-primary">
                                                         <i class="bi bi-pencil-square me-1"></i>Semak
                                                     </button>
                                                 <?php else: ?>
-                                                    <button class="btn btn-sm btn-light" disabled>
-                                                        <i class="bi bi-check-circle me-1"></i>Selesai
+                                                    <button onclick="showLoanDetails(<?= htmlspecialchars(json_encode($loan)) ?>)" 
+                                                            class="btn btn-sm btn-light">
+                                                        <i class="bi bi-eye me-1"></i>Lihat
                                                     </button>
                                                 <?php endif; ?>
                                             </td>
@@ -212,8 +217,9 @@
                     <input type="hidden" name="loan_id" id="loanId">
                     <div class="mb-3">
                         <label class="form-label">Status</label>
-                        <select name="status" class="form-select" required>
-                            <option value="">Pilih Status</option>
+                        <select class="form-select" name="status" required>
+                            <option value="" disabled>Pilih Status</option>
+                            <option value="pending">Dalam Proses</option>
                             <option value="approved">Lulus</option>
                             <option value="rejected">Tolak</option>
                         </select>
@@ -237,6 +243,99 @@
     </div>
 </div>
 
+<!-- Add this after the Review Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-text me-2"></i>Maklumat Permohonan
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <!-- Applicant Details -->
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">Maklumat Pemohon</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">Nama</label>
+                                        <span id="memberName" class="fw-medium"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">No. K/P</label>
+                                        <span id="memberIC" class="fw-medium"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loan Details -->
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">Maklumat Pembiayaan</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">No. Rujukan</label>
+                                        <span id="referenceNo" class="fw-medium"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">Jenis Pembiayaan</label>
+                                        <span id="loanType" class="badge bg-primary bg-opacity-10 text-primary"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">Jumlah (RM)</label>
+                                        <span id="loanAmount" class="fw-medium"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">Tempoh</label>
+                                        <span id="duration" class="fw-medium"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">Bayaran Bulanan (RM)</label>
+                                        <span id="monthlyPayment" class="fw-medium"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">Tarikh Mohon</label>
+                                        <span id="dateReceived" class="fw-medium"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Details -->
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">Maklumat Bank</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">Nama Bank</label>
+                                        <span id="bankName" class="fw-medium"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted d-block">No. Akaun</label>
+                                        <span id="bankAccount" class="fw-medium"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     function showReviewModal(loanId) {
         document.getElementById('loanId').value = loanId;
@@ -245,6 +344,29 @@
 
     function filterLoans(status) {
         window.location.href = `/director/loans?status=${status}`;
+    }
+
+    function showLoanDetails(loan) {
+        // Update modal fields with loan details
+        document.getElementById('memberName').textContent = loan.member_name;
+        document.getElementById('memberIC').textContent = loan.ic_no;
+        document.getElementById('referenceNo').textContent = loan.reference_no;
+        document.getElementById('loanType').textContent = loan.loan_type;
+        document.getElementById('loanAmount').textContent = parseFloat(loan.amount).toLocaleString('en-MY', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        document.getElementById('duration').textContent = loan.duration + ' bulan';
+        document.getElementById('monthlyPayment').textContent = parseFloat(loan.monthly_payment).toLocaleString('en-MY', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        document.getElementById('dateReceived').textContent = new Date(loan.date_received).toLocaleDateString('ms-MY');
+        document.getElementById('bankName').textContent = loan.bank_name;
+        document.getElementById('bankAccount').textContent = loan.bank_account;
+
+        // Show the modal
+        new bootstrap.Modal(document.getElementById('detailsModal')).show();
     }
 </script>
 

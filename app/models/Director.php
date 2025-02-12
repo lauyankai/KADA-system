@@ -393,11 +393,7 @@ class Director extends BaseModel
     public function updateLoanStatus($data)
     {
         try {
-            error_log('Starting updateLoanStatus in Director model');
-            error_log('Input data: ' . print_r($data, true));
-
             $this->getConnection()->beginTransaction();
-            error_log('Transaction started');
 
             // Get loan details first
             $sql = "SELECT * FROM pendingloans WHERE id = :id";
@@ -406,26 +402,11 @@ class Director extends BaseModel
             $loan = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$loan) {
-                error_log('Loan not found with ID: ' . $data['id']);
                 throw new \Exception('Permohonan pembiayaan tidak dijumpai');
             }
 
-            error_log('Found loan: ' . print_r($loan, true));
-
-            // Get director details to ensure they exist
-            $directorSql = "SELECT id FROM directors WHERE id = :director_id";
-            $directorStmt = $this->getConnection()->prepare($directorSql);
-            $directorStmt->execute([':director_id' => $data['updated_by']]);
-            
-            if (!$directorStmt->fetch()) {
-                error_log('Director not found with ID: ' . $data['updated_by']);
-                throw new \Exception('Pengarah tidak sah');
-            }
-
             if ($data['status'] === 'approved') {
-                error_log('Processing approved loan');
-                
-                // Insert into approved loans
+                // Insert into approved loans with correct status
                 $sql = "INSERT INTO loans (
                     member_id, reference_no, loan_type, amount, duration,
                     monthly_payment, bank_name, bank_account, approved_at,
@@ -433,11 +414,11 @@ class Director extends BaseModel
                 ) VALUES (
                     :member_id, :reference_no, :loan_type, :amount, :duration,
                     :monthly_payment, :bank_name, :bank_account, :approved_at,
-                    :approved_by, 'active'
+                    :approved_by, 'approved'
                 )";
 
                 $stmt = $this->getConnection()->prepare($sql);
-                $success = $stmt->execute([
+                $params = [
                     ':member_id' => $loan['member_id'],
                     ':reference_no' => $loan['reference_no'],
                     ':loan_type' => $loan['loan_type'],
@@ -448,17 +429,11 @@ class Director extends BaseModel
                     ':bank_account' => $loan['bank_account'],
                     ':approved_at' => $data['updated_at'],
                     ':approved_by' => $data['updated_by']
-                ]);
+                ];
+                $stmt->execute($params);
 
-                error_log('Insert into loans result: ' . ($success ? 'success' : 'failed'));
-                if (!$success) {
-                    error_log('Insert error: ' . print_r($stmt->errorInfo(), true));
-                }
-
-            } else {
-                error_log('Processing rejected loan');
-                
-                // Insert into rejected loans
+            } else if ($data['status'] === 'rejected') {
+                // Insert into rejected loans with correct status
                 $sql = "INSERT INTO rejectedloans (
                     member_id, reference_no, loan_type, amount, duration,
                     monthly_payment, bank_name, bank_account, date_received,
@@ -470,7 +445,7 @@ class Director extends BaseModel
                 )";
 
                 $stmt = $this->getConnection()->prepare($sql);
-                $success = $stmt->execute([
+                $params = [
                     ':member_id' => $loan['member_id'],
                     ':reference_no' => $loan['reference_no'],
                     ':loan_type' => $loan['loan_type'],
@@ -483,39 +458,23 @@ class Director extends BaseModel
                     ':rejected_by' => $data['updated_by'],
                     ':rejected_at' => $data['updated_at'],
                     ':remarks' => $data['remarks']
-                ]);
-
-                error_log('Insert into rejectedloans result: ' . ($success ? 'success' : 'failed'));
-                if (!$success) {
-                    error_log('Insert error: ' . print_r($stmt->errorInfo(), true));
-                    throw new \PDOException('Failed to insert into rejectedloans');
-                }
+                ];
+                $stmt->execute($params);
             }
 
             // Delete from pending loans
             $sql = "DELETE FROM pendingloans WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
-            $success = $stmt->execute([':id' => $data['id']]);
-
-            error_log('Delete from pendingloans result: ' . ($success ? 'success' : 'failed'));
-            if (!$success) {
-                error_log('Delete error: ' . print_r($stmt->errorInfo(), true));
-            }
+            $stmt->execute([':id' => $data['id']]);
 
             $this->getConnection()->commit();
-            error_log('Transaction committed successfully');
             return true;
 
         } catch (\PDOException $e) {
-            error_log('Database Error in updateLoanStatus: ' . $e->getMessage());
-            error_log('Error code: ' . $e->getCode());
-            error_log('Error info: ' . print_r($e->errorInfo, true));
-            
             if ($this->getConnection()->inTransaction()) {
                 $this->getConnection()->rollBack();
-                error_log('Transaction rolled back');
             }
-            throw new \Exception('Database error: ' . $e->getMessage());
+            throw new \Exception('Gagal mengemaskini status pembiayaan: ' . $e->getMessage());
         }
     }
 

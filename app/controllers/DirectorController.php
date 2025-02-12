@@ -145,22 +145,15 @@ class DirectorController extends BaseController
     {
         try {
             $loanId = $_POST['loan_id'] ?? null;
-            $status = $_POST['status'] ?? null;
+            $status = strtolower($_POST['status'] ?? '');
             $remarks = $_POST['remarks'] ?? '';
 
-            // Debug logging
-            error_log('Starting updateLoanStatus');
-            error_log('POST data: ' . print_r($_POST, true));
-
-            // Validate inputs
             if (!$loanId || !$status) {
-                error_log('Missing required fields');
                 throw new \Exception('ID dan status diperlukan');
             }
 
-            // Validate status
-            if (!in_array($status, ['approved', 'rejected'])) {
-                error_log('Invalid status: ' . $status);
+            $validStatuses = ['pending', 'approved', 'rejected'];
+            if (!in_array($status, $validStatuses)) {
                 throw new \Exception('Status tidak sah');
             }
 
@@ -172,11 +165,8 @@ class DirectorController extends BaseController
                 'updated_at' => date('Y-m-d H:i:s')
             ];
 
-            error_log('Update data: ' . print_r($updateData, true));
-
             $result = $this->director->updateLoanStatus($updateData);
-            error_log('Update result: ' . ($result ? 'success' : 'failed'));
-
+            
             if ($result) {
                 $_SESSION['success'] = $status === 'approved' 
                     ? 'Permohonan pembiayaan telah diluluskan' 
@@ -186,8 +176,6 @@ class DirectorController extends BaseController
             }
 
         } catch (\Exception $e) {
-            error_log('Error in updateLoanStatus: ' . $e->getMessage());
-            error_log('Stack trace: ' . $e->getTraceAsString());
             $_SESSION['error'] = $e->getMessage();
         }
 
