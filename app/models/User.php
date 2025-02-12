@@ -165,27 +165,35 @@ class User extends BaseModel
                 (SELECT 
                     'loan' as type,
                     CASE 
-                        WHEN pl.id IS NOT NULL THEN 'pending'
-                        WHEN l.id IS NOT NULL THEN 'active'
-                        WHEN rl.id IS NOT NULL THEN 'rejected'
+                        WHEN pl.status = 'pending' THEN 'pending'
+                        WHEN l.status = 'approved' THEN 'approved'
+                        WHEN rl.status = 'rejected' THEN 'rejected'
                     END as action,
-                    COALESCE(pl.amount, l.amount, rl.amount) as amount,
+                    CASE 
+                        WHEN rl.status = 'rejected' THEN (COALESCE(rl.amount, 0) + COALESCE(rl.monthly_payment, 0))
+                        ELSE COALESCE(pl.amount, l.amount, rl.amount)
+                    END as amount,
                     COALESCE(pl.date_received, l.approved_at, rl.rejected_at) as created_at,
                     CASE 
-                        WHEN pl.id IS NOT NULL THEN 'Permohonan pembiayaan sedang diproses'
-                        WHEN l.id IS NOT NULL THEN 'Permohonan pembiayaan telah diluluskan'
-                        WHEN rl.id IS NOT NULL THEN CONCAT('Permohonan pembiayaan ditolak: ', rl.remarks)
+                        WHEN pl.status = 'pending' THEN 'Permohonan pembiayaan sedang diproses'
+                        WHEN l.status = 'approved' THEN 'Permohonan pembiayaan telah diluluskan'
+                        WHEN rl.status = 'rejected' THEN CASE 
+                            WHEN rl.remarks IS NULL OR rl.remarks = '' 
+                            THEN 'Permohonan pembiayaan ditolak' 
+                            ELSE CONCAT('Permohonan pembiayaan ditolak: ', rl.remarks) 
+                        END
+                        ELSE 'Status pembiayaan tidak diketahui'
                     END as description
                 FROM (
-                    SELECT member_id, id FROM pendingloans WHERE member_id = :member_id
+                    SELECT member_id, id, 'pending' as status FROM pendingloans WHERE member_id = :member_id
                     UNION ALL 
-                    SELECT member_id, id FROM loans WHERE member_id = :member_id
+                    SELECT member_id, id, 'approved' as status FROM loans WHERE member_id = :member_id
                     UNION ALL
-                    SELECT member_id, id FROM rejectedloans WHERE member_id = :member_id
+                    SELECT member_id, id, 'rejected' as status FROM rejectedloans WHERE member_id = :member_id
                 ) all_loans
-                LEFT JOIN pendingloans pl ON pl.id = all_loans.id
-                LEFT JOIN loans l ON l.id = all_loans.id
-                LEFT JOIN rejectedloans rl ON rl.id = all_loans.id)
+                LEFT JOIN pendingloans pl ON pl.id = all_loans.id AND all_loans.status = 'pending'
+                LEFT JOIN loans l ON l.id = all_loans.id AND all_loans.status = 'approved'
+                LEFT JOIN rejectedloans rl ON rl.id = all_loans.id AND all_loans.status = 'rejected')
                 
                 ORDER BY created_at DESC
                 LIMIT :limit";
