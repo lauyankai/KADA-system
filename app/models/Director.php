@@ -401,14 +401,11 @@ class Director extends BaseModel
             $stmt->execute([':id' => $data['id']]);
             $loan = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            error_log('Found loan: ' . print_r($loan, true));
-
             if (!$loan) {
                 throw new \Exception('Permohonan pembiayaan tidak dijumpai');
             }
 
             if ($data['status'] === 'approved') {
-                error_log('Processing approved loan...');
                 // Insert into approved loans with correct status
                 $sql = "INSERT INTO loans (
                     member_id, reference_no, loan_type, amount, duration,
@@ -433,11 +430,9 @@ class Director extends BaseModel
                     ':approved_at' => $data['updated_at'],
                     ':approved_by' => $data['updated_by']
                 ];
-                error_log('Executing insert with params: ' . print_r($params, true));
                 $stmt->execute($params);
 
             } else if ($data['status'] === 'rejected') {
-                error_log('Processing rejected loan...');
                 // Insert into rejected loans with correct status
                 $sql = "INSERT INTO rejectedloans (
                     member_id, reference_no, loan_type, amount, duration,
@@ -464,29 +459,21 @@ class Director extends BaseModel
                     ':rejected_at' => $data['updated_at'],
                     ':remarks' => $data['remarks']
                 ];
-                error_log('Executing insert with params: ' . print_r($params, true));
                 $stmt->execute($params);
             }
 
             // Delete from pending loans
-            error_log('Deleting from pending loans...');
             $sql = "DELETE FROM pendingloans WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':id' => $data['id']]);
 
             $this->getConnection()->commit();
-            error_log('Transaction committed successfully');
             return true;
 
         } catch (\PDOException $e) {
             if ($this->getConnection()->inTransaction()) {
                 $this->getConnection()->rollBack();
-                error_log('Transaction rolled back');
             }
-            error_log('Database Error in updateLoanStatus: ' . $e->getMessage());
-            error_log('SQL State: ' . $e->errorInfo[0]);
-            error_log('Error Code: ' . $e->errorInfo[1]);
-            error_log('Error Message: ' . $e->errorInfo[2]);
             throw new \Exception('Gagal mengemaskini status pembiayaan: ' . $e->getMessage());
         }
     }
