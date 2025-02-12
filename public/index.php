@@ -83,6 +83,7 @@ $router = new App\Core\Router();
     $router->addRoute('POST', '/admin/uploadReport', 'AdminController', 'uploadReport');
     $router->addRoute('GET', '/admin/downloadReport/{id}', 'AdminController', 'downloadReport');
     $router->addRoute('GET', '/admin/deleteReport/{id}', 'AdminController', 'deleteReport');
+    $router->addRoute('POST', '/admin/update-interest-rates', 'AdminController', 'updateInterestRates'); 
 
     // Admin routes --approve, reject, edit, viewMember
         $router->addRoute('GET', '/admin/approve/{id}', 'AdminController', 'approve');
@@ -147,6 +148,7 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/users/statements/savings', 'StatementController', 'savings');
         $router->addRoute('GET', '/users/statements/loans', 'StatementController', 'loans');
         $router->addRoute('POST', '/users/statements/notifications', 'StatementController', 'notifications');
+        
 
         // User routes --Loan Info
         $router->addRoute('GET', '/users/info/loantype', 'InfoController', 'showLoanTypes');

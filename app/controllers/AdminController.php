@@ -32,6 +32,9 @@ class AdminController extends BaseController {
             $allMembers = $admin->getAllMembers();
             $reports = $this->annualReport->getAllReports();
             
+            // Get interest rates
+            $interestRates = $this->admin->getInterestRates();
+            
             $this->view('admin/index', [
                 'members' => $allMembers,
                 'annual_reports' => $reports,
@@ -40,7 +43,8 @@ class AdminController extends BaseController {
                     'pending' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Pending')),
                     'active' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Ahli')),
                     'rejected' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Rejected'))
-                ]
+                ],
+                'interestRates' => $interestRates
             ]);
         } catch (Exception $e) {
             $_SESSION['error'] = "Error fetching data: " . $e->getMessage();
@@ -52,7 +56,8 @@ class AdminController extends BaseController {
                     'pending' => 0,
                     'active' => 0,
                     'rejected' => 0
-                ]
+                ],
+                'interestRates' => []
             ]);
         }
     }
@@ -476,5 +481,31 @@ class AdminController extends BaseController {
             header('Location: /admin');
             exit;
         }
+    }
+
+    public function updateInterestRates()
+    {
+        try {
+            if (!isset($_POST['savings_rate']) || !isset($_POST['loan_rate'])) {
+                throw new \Exception('Sila isi semua maklumat yang diperlukan');
+            }
+
+            $data = [
+                'savings_rate' => (float)$_POST['savings_rate'],
+                'loan_rate' => (float)$_POST['loan_rate']
+            ];
+
+            if ($this->admin->updateInterestRates($data)) {
+                $_SESSION['success'] = 'Kadar faedah berjaya dikemaskini';
+            } else {
+                throw new \Exception('Gagal mengemaskini kadar faedah');
+            }
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+
+        header('Location: /admin');
+        exit;
     }
 }
