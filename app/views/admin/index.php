@@ -36,63 +36,77 @@
     <?php endif; ?>
 
     <!-- Main Content Row -->
-    <div class="row g-4">
-        <!-- Member Approval Section -->
+    <div class="row g-3 mb-4">
+        <!-- Status Keahlian Card -->
         <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-person-plus-fill me-2"></i>Status Keahlian
-                        </h5>
-                        <a href="/admin/member_list" class="btn btn-sm btn-outline-primary">
-                            Lihat Semua
-                        </a>
-                    </div>
-                </div>
+            <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="row g-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="card-title mb-1">
+                                <i class="bi bi-people me-2"></i>Status Keahlian
+                            </h5>
+                            <p class="text-muted small mb-0">Statistik keahlian koperasi</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
                         <!-- Pending Members -->
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center">
-                                <div class="stats-icon bg-warning bg-opacity-10 me-3">
-                                    <i class="bi bi-hourglass-split text-warning"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-1">Dalam Proses</h6>
-                                    <h4 class="mb-0 text-warning">
-                                        <?= count(array_filter($members, fn($m) => $m['member_type'] === 'Pending')) ?>
-                                    </h4>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="status-card bg-primary bg-opacity-10 rounded p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon bg-primary bg-opacity-25 rounded p-2 me-3">
+                                        <i class="bi bi-people text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0 text-primary"><?= $stats['total'] ?></h3>
+                                        <p class="text-muted small mb-0">Jumlah Ahli</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Active Members -->
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center">
-                                <div class="stats-icon bg-success bg-opacity-10 me-3">
-                                    <i class="bi bi-person-check-fill text-success"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-1">Ahli Aktif</h6>
-                                    <h4 class="mb-0 text-success">
-                                        <?= count(array_filter($members, fn($m) => $m['member_type'] === 'Ahli')) ?>
-                                    </h4>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="status-card bg-success bg-opacity-10 rounded p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon bg-success bg-opacity-25 rounded p-2 me-3">
+                                        <i class="bi bi-person-check-fill text-success"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0 text-success"><?= $stats['active'] ?></h3>
+                                        <p class="text-muted small mb-0">Ahli Aktif</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Rejected Members -->
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center">
-                                <div class="stats-icon bg-danger bg-opacity-10 me-3">
-                                    <i class="bi bi-person-x-fill text-danger"></i>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="status-card bg-danger bg-opacity-10 rounded p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon bg-danger bg-opacity-25 rounded p-2 me-3">
+                                        <i class="bi bi-person-x-fill text-danger"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0 text-danger"><?= $stats['rejected'] ?></h3>
+                                        <p class="text-muted small mb-0">Ditolak</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h6 class="mb-1">Ditolak</h6>
-                                    <h4 class="mb-0 text-danger">
-                                        <?= count(array_filter($members, fn($m) => $m['member_type'] === 'Rejected')) ?>
-                                    </h4>
+                            </div>
+                        </div>
+
+                        <!-- Pending Members -->
+                        <div class="col-md-6 col-lg-3">
+                            <div class="status-card bg-warning bg-opacity-10 rounded p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon bg-warning bg-opacity-25 rounded p-2 me-3">
+                                        <i class="bi bi-hourglass-split text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0 text-warning"><?= $stats['pending'] ?></h3>
+                                        <p class="text-muted small mb-0">Dalam Proses</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -100,68 +114,123 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Annual Report Section -->
-        <div class="col-lg-8">
-            <div class="card shadow">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title mb-0">
-                        <i class="bi bi-file-earmark-text me-2"></i>Laporan Tahunan
-                    </h4>
-                    <div>
-                        <button onclick="showUploadModal()" class="btn btn-success">
-                            <i class="bi bi-upload me-2"></i>Muat Naik
+
+        <!-- Interest Rates Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="card-title mb-1">
+                                <i class="bi bi-percent me-2"></i>Kadar Faedah
+                            </h5>
+                        </div>
+                        <button class="btn btn-light btn-sm" onclick="editInterestRates()">
+                            <i class="bi bi-pencil me-2"></i>Kemaskini
                         </button>
                     </div>
-                </div>
+                    
+                    <div class="row g-3">
+                        <!-- Savings Interest -->
+                        <div class="col-6">
+                            <div class="interest-rate-card bg-success bg-opacity-10 rounded p-3 h-100">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="interest-icon bg-success bg-opacity-25 rounded p-2 me-3">
+                                        <i class="bi bi-piggy-bank text-success"></i>
+                                    </div>
+                                    <h6 class="mb-0">Simpanan</h6>
+                                </div>
+                                <div class="interest-value">
+                                    <span class="h3 mb-0 text-success"><?= number_format($interestRates['savings'], 2) ?>%</span>
+                                    <span class="text-muted ms-2">setahun</span>
+                                </div>
+                            </div>
+                        </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Tahun</th>
-                                <th>Tajuk</th>
-                                <th>Tarikh</th>
-                                <th>Saiz Fail</th>
-                                <th>Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (isset($annual_reports) && !empty($annual_reports)): ?>
-                                <?php foreach ($annual_reports as $report): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($report['year']) ?></td>
-                                        <td><?= htmlspecialchars($report['title']) ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($report['uploaded_at'])) ?></td>
-                                        <td><?= formatFileSize($report['file_size']) ?></td>
-                                        <td>
-                                            <a href="<?= htmlspecialchars($report['file_path']) ?>" 
-
-                                            class="btn btn-sm btn-outline-primary"
-                                            target="_blank">
-                                                <i class="bi bi-download"></i>
-                                            </a>
-                                            <button onclick="deleteReport(<?= $report['id'] ?>)" 
-                                                    class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">
-                                        <i class="bi bi-file-earmark-text display-6 d-block mb-3"></i>
-                                        Tiada laporan tahunan dimuat naik
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                        <!-- Loan Interest -->
+                        <div class="col-6">
+                            <div class="interest-rate-card bg-primary bg-opacity-10 rounded p-3 h-100">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="interest-icon bg-primary bg-opacity-25 rounded p-2 me-3">
+                                        <i class="bi bi-cash-stack text-primary"></i>
+                                    </div>
+                                    <h6 class="mb-0">Pembiayaan</h6>
+                                </div>
+                                <div class="interest-value">
+                                    <span class="h3 mb-0 text-primary"><?= number_format($interestRates['loans'], 2) ?>%</span>
+                                    <span class="text-muted ms-2">setahun</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Second Row -->
+    <div class="row g-3">
+        <!-- Annual Reports Card -->
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-file-earmark-text me-2"></i>Laporan Tahunan
+                        </h4>
+                        <div>
+                            <button onclick="showUploadModal()" class="btn btn-success">
+                                <i class="bi bi-upload me-2"></i>Muat Naik
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Tahun</th>
+                                    <th>Tajuk</th>
+                                    <th>Tarikh</th>
+                                    <th>Saiz Fail</th>
+                                    <th>Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (isset($annual_reports) && !empty($annual_reports)): ?>
+                                    <?php foreach ($annual_reports as $report): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($report['year']) ?></td>
+                                            <td><?= htmlspecialchars($report['title']) ?></td>
+                                            <td><?= date('d/m/Y H:i', strtotime($report['uploaded_at'])) ?></td>
+                                            <td><?= formatFileSize($report['file_size']) ?></td>
+                                            <td>
+                                                <a href="<?= htmlspecialchars($report['file_path']) ?>" 
+
+                                                class="btn btn-sm btn-outline-primary"
+                                                target="_blank">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                                <button onclick="deleteReport(<?= $report['id'] ?>)" 
+                                                        class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="bi bi-file-earmark-text display-6 d-block mb-3"></i>
+                                            Tiada laporan tahunan dimuat naik
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Quick Actions Section -->
@@ -237,6 +306,46 @@
     </div>
 </div>
 
+<div class="modal fade" id="editInterestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="bi bi-percent me-2"></i>Kemaskini Kadar Faedah
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/admin/update-interest-rates" method="POST">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Kadar Faedah Simpanan (%)</label>
+                                <input type="number" class="form-control" name="savings_rate" 
+                                       value="<?= $interestRates['savings'] ?? 3.00 ?>" 
+                                       step="0.01" min="0" max="100" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Kadar Faedah Pembiayaan (%)</label>
+                                <input type="number" class="form-control" name="loan_rate" 
+                                       value="<?= $interestRates['loans'] ?? 6.00 ?>" 
+                                       step="0.01" min="0" max="100" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-2"></i>Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <style>
 .stats-icon {
@@ -267,6 +376,23 @@
 .list-group-item:hover {
     background-color: #f8f9fa;
 }
+
+.interest-rate-card {
+    transition: transform 0.2s;
+}
+.interest-rate-card:hover {
+    transform: translateY(-2px);
+}
+.interest-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.interest-icon i {
+    font-size: 1.25rem;
+}
 </style>
 
 <?php
@@ -292,6 +418,10 @@ function formatFileSize($bytes) {
         if (confirm('Adakah anda pasti untuk memadam laporan ini?')) {
             window.location.href = `/admin/deleteReport/${id}`;
         }
+    }
+    
+    function editInterestRates() {
+        new bootstrap.Modal(document.getElementById('editInterestModal')).show();
     }
     
     window.addEventListener('DOMContentLoaded', () => {

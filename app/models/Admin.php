@@ -685,4 +685,40 @@ class Admin extends BaseModel
             return false;
         }
     }
+
+    public function getInterestRates()
+    {
+        try {
+            $sql = "SELECT * FROM interest_rates WHERE id = 1";
+            $stmt = $this->getConnection()->query($sql);
+            $rates = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return [
+                'savings' => $rates['savings_rate'],
+                'loans' => $rates['loan_rate']
+            ];
+        } catch (\PDOException $e) {
+            error_log('Database Error in getInterestRates: ' . $e->getMessage());
+        }
+    }
+
+    public function updateInterestRates($data)
+    {
+        try {
+            $sql = "UPDATE interest_rates 
+                    SET savings_rate = :savings_rate, 
+                        loan_rate = :loan_rate,
+                        updated_at = NOW() 
+                    WHERE id = 1";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            return $stmt->execute([
+                ':savings_rate' => $data['savings_rate'],
+                ':loan_rate' => $data['loan_rate']
+            ]);
+        } catch (\PDOException $e) {
+            error_log('Database Error in updateInterestRates: ' . $e->getMessage());
+            throw new \Exception('Failed to update interest rates');
+        }
+    }
 }
