@@ -847,56 +847,69 @@ function formatIC(input) {
     // Remove all non-digits
     let value = input.value.replace(/\D/g, '');
     
-    // Format with hyphens
+    // Format with dashes
     if (value.length > 6) {
-        value = value.substring(0,6) + '-' + value.substring(6);
+        value = value.substring(0, 6) + '-' + value.substring(6);
     }
     if (value.length > 9) {
-        value = value.substring(0,9) + '-' + value.substring(9);
+        value = value.substring(0, 9) + '-' + value.substring(9);
     }
     
     input.value = value;
 }
 
-function calculateAgeAndBirthday(icNumber) {
-    if (icNumber.length !== 12) return;
+function validateIC(icNumber) {
+    // Remove all non-digits
+    const cleanIC = icNumber.replace(/\D/g, '');
+    
+    if (cleanIC.length !== 12) {
+        return false;
+    }
+    
+    // Extract year, month, and day
+    const year = cleanIC.substring(0, 2);
+    const month = cleanIC.substring(2, 4);
+    const day = cleanIC.substring(4, 6);
+    
+    return isValidDate(year, month, day);
+}
 
+function calculateAgeAndBirthday(icNumber) {
+    if (!validateIC(icNumber)) {
+        alert('Nombor K/P tidak sah. Sila masukkan tarikh yang sah.');
+        document.querySelector('input[name="ic_no"]').value = '';
+        document.querySelector('input[name="ic_no"]').focus();
+        return false;
+    }
+    
     // Extract date components
-    let year = icNumber.substring(0, 2);
-    let month = icNumber.substring(2, 4);
-    let day = icNumber.substring(4, 6);
+    const cleanIC = icNumber.replace(/\D/g, '');
+    let year = cleanIC.substring(0, 2);
+    let month = cleanIC.substring(2, 4);
+    let day = cleanIC.substring(4, 6);
     
     // Determine century
-    let fullYear = parseInt(year);
-    if (fullYear >= 0 && fullYear <= 30) {
-        fullYear += 2000;
-    } else {
-        fullYear += 1900;
-    }
-
-    // Validate date
-    let birthDate = new Date(fullYear, parseInt(month) - 1, parseInt(day));
-    if (birthDate.getDate() != parseInt(day) || 
-        (birthDate.getMonth() + 1) != parseInt(month) || 
-        birthDate.getFullYear() != fullYear) {
-        alert('Tarikh tidak sah. Sila masukkan nombor KP yang betul.');
-        return;
-    }
-
-    // Calculate age
-    let today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    let monthDiff = today.getMonth() - birthDate.getMonth();
+    const currentYear = new Date().getFullYear();
+    const fullYear = parseInt(year) > (currentYear - 2000) ? 1900 + parseInt(year) : 2000 + parseInt(year);
     
+    // Create birth date
+    const birthDate = new Date(fullYear, parseInt(month) - 1, parseInt(day));
+    
+    // Calculate age
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if birthday hasn't occurred this year
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
         age--;
     }
-
+    
     // Format birthday for input field (YYYY-MM-DD)
     const formattedMonth = (birthDate.getMonth() + 1).toString().padStart(2, '0');
     const formattedDay = birthDate.getDate().toString().padStart(2, '0');
     const formattedBirthday = `${birthDate.getFullYear()}-${formattedMonth}-${formattedDay}`;
-
+    
     // Update the form fields
     document.getElementById('birthday').value = formattedBirthday;
     document.getElementById('age').value = age;
