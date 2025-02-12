@@ -212,8 +212,9 @@
                     <input type="hidden" name="loan_id" id="loanId">
                     <div class="mb-3">
                         <label class="form-label">Status</label>
-                        <select name="status" class="form-select" required>
-                            <option value="">Pilih Status</option>
+                        <select class="form-select" name="status" required>
+                            <option value="" disabled>Pilih Status</option>
+                            <option value="pending">Dalam Proses</option>
                             <option value="approved">Lulus</option>
                             <option value="rejected">Tolak</option>
                         </select>
