@@ -3,7 +3,7 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4 mb-4">
     <?php if (isset($_SESSION['error']) || isset($_SESSION['success'])): ?>
         <div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
@@ -48,6 +48,9 @@
                             </h5>
                             <p class="text-muted small mb-0">Statistik keahlian koperasi</p>
                         </div>
+                        <a href="/admin/member_list" class="btn btn-primary btn-sm">
+                            <i class="bi bi-people me-2"></i>Senarai Ahli
+                        </a>
                     </div>
 
                     <div class="row g-3">
@@ -346,6 +349,8 @@
         </div>
     </div>
 </div>
+
+<div class="mb-5"></div>
 
 <style>
 .stats-icon {
