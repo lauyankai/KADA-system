@@ -169,19 +169,12 @@ class User extends BaseModel
                         WHEN l.status = 'approved' THEN 'approved'
                         WHEN rl.status = 'rejected' THEN 'rejected'
                     END as action,
-                    CASE 
-                        WHEN rl.status = 'rejected' THEN (COALESCE(rl.amount, 0) + COALESCE(rl.monthly_payment, 0))
-                        ELSE COALESCE(pl.amount, l.amount, rl.amount)
-                    END as amount,
+                    COALESCE(pl.amount, l.amount, rl.amount) as amount,
                     COALESCE(pl.date_received, l.approved_at, rl.rejected_at) as created_at,
                     CASE 
                         WHEN pl.status = 'pending' THEN 'Permohonan pembiayaan sedang diproses'
                         WHEN l.status = 'approved' THEN 'Permohonan pembiayaan telah diluluskan'
-                        WHEN rl.status = 'rejected' THEN CASE 
-                            WHEN rl.remarks IS NULL OR rl.remarks = '' 
-                            THEN 'Permohonan pembiayaan ditolak' 
-                            ELSE CONCAT('Permohonan pembiayaan ditolak: ', rl.remarks) 
-                        END
+                        WHEN rl.status = 'rejected' THEN CASE WHEN rl.remarks IS NULL OR rl.remarks = '' THEN 'Permohonan pembiayaan ditolak' ELSE CONCAT('Permohonan pembiayaan ditolak: ', rl.remarks) END
                         ELSE 'Status pembiayaan tidak diketahui'
                     END as description
                 FROM (
