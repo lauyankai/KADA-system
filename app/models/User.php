@@ -202,6 +202,25 @@ class User extends BaseModel
         }
     }
 
+    public function getMemberById($id)
+    {
+        try {
+            $sql = "SELECT * FROM members WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            
+            $member = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Debug log
+            error_log('Fetched member data: ' . print_r($member, true));
+            
+            return $member;
+        } catch (\PDOException $e) {
+            error_log('Database Error in getMemberById: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat ahli');
+        }
+    }
+
 }
 
 

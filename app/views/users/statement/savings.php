@@ -22,19 +22,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Add this right after the header section card -->
-    <div class="row mb-3">
-        <div class="col-11">
-            <div class="d-md-1"> <!-- Only visible on mobile -->
-                <button type="button" class="btn btn-outline-primary btn-sm w-100" id="toggleView">
-                    <i class="bi bi-phone me-2"></i>
-                    <span class="toggle-text">Tukar ke Paparan Ringkas</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
+    
     <!-- Main Content -->
     <div class="row">
         <div class="col-11">
