@@ -1022,7 +1022,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Your existing name input code
     const nameInput = document.querySelector('input[name="name"]');
     if (nameInput) {
         nameInput.addEventListener('input', function() {

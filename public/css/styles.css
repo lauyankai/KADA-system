@@ -75,189 +75,91 @@ body {
 }
 
 /* Form wizard styles */
-.form-wizard .pageTitle {
-    color: #198754;
-    font-weight: bold;
-}
-
-.form-wizard .step-content {
-    display: none;
+.form-wizard {
     position: relative;
 }
 
-.form-wizard .step-content.active {
-    display: block;
-}
-
-.form-wizard .step-indicator {
+.step-indicator {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 2rem;
     position: relative;
+    padding: 0 40px;
 }
 
-.form-wizard .step-indicator::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #dee2e6;
-    transform: translateY(-50%);
-    z-index: 0;
-}
-
-.form-wizard .step {
+.step {
     flex: 1;
     text-align: center;
-    padding: 25px 5px;
     position: relative;
-    color: #6c757d;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
+    padding-top: 40px; /* Space for icon and number */
 }
 
-.form-wizard .step i {
-    position: absolute;
-    top: calc(50% - 35px);
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.5rem;
-    z-index: 2;
-    color: #6c757d;
-    margin-top: -10px;
-}
-
-.form-wizard .step::before {
+/* Number circle */
+.step:before {
     content: attr(data-step);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    color: #6c757d;
-    font-weight: bold;
-}
-
-.form-wizard .step.active::before,
-.form-wizard .step.completed::before {
-    color: #fff;
-}
-
-.form-wizard .step::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40px;
-    height: 40px;
-    background: #f8f9fa;
-    border: 2px solid #dee2e6;
+    width: 30px;
+    height: 30px;
+    line-height: 26px;
+    border: 2px solid #ddd;
     border-radius: 50%;
-    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 25px; /* Positioned below icon */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
     z-index: 1;
 }
 
-.form-wizard .step-buttons {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: space-between;
+/* Icon styling */
+.step i {
+    font-size: 24px;
+    color: #198754;
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0 8px;
+    z-index: 2;
 }
 
 /* Step text */
-.form-wizard .step div {
-    font-size: 0.875rem;
-    margin-top: 4rem;
+.step div {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 8px;
 }
 
-/* Completed step styling */
-.form-wizard .step.completed::after {
-    background: #198754;
+/* Active state */
+.step.active:before {
     border-color: #198754;
+    background-color: #198754;
+    color: white;
 }
 
-.form-wizard .step.completed {
+.step.active i {
     color: #198754;
 }
 
-
-
-        /* Navbar Styling */
-        .navbar {
-            background: linear-gradient(to right, #007bff, #00d4ff); /* Blue gradient */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-        }
-
-        .navbar-brand {
-            color: #ffffff !important; /* White text for brand */
-            font-weight: bold;
-        }
-
-        .navbar-nav .nav-link {
-            color: #ffffff !important; /* White text for links */
-            transition: color 0.3s ease-in-out;
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: #d4edda !important; /* Light green hover effect */
-        }
-
-        /* Dropdown Styling */
-        .dropdown:hover .dropdown-menu {
-            display: block;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .dropdown-menu {
-            background: linear-gradient(to right, #007bff, #00d4ff); /* Blue gradient */
-            border: none;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-        }
-
-        .dropdown-menu .dropdown-item {
-            color: #ffffff !important; /* White dropdown text */
-        }
-
-        .dropdown-menu .dropdown-item:hover {
-            background-color: rgba(255, 255, 255, 0.2); /* Slightly transparent white on hover */
-            color: #ffffff !important; /* White text */
-        }
-
-        /* Fade-in animation */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-/* Section title */
-.section-title {
+.step.active div {
     color: #198754;
-    font-size: 1.5rem;
-    margin: -10px 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-} 
-
-/* Active and completed step icons */
-.form-wizard .step.active i,
-.form-wizard .step.completed i {
-    color: #198754;
+    font-weight: 500;
 }
 
-.form-wizard .step.active::after {
-    background: #198754;
-    border-color: #198754;
-    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.2);
+/* Connecting lines */
+.step:not(:last-child):after {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: #ddd;
+    z-index: 0;
+}
+
+.step.active:after {
+    background-color: #198754;
 }
 
 /* Completed step styling */
@@ -1985,61 +1887,6 @@ select.form-select.is-invalid {
 
 .text-success {
     color: #198754 !important;
-}
-
-/* Step navigation styles */
-.step-content {
-    display: none;
-}
-
-.step-content.active {
-    display: block;
-}
-
-.step-indicator {
-    display: flex;
-    justify-content: space-between;
-    position: relative;
-    margin: 30px 0;
-    padding: 0;
-}
-
-.step {
-    text-align: center;
-    flex: 1;
-    position: relative;
-    padding: 12px;
-}
-
-.step i {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-    color: #6c757d;
-    transition: all 0.3s ease;
-}
-
-.step div {
-    color: #6c757d;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.step.active i, 
-.step.active div {
-    color: #198754;
-}
-
-.step.active i {
-    transform: scale(1.2);
-}
-
-.step.completed {
-    color: #28a745;
-}
-
-.step.completed i {
-    color: #28a745;
 }
 
 .invalid-feedback {
