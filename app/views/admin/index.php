@@ -20,7 +20,7 @@
                     
                     <?php if (isset($_SESSION['success'])): ?>
                         <div class="modal-header border-0 bg-success bg-opacity-10">
-                            <h5 class="modal-title text-success">Success</h5>
+                            <h5 class="modal-title text-success">Berjaya!</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">

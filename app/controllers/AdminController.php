@@ -460,20 +460,37 @@ class AdminController extends BaseController {
     {
         try {
             $report = $this->annualReport->getById($id);
-
-            $filepath = dirname(__DIR__, 2) . '/public/uploads/annual-reports/' . $report['filename'];
-            if (file_exists($filepath)) {
-                if (!unlink($filepath)) {
-                    throw new \Exception('Gagal memadam fail');
-                }
+            if (!$report) {
+                throw new \Exception('Laporan tidak dijumpai');
             }
 
-            // Delete from database
+            // First delete from database
             if (!$this->annualReport->delete($id)) {
                 throw new \Exception('Gagal memadam rekod dari pangkalan data');
             }
 
-            $_SESSION['success'] = 'Laporan tahunan berjaya dipadam';   
+            // Then try to delete the physical file
+            $filepath = dirname(__DIR__, 2) . '/public/uploads/annual-reports/' . $report['file_name'];
+            
+            error_log('Attempting to delete: ' . $filepath);
+            error_log('File exists: ' . (file_exists($filepath) ? 'Yes' : 'No'));
+            
+            if (file_exists($filepath)) {
+                // Try to make the file writable
+                chmod($filepath, 0777);
+                clearstatcache(true, $filepath);
+                
+                error_log('File permissions after chmod: ' . substr(sprintf('%o', fileperms($filepath)), -4));
+                error_log('File writable: ' . (is_writable($filepath) ? 'Yes' : 'No'));
+                
+                if (!unlink($filepath)) {
+                    $error = error_get_last();
+                    error_log('Unlink error: ' . ($error['message'] ?? 'Unknown error'));
+                    throw new \Exception('Gagal memadam fail: ' . ($error['message'] ?? 'Unknown error'));
+                }
+            }
+
+            $_SESSION['success'] = 'Laporan tahunan berjaya dipadam';
             header('Location: /admin');
             exit;
 
