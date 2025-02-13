@@ -800,7 +800,7 @@ class AdminController extends BaseController {
             $name = $_POST['name'] ?? '';
             $position = $_POST['position'] ?? '';
             $email = $_POST['email'] ?? '';
-            $phone = $_POST['phone'] ?? '';
+            $phone_number = $_POST['phone_number'] ?? '';
 
             if (empty($name) || empty($position)) {
                 throw new \Exception('Sila isi semua maklumat yang diperlukan');
@@ -811,7 +811,7 @@ class AdminController extends BaseController {
                 'name' => $name,
                 'position' => $position,
                 'email' => $email,
-                'phone' => $phone
+                'phone_number' => $phone_number
             ];
 
             if ($this->admin->updateDirector($data)) {

@@ -1039,7 +1039,7 @@ class Admin extends BaseModel
                     name = :name, 
                     position = :position, 
                     email = :email, 
-                    phone = :phone 
+                    phone_number = :phone_number 
                     WHERE id = :id";
 
             $stmt = $this->getConnection()->prepare($sql);
@@ -1048,7 +1048,7 @@ class Admin extends BaseModel
                 ':name' => $data['name'],
                 ':position' => $data['position'],
                 ':email' => $data['email'],
-                ':phone' => $data['phone']
+                ':phone_number' => $data['phone_number']
             ]);
         } catch (\PDOException $e) {
             error_log('Error updating director: ' . $e->getMessage());
