@@ -72,15 +72,18 @@ class UserController extends BaseController
                 exit();
             }
 
-            $user = new User();
-            $member = $user->getUserById($_SESSION['member_id']);
-            $member = $user->getUserById($_SESSION['member_id']);
+            $member = $this->user->getUserById($_SESSION['member_id']);
+            $resignationDate = $this->user->hasResignationRecord($_SESSION['member_id']);
 
             if (!$member) {
                 throw new \Exception('Member not found');
             }
 
-            $this->view('users/profile', ['member' => $member]);
+            $this->view('users/profile', [
+                'member' => $member,
+                'hasResignationRecord' => $resignationDate ? true : false,
+                'resignationDate' => $resignationDate
+            ]);
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             header('Location: /dashboard');

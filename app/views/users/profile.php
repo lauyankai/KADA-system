@@ -19,9 +19,16 @@
                             <i class="bi bi-check-circle me-1"></i>Ahli Aktif
                         </span>
                         <div class="mt-4">
-                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#resignModal">
-                                <i class="bi bi-box-arrow-right me-2"></i>Berhenti Menjadi Ahli
-                            </button>
+                            <?php if ($hasResignationRecord): ?>
+                                <button class="btn btn-secondary btn-sm" disabled title="Permohonan berhenti telah dihantar">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Permohonan Berhenti telah dihantar pada 
+                                    <?= date('d/m/Y', strtotime($resignationDate)) ?>
+                                </button>
+                            <?php else: ?>
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#resignModal">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Berhenti Menjadi Ahli
+                                </button>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -393,6 +400,16 @@
     color: #6c757d;
     margin-bottom: 0.5rem;
 }
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.btn-secondary:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
 </style>
 
 <!-- Resign Confirmation Modal -->
@@ -407,16 +424,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body py-4">
-                <p class="text-center mb-0">Adakah anda pasti untuk berhenti menjadi ahli koperasi?</p>
-                <p class="text-center text-muted small mb-0">Tindakan ini tidak boleh dibatalkan.</p>
+                <?php if ($hasResignationRecord): ?>
+                    <p class="text-center mb-0">Anda telah menghantar permohonan berhenti. Sila tunggu untuk pengesahan.</p>
+                <?php else: ?>
+                    <p class="text-center mb-0">Adakah anda pasti untuk berhenti menjadi ahli koperasi?</p>
+                    <p class="text-center text-muted small mb-0">Tindakan ini tidak boleh dibatalkan.</p>
+                <?php endif; ?>
             </div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle me-2"></i>Batal
                 </button>
-                <button type="button" class="btn btn-danger" onclick="proceedToResign()">
-                    <i class="bi bi-check-circle me-2"></i>Ya, Teruskan
-                </button>
+                <?php if (!$hasResignationRecord): ?>
+                    <button type="button" class="btn btn-danger" onclick="proceedToResign()">
+                        <i class="bi bi-check-circle me-2"></i>Ya, Teruskan
+                    </button>
+                <?php endif; ?>
             </div>
         </div>
     </div>

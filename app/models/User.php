@@ -354,7 +354,20 @@ class User extends BaseModel
             return false;
         }
     }
-    
+
+    public function hasResignationRecord($memberId)
+    {
+        try {
+            $sql = "SELECT created_at FROM resignation_reasons WHERE member_id = :member_id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? $result['created_at'] : false;
+        } catch (\PDOException $e) {
+            error_log('Error checking resignation record: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
 
 
