@@ -67,13 +67,13 @@ class UserController extends BaseController
     public function profile()
     {
         try {
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
 
             $user = new User();
-            $member = $user->getUserById($_SESSION['user_id']);
+            $member = $user->getUserById($_SESSION['member_id']);
 
             if (!$member) {
                 throw new \Exception('Member not found');
@@ -90,49 +90,83 @@ class UserController extends BaseController
     public function update()
     {
         try {
-            if (!isset($_SESSION['user_id'])) {
-                header('Location: /auth/login');
-                exit();
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
             }
 
-            $userId = $_SESSION['user_id'];
-            $data = [
-                'email' => $_POST['email'],
-                'home_phone' => $_POST['home_phone'],
-                'office_phone' => $_POST['office_phone'],
-                'marital_status' => $_POST['marital_status'],
-                'home_address' => $_POST['home_address'],
-                'home_postcode' => $_POST['home_postcode'],
-                'home_state' => $_POST['home_state'],
-                // Add other fields as needed
-            ];
+            $memberId = $_SESSION['member_id'];
+            $section = $_POST['section'] ?? '';
+            
+            $data = [];
+            
+            switch($section) {
+                case 'personal':
+                    $data = [
+                        'email' => $_POST['email'] ?? '',
+                        'mobile_phone' => $_POST['mobile_phone'] ?? '',
+                        'home_phone' => $_POST['home_phone'] ?? '',
+                        'marital_status' => $_POST['marital_status'] ?? '',
+                        'home_address' => $_POST['home_address'] ?? '',
+                        'home_postcode' => $_POST['home_postcode'] ?? '',
+                        'home_state' => $_POST['home_state'] ?? ''
+                    ];
+                    break;
+                    
+                case 'employment':
+                    $data = [
+                        'position' => $_POST['position'] ?? '',
+                        'grade' => $_POST['grade'] ?? '',
+                        'monthly_salary' => $_POST['monthly_salary'] ?? '',
+                        'office_address' => $_POST['office_address'] ?? '',
+                        'office_postcode' => $_POST['office_postcode'] ?? '',
+                        'office_state' => $_POST['office_state'] ?? '',
+                        'office_phone' => $_POST['office_phone'] ?? ''
+                    ];
+                    break;
+                    
+                case 'family':
+                    $data = [
+                        'family_name' => $_POST['family_name'] ?? '',
+                        'family_ic' => $_POST['family_ic'] ?? '',
+                        'family_relationship' => $_POST['family_relationship'] ?? ''
+                    ];
+                    break;
+                    
+                default:
+                    throw new \Exception('Invalid section');
+            }
 
-            $user = new User();
-            if ($user->updateProfile($userId, $data)) {
+            // Remove empty values
+            $data = array_filter($data, function($value) {
+                return $value !== '';
+            });
+
+            if ($this->user->updateProfile($memberId, $data)) {
                 $_SESSION['success'] = 'Profil berjaya dikemaskini';
             } else {
                 throw new \Exception('Gagal mengemaskini profil');
             }
 
             header('Location: /users/profile');
-            exit();
+            exit;
+
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             header('Location: /users/profile');
-            exit();
+            exit;
         }
     }
 
     public function showResignForm()
     {
         try {
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
 
             $user = new User();
-            $member = $user->getUserById($_SESSION['user_id']);
+            $member = $user->getUserById($_SESSION['member_id']);
 
             if (!$member) {
                 throw new \Exception('Member not found');
@@ -149,7 +183,7 @@ class UserController extends BaseController
     public function submitResignation()
     {
         try {
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
@@ -164,7 +198,7 @@ class UserController extends BaseController
             }
 
             $user = new User();
-            if ($user->submitResignation($_SESSION['user_id'], $reasons)) {
+            if ($user->submitResignation($_SESSION['member_id'], $reasons)) {
                 $_SESSION['success'] = 'Permohonan berhenti telah berjaya dihantar';
                 header('Location: /users/dashboard');
             } else {

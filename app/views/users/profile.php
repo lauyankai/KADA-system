@@ -13,8 +13,8 @@
                         <div class="profile-image mb-3">
                             <i class="bi bi-person-circle display-1 text-primary"></i>
                         </div>
-                        <h4 class="mb-1"><?= htmlspecialchars($member->name) ?></h4>
-                        <p class="text-muted mb-2">ID Ahli: <?= htmlspecialchars($member->member_id) ?></p>
+                        <h4 class="mb-1"><?= htmlspecialchars($member->name ?? '') ?></h4>
+                        <p class="text-muted mb-2">ID Ahli: <?= htmlspecialchars($member->member_id ?? '') ?></p>
                         <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">
                             <i class="bi bi-check-circle me-1"></i>Ahli Aktif
                         </span>
@@ -29,19 +29,19 @@
                         <div class="row text-start g-4">
                             <div class="col-6">
                                 <label class="text-muted small d-block">No. K/P</label>
-                                <p class="mb-0"><?= htmlspecialchars($member->ic_no) ?></p>
+                                <p class="mb-0"><?= htmlspecialchars($member->ic_no ?? '') ?></p>
                             </div>
                             <div class="col-6">
                                 <label class="text-muted small d-block">E-mel</label>
-                                <p class="mb-0"><?= htmlspecialchars($member->email) ?></p>
+                                <p class="mb-0"><?= htmlspecialchars($member->email ?? '') ?></p>
                             </div>
                             <div class="col-6">
-                                <label class="text-muted small d-block">No. Tel (HP)</label>
-                                <p class="mb-0"><?= htmlspecialchars($member->home_phone) ?></p>
+                                <label class="text-muted small d-block">No. Tel (Bimbit)</label>
+                                <p class="mb-0"><?= htmlspecialchars($member->mobile_phone ?? '') ?></p>
                             </div>
                             <div class="col-6">
-                                <label class="text-muted small d-block">No. Tel (Pejabat)</label>
-                                <p class="mb-0"><?= htmlspecialchars($member->office_phone) ?></p>
+                                <label class="text-muted small d-block">No. Tel (Rumah)</label>
+                                <p class="mb-0"><?= htmlspecialchars($member->home_phone ?? '') ?></p>
                             </div>
                         </div>
                     </div>
@@ -84,26 +84,26 @@
                                 <div class="row g-4">
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Jantina</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->gender) ?></p>
+                                        <p class="mb-0"><?= htmlspecialchars($member->gender ?? '') ?></p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Agama</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->religion) ?></p>
+                                        <p class="mb-0"><?= htmlspecialchars($member->religion ?? '') ?></p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Bangsa</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->race) ?></p>
+                                        <p class="mb-0"><?= htmlspecialchars($member->race ?? '') ?></p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Status Perkahwinan</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->marital_status) ?></p>
+                                        <p class="mb-0"><?= htmlspecialchars($member->marital_status ?? '') ?></p>
                                     </div>
                                     <div class="col-12">
                                         <label class="text-muted small d-block">Alamat Rumah</label>
-                                        <p class="mb-1"><?= htmlspecialchars($member->home_address) ?></p>
+                                        <p class="mb-1"><?= htmlspecialchars($member->home_address ?? '') ?></p>
                                         <p class="mb-0">
-                                            <?= htmlspecialchars($member->home_postcode) ?>, 
-                                            <?= htmlspecialchars($member->home_state) ?>
+                                            <?= htmlspecialchars($member->home_postcode ?? '') ?>, 
+                                            <?= htmlspecialchars($member->home_state ?? '') ?>
                                         </p>
                                     </div>
                                 </div>
@@ -111,29 +111,34 @@
                             
                             <!-- Edit Mode (Initially Hidden) -->
                             <form class="edit-mode d-none" action="/users/profile/update" method="POST">
+                                <input type="hidden" name="section" value="personal">
                                 <div class="row g-4">
                                     <!-- Read-only fields -->
                                     <div class="col-md-6">
                                         <label class="form-label">Nama</label>
-                                        <input type="text" class="form-control" value="<?= htmlspecialchars($member->name) ?>" readonly>
+                                        <input type="text" class="form-control" value="<?= htmlspecialchars($member->name ?? '') ?>" readonly>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">No. K/P</label>
-                                        <input type="text" class="form-control" value="<?= htmlspecialchars($member->ic_no) ?>" readonly>
+                                        <input type="text" class="form-control" value="<?= htmlspecialchars($member->ic_no ?? '') ?>" readonly>
                                     </div>
                                     
                                     <!-- Editable fields -->
                                     <div class="col-md-6">
                                         <label class="form-label">E-mel</label>
-                                        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($member->email) ?>" required>
+                                        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($member->email ?? '') ?>" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">No. Tel (HP)</label>
-                                        <input type="tel" name="home_phone" class="form-control" value="<?= htmlspecialchars($member->home_phone) ?>">
+                                        <label class="form-label">No. Tel (Bimbit)</label>
+                                        <input type="text" name="mobile_phone" class="form-control" 
+                                               value="<?= htmlspecialchars($member->mobile_phone ?? '') ?>" 
+                                               pattern="^01[0-9]-[0-9]{7,8}$" 
+                                               placeholder="01x-xxxxxxx">
+                                        <div class="form-text">Format: 01x-xxxxxxx</div>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">No. Tel (Pejabat)</label>
-                                        <input type="tel" name="office_phone" class="form-control" value="<?= htmlspecialchars($member->office_phone) ?>">
+                                        <input type="tel" name="office_phone" class="form-control" value="<?= htmlspecialchars($member->office_phone ?? '') ?>">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Status Perkahwinan</label>
@@ -145,10 +150,10 @@
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Alamat Rumah</label>
-                                        <input type="text" name="home_address" class="form-control mb-2" value="<?= htmlspecialchars($member->home_address) ?>">
+                                        <input type="text" name="home_address" class="form-control mb-2" value="<?= htmlspecialchars($member->home_address ?? '') ?>">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <input type="text" name="home_postcode" class="form-control" placeholder="Poskod" value="<?= htmlspecialchars($member->home_postcode) ?>">
+                                                <input type="text" name="home_postcode" class="form-control" placeholder="Poskod" value="<?= htmlspecialchars($member->home_postcode ?? '') ?>">
                                             </div>
                                             <div class="col-md-6">
                                                 <select name="home_state" class="form-select">
@@ -178,43 +183,167 @@
 
                         <!-- Employment Info Tab -->
                         <div class="tab-pane fade" id="employment">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">Jawatan</label>
-                                    <p class="mb-0"><?= htmlspecialchars($member->position) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">Gred</label>
-                                    <p class="mb-0"><?= htmlspecialchars($member->grade) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">Gaji Bulanan</label>
-                                    <p class="mb-0">RM <?= number_format($member->monthly_salary, 2) ?></p>
-                                </div>
-                                <div class="col-12">
-                                    <label class="text-muted small d-block">Alamat Pejabat</label>
-                                    <p class="mb-1"><?= htmlspecialchars($member->office_address) ?></p>
-                                    <p class="mb-0"><?= htmlspecialchars($member->office_postcode) ?></p>
+                            <!-- View Mode -->
+                            <div class="view-mode">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Jawatan</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->position ?? '') ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Gred</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->grade ?? '') ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Gaji Bulanan</label>
+                                        <p class="mb-0">RM <?= number_format($member->monthly_salary ?? 0, 2) ?></p>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="text-muted small d-block">No. Tel (Pejabat)</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->office_phone ?? '') ?></p>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="text-muted small d-block">Alamat Pejabat</label>
+                                        <p class="mb-1"><?= htmlspecialchars($member->office_address ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?= htmlspecialchars($member->office_postcode ?? '') ?>, 
+                                            <?= htmlspecialchars($member->office_state ?? '') ?>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
+
+                            <!-- Edit Mode (Initially Hidden) -->
+                            <form class="edit-mode d-none" action="/users/profile/update" method="POST">
+                                <input type="hidden" name="section" value="employment">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Jawatan</label>
+                                        <input type="text" name="position" class="form-control" value="<?= htmlspecialchars($member->position ?? '') ?>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Gred</label>
+                                        <input type="text" name="grade" class="form-control" value="<?= htmlspecialchars($member->grade ?? '') ?>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Gaji Bulanan (RM)</label>
+                                        <input type="number" name="monthly_salary" class="form-control" value="<?= htmlspecialchars($member->monthly_salary ?? '') ?>" step="0.01">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">No. Tel (Pejabat)</label>
+                                        <input type="text" name="office_phone" class="form-control" 
+                                               value="<?= htmlspecialchars($member->office_phone ?? '') ?>" 
+                                               pattern="^01[0-9]-[0-9]{7,8}$" 
+                                               placeholder="01x-xxxxxxx">
+                                        <div class="form-text">Format: 01x-xxxxxxx</div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Alamat Pejabat</label>
+                                        <input type="text" name="office_address" class="form-control mb-2" value="<?= htmlspecialchars($member->office_address ?? '') ?>">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Poskod</label>
+                                                <input type="text" name="office_postcode" class="form-control" placeholder="Poskod" value="<?= htmlspecialchars($member->office_postcode ?? '') ?>">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Negeri</label>
+                                                <select name="office_state" class="form-select">
+                                                    <?php
+                                                    $states = [
+                                                        'Johor',
+                                                        'Kedah', 
+                                                        'Kelantan',
+                                                        'Melaka',
+                                                        'Negeri Sembilan',
+                                                        'Pahang',
+                                                        'Perak',
+                                                        'Perlis',
+                                                        'Pulau Pinang',
+                                                        'Sabah',
+                                                        'Sarawak',
+                                                        'Selangor',
+                                                        'Terengganu',
+                                                        'WP Kuala Lumpur',
+                                                        'WP Labuan',
+                                                        'WP Putrajaya'
+                                                    ];
+                                                    foreach ($states as $state) {
+                                                        $selected = ($member->office_state == $state) ? 'selected' : '';
+                                                        echo "<option value=\"$state\" $selected>$state</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save me-2"></i>Simpan
+                                    </button>
+                                    <button type="button" class="btn btn-light ms-2" onclick="toggleEdit()">
+                                        <i class="bi bi-x me-2"></i>Batal
+                                    </button>
+                                </div>
+                            </form>
                         </div>
 
                         <!-- Family Info Tab -->
                         <div class="tab-pane fade" id="family">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">Nama Waris</label>
-                                    <p class="mb-0"><?= htmlspecialchars($member->family_name) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">No. K/P Waris</label>
-                                    <p class="mb-0"><?= htmlspecialchars($member->family_ic) ?></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-muted small d-block">Hubungan</label>
-                                    <p class="mb-0"><?= htmlspecialchars($member->family_relationship) ?></p>
+                            <!-- View Mode -->
+                            <div class="view-mode">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Nama Waris</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->family_name ?? '') ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">No. K/P Waris</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->family_ic ?? '') ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Hubungan</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->family_relationship ?? '') ?></p>
+                                    </div>
                                 </div>
                             </div>
+
+                            <!-- Edit Mode (Initially Hidden) -->
+                            <form class="edit-mode d-none" action="/users/profile/update" method="POST">
+                                <input type="hidden" name="section" value="family">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Waris</label>
+                                        <input type="text" name="family_name" class="form-control" value="<?= htmlspecialchars($member->family_name) ?>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">No. K/P Waris</label>
+                                        <input type="text" name="family_ic" class="form-control" value="<?= htmlspecialchars($member->family_ic) ?>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Hubungan</label>
+                                        <select name="family_relationship" class="form-select" required>
+                                            <?php
+                                            $relationships = ['Ibu', 'Bapa', 'Suami', 'Isteri', 'Anak', 'Adik-beradik'];
+                                            foreach ($relationships as $rel) {
+                                                $selected = ($member->family_relationship == $rel) ? 'selected' : '';
+                                                echo "<option value=\"$rel\" $selected>$rel</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save me-2"></i>Simpan
+                                    </button>
+                                    <button type="button" class="btn btn-light ms-2" onclick="toggleEdit()">
+                                        <i class="bi bi-x me-2"></i>Batal
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
