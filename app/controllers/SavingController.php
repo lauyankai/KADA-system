@@ -123,27 +123,32 @@ class SavingController extends BaseController
                 }
 
                 $memberId = $_SESSION['member_id'];
+                
+                // Get all required data
+                $account = $this->saving->getSavingsAccount($memberId);
+                $transactions = $this->saving->getRecentTransactions($memberId, 5);
+                $goals = $this->saving->getSavingsGoals($memberId);
                 $totalMonthlyPayments = $this->saving->getTotalMonthlyLoanPayments($memberId);
-                
+                $totalSavings = $this->saving->getTotalSavings($memberId);
+                $member = $this->user->getUserById($memberId);
                 $recurringPayments = $this->saving->getRecurringPayments($memberId);
-                
-                $data = [
-                    'member' => $this->user->getUserById($memberId),
-                    'account' => $this->saving->getSavingsAccount($memberId),
-                    'goals' => $this->saving->getSavingsGoals($memberId),
-                    'recurring' => $recurringPayments,
-                    'transactions' => $this->saving->getRecentTransactions($memberId, 5),
-                    'recurringPayment' => !empty($recurringPayments) ? $recurringPayments[0] : null,
-                    'totalSavings' => $this->saving->getTotalSavings($memberId),
-                    'accountBalance' => $this->saving->getTotalSavings($memberId),
-                    'totalMonthlyPayments' => $totalMonthlyPayments
-                ];
 
-                $this->view('users/savings/page', $data);
+                $this->view('users/savings/page', [
+                    'member' => $member,
+                    'account' => $account,
+                    'transactions' => $transactions,
+                    'goals' => $goals,
+                    'totalMonthlyPayments' => $totalMonthlyPayments,
+                    'totalSavings' => $totalSavings,
+                    'accountBalance' => $totalSavings,
+                    'recurring' => $recurringPayments,
+                    'recurringPayment' => !empty($recurringPayments) ? $recurringPayments[0] : null
+                ]);
 
             } catch (\Exception $e) {
+                error_log('Error in savingsDashboard: ' . $e->getMessage());
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users');
+                header('Location: /users/dashboard');
                 exit;
             }
         }
@@ -460,7 +465,7 @@ class SavingController extends BaseController
             }
         }
 
-        public function transfer()
+        public function makeTransfer()
         {
             try {
                 if (!isset($_SESSION['member_id'])) {
@@ -468,11 +473,12 @@ class SavingController extends BaseController
                 }
 
                 $memberId = $_SESSION['member_id'];
+                $senderAccountNumber = $_POST['sender_account_number'];
                 
-                // Get member's account
-                $account = $this->saving->getMemberAccount($memberId);
-                if (!$account) {
-                    throw new \Exception('Akaun tidak ditemui');
+                // Verify sender account belongs to logged in member
+                $senderAccount = $this->saving->verifyMemberAccount($memberId, $senderAccountNumber);
+                if (!$senderAccount) {
+                    throw new \Exception('Gagal membuat pemindahan: Nombor akaun pengirim tidak sah');
                 }
 
                 $amount = $_POST['amount'];
@@ -480,23 +486,54 @@ class SavingController extends BaseController
                 $transferType = $_POST['transfer_type'];
 
                 // Validate amount
-                if (!is_numeric($amount) || $amount < 10) {
-                    throw new \Exception('Jumlah minimum pemindahan adalah RM10.00');
+                if (!is_numeric($amount)) {
+                    throw new \Exception('Gagal membuat pemindahan: Jumlah tidak sah');
+                }
+                
+                if ($amount < 10) {
+                    throw new \Exception('Gagal membuat pemindahan: Jumlah minimum pemindahan adalah RM10.00');
                 }
 
                 // Check sufficient balance
-                if ($account['current_amount'] < $amount) {
-                    throw new \Exception('Baki tidak mencukupi');
+                if ($senderAccount['current_amount'] < $amount) {
+                    throw new \Exception('Gagal membuat pemindahan: Baki tidak mencukupi (Baki: RM' . number_format($senderAccount['current_amount'], 2) . ')');
                 }
 
-                // Process based on transfer type
                 if ($transferType === 'member') {
                     $recipientAccountNumber = $_POST['recipient_account_number'];
                     if (empty($recipientAccountNumber)) {
-                        throw new \Exception('Sila masukkan nombor akaun penerima');
+                        throw new \Exception('Gagal membuat pemindahan: Sila masukkan nombor akaun penerima');
+                    }
+
+                    // Validate account number format
+                    if (!preg_match('/^SAV-\d{6}-\d{4}$/', $recipientAccountNumber)) {
+                        throw new \Exception('Gagal membuat pemindahan: Format nombor akaun tidak sah');
+                    }
+
+                    // Check not transferring to same account
+                    if ($senderAccountNumber === $recipientAccountNumber) {
+                        throw new \Exception('Gagal membuat pemindahan: Tidak boleh pindah ke akaun yang sama');
                     }
                     
-                    $this->saving->transferToMember($account['id'], $recipientAccountNumber, $amount, $description);
+                    $result = $this->saving->transferToMember($senderAccount['id'], $recipientAccountNumber, $amount, $description);
+
+                    // Generate transaction data for receipt
+                    $transaction = [
+                        'reference_no' => 'TRF' . date('YmdHis'),
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'type' => 'transfer_out',
+                        'amount' => $amount,
+                        'member_name' => $_SESSION['name'],
+                        'member_id' => $memberId,
+                        'account_number' => $senderAccount['account_number'],
+                        'recipient_account_number' => $recipientAccountNumber,
+                        'description' => $description,
+                        'payment_method' => 'internal_transfer'
+                    ];
+
+                    // Show receipt
+                    $this->view('users/savings/receipt', ['transaction' => $transaction]);
+                    return;
                 } else {
                     // Transfer to other bank account
                     $bankName = $_POST['bank_name'];
@@ -507,19 +544,38 @@ class SavingController extends BaseController
                         throw new \Exception('Sila lengkapkan maklumat bank');
                     }
 
-                    $this->saving->transferToOther($account['id'], $amount, $description, [
+                    $result = $this->saving->transferToOther($senderAccount['id'], $amount, $description, [
                         'bank_name' => $bankName,
                         'account_number' => $bankAccountNumber,
                         'recipient_name' => $recipientName
                     ]);
+
+                    // Generate transaction data for receipt
+                    $transaction = [
+                        'reference_no' => 'TRF' . date('YmdHis'),
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'type' => 'transfer_out',
+                        'amount' => $amount,
+                        'member_name' => $_SESSION['name'],
+                        'member_id' => $memberId,
+                        'account_number' => $senderAccount['account_number'],
+                        'recipient_account_number' => $bankAccountNumber,
+                        'recipient_bank' => $bankName,
+                        'recipient_name' => $recipientName,
+                        'description' => $description,
+                        'payment_method' => 'bank_transfer'
+                    ];
+
+                    // Show receipt
+                    $this->view('users/savings/receipt', ['transaction' => $transaction]);
+                    return;
                 }
 
-                $_SESSION['success'] = 'Pemindahan berjaya dilakukan';
-                header('Location: /users/dashboard');
-                exit;
-                
             } catch (\Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
+                error_log('Transfer Error: ' . $e->getMessage() . ' | Member ID: ' . $_SESSION['member_id'] . 
+                         ' | Sender Account: ' . ($_POST['sender_account_number'] ?? 'not set') . 
+                         ' | Amount: ' . ($_POST['amount'] ?? 'not set'));
                 header('Location: /users/savings/transfer');
                 exit;
             }
@@ -731,25 +787,13 @@ class SavingController extends BaseController
 
         public function showTransferForm()
         {
-            try {
-                if (!isset($_SESSION['member_id'])) {
-                    throw new \Exception('Sila log masuk untuk mengakses');
-                }
-
-                $memberId = $_SESSION['member_id'];
-                
-                // Get list of other members' accounts for transfer
-                $accounts = $this->saving->getOtherMembersAccounts($memberId);
-
-                $this->view('users/savings/transfer/index', [
-                    'accounts' => $accounts
-                ]);
-
-            } catch (\Exception $e) {
-                $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings');
+            if (!isset($_SESSION['member_id'])) {
+                $_SESSION['error'] = 'Sila log masuk untuk mengakses';
+                header('Location: /auth/login');
                 exit;
             }
+            
+            $this->view('users/savings/transfer/index');
         }
 
         public function editGoal($id)
@@ -970,64 +1014,6 @@ class SavingController extends BaseController
             }
         }
 
-        public function makeTransfer()
-        {
-            try {
-                if (!isset($_SESSION['member_id'])) {
-                    throw new \Exception('Sila log masuk untuk mengakses');
-                }
-
-                $memberId = $_SESSION['member_id'];
-                $senderAccountNumber = $_POST['sender_account_number'];
-                
-                // Verify sender account belongs to logged in member
-                $senderAccount = $this->saving->verifyMemberAccount($memberId, $senderAccountNumber);
-                if (!$senderAccount) {
-                    throw new \Exception('Nombor akaun tidak sah');
-                }
-
-                $amount = $_POST['amount'];
-                $description = $_POST['description'] ?? '';
-                $transferType = $_POST['transfer_type'];
-
-                // Validate amount
-                if (!is_numeric($amount) || $amount < 10) {
-                    throw new \Exception('Jumlah minimum pemindahan adalah RM10.00');
-                }
-
-                // Process based on transfer type
-                if ($transferType === 'member') {
-                    $recipientAccountNumber = $_POST['recipient_account_number'];
-                    if (empty($recipientAccountNumber)) {
-                        throw new \Exception('Sila masukkan nombor akaun penerima');
-                    }
-                    
-                    // Validate account number format
-                    if (!preg_match('/^SAV-\d{6}-\d{4}$/', $recipientAccountNumber)) {
-                        throw new \Exception('Format nombor akaun tidak sah');
-                    }
-
-                    // Check not transferring to same account
-                    if ($senderAccountNumber === $recipientAccountNumber) {
-                        throw new \Exception('Tidak boleh pindah ke akaun yang sama');
-                    }
-                    
-                    $this->saving->transferToMember($senderAccount['id'], $recipientAccountNumber, $amount, $description);
-                } else {
-                    // Handle bank transfer...
-                }
-
-                $_SESSION['success'] = 'Pemindahan berjaya dilakukan';
-                header('Location: /users/savings');
-                exit;
-                
-            } catch (\Exception $e) {
-                $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings/transfer');
-                exit;
-            }
-        }
-
         public function verifyMember($memberId)
         {
             try {
@@ -1063,12 +1049,13 @@ class SavingController extends BaseController
                 $loans = $this->saving->getActiveLoansWithRecurring($memberId);
 
                 $this->view('users/savings/recurring/index', [
-                    'loans' => $loans
+                    'loans' => $loans ?? [] // Ensure loans is always an array
                 ]);
 
             } catch (\Exception $e) {
+                error_log('Error in showRecurring: ' . $e->getMessage());
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings');
+                header('Location: /users/savings/page'); // Use the correct route
                 exit;
             }
         }
@@ -1081,38 +1068,38 @@ class SavingController extends BaseController
                 }
 
                 $data = json_decode(file_get_contents('php://input'), true);
+                if (!$data) {
+                    throw new \Exception('Data tidak sah');
+                }
+
+                // Validate data
+                if (!isset($data['monthly_payment']) || !is_numeric($data['monthly_payment'])) {
+                    throw new \Exception('Jumlah bayaran tidak sah');
+                }
+                if (!isset($data['next_deduction_date'])) {
+                    throw new \Exception('Tarikh potongan seterusnya tidak sah');
+                }
+
+                // Format the data
+                $data['monthly_payment'] = number_format((float)$data['monthly_payment'], 2, '.', '');
+
                 $result = $this->saving->updateRecurringPayment($loanId, $data);
 
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true]);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Pembayaran berulang berjaya dikemaskini'
+                ]);
                 exit;
 
             } catch (\Exception $e) {
+                error_log('Error in updateRecurring: ' . $e->getMessage());
                 header('Content-Type: application/json');
+                http_response_code(400);
                 echo json_encode([
                     'success' => false,
                     'message' => $e->getMessage()
                 ]);
-                exit;
-            }
-        }
-
-        public function viewRecurringPayments()
-        {
-            try {
-                if (!isset($_SESSION['member_id'])) {
-                    throw new \Exception('Sila log masuk untuk mengakses');
-                }
-
-                $memberId = $_SESSION['member_id'];
-                $loans = $this->saving->getActiveLoansWithRecurring($memberId);
-
-                $this->view('users/savings/recurring/index', [
-                    'loans' => $loans
-                ]);
-            } catch (\Exception $e) {
-                $_SESSION['error'] = $e->getMessage();
-                header('Location: /users/savings');
                 exit;
             }
         }

@@ -4,16 +4,19 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\Loan;
 use App\Models\User;
+use App\Models\Saving;
 
 class LoanController extends BaseController
 {
     private $loan;
     private $user;
+    private $saving;
 
     public function __construct()
     {
         $this->user = new User();
         $this->loan = new Loan();
+        $this->saving = new Saving();
     }
 
     public function showRequest()
@@ -290,6 +293,44 @@ class LoanController extends BaseController
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             header('Location: /users/loans');
+            exit;
+        }
+    }
+
+    public function approveLoan()
+    {
+        try {
+            if (!isset($_SESSION['is_admin'])) {
+                throw new \Exception('Unauthorized access');
+            }
+
+            $loanId = $_POST['loan_id'] ?? null;
+            if (!$loanId) {
+                throw new \Exception('Invalid loan ID');
+            }
+
+            // Approve the loan
+            if ($this->loan->approveLoan($loanId)) {
+                // Set up recurring payment after loan is approved
+                $this->saving->setupInitialRecurringPayment($loanId);
+                
+                $_SESSION['success'] = 'Loan successfully approved';
+            } else {
+                throw new \Exception('Failed to approve loan');
+            }
+
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            exit;
+
+        } catch (\Exception $e) {
+            error_log('Error in approveLoan: ' . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
             exit;
         }
     }

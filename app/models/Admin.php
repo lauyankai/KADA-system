@@ -42,7 +42,7 @@ class Admin extends BaseModel
                 $stmt->execute([':id' => $id]);
             } else {
                 // For rejections
-                $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
+            $sql = "UPDATE pendingmember SET status = :status WHERE id = :id";
             $stmt = $this->getConnection()->prepare($sql);
                 $stmt->execute([
                 ':status' => $status,
@@ -690,15 +690,29 @@ class Admin extends BaseModel
     {
         try {
             $sql = "SELECT * FROM interest_rates WHERE id = 1";
-            $stmt = $this->getConnection()->query($sql);
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute();
             $rates = $stmt->fetch(PDO::FETCH_ASSOC);
             
+            // Return default values if no rates found
+            if (!$rates) {
+                return [
+                    'savings_rate' => 0.00,
+                    'loan_rate' => 0.00
+                ];
+            }
+            
             return [
-                'savings' => $rates['savings_rate'],
-                'loans' => $rates['loan_rate']
+                'savings_rate' => (float)$rates['savings_rate'],
+                'loan_rate' => (float)$rates['loan_rate']
             ];
         } catch (\PDOException $e) {
             error_log('Database Error in getInterestRates: ' . $e->getMessage());
+            // Return default values on error
+            return [
+                'savings_rate' => 0.00,
+                'loan_rate' => 0.00
+            ];
         }
     }
 
@@ -719,6 +733,33 @@ class Admin extends BaseModel
         } catch (\PDOException $e) {
             error_log('Database Error in updateInterestRates: ' . $e->getMessage());
             throw new \Exception('Failed to update interest rates');
+        }
+    }
+
+    public function getLoanStatistics()
+    {
+        try {
+            $sql = "SELECT 
+                    COUNT(*) as total_loans,
+                    COALESCE(SUM(amount), 0) as total_amount
+                    FROM loans 
+                    WHERE status = 'approved'";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute();
+            $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return [
+                'total_loans' => (int)$stats['total_loans'],
+                'total_amount' => (float)$stats['total_amount']
+            ];
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in getLoanStatistics: ' . $e->getMessage());
+            return [
+                'total_loans' => 0,
+                'total_amount' => 0.00
+            ];
         }
     }
 }

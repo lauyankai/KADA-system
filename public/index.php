@@ -110,11 +110,14 @@ $router = new App\Core\Router();
 
     // User routes -- Savings Routes
         $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
-        $router->addRoute('GET', '/users/savings', 'SavingController', 'savingsDashboard');
+        $router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
+        $router->addRoute('GET', '/users/savings', 'SavingController', 'savingsDashboard'); // Alias route
         $router->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositForm');
         $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
         $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferForm');
-        $router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
+        //$router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
+        $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'transferPage');
+        $router->addRoute('POST', '/users/savings/transfer/make', 'SavingController', 'makeTransfer');
         $router->addRoute('POST', '/users/savings/goals', 'SavingController', 'createSavingsGoal');
 
         // User routes --Receipts
@@ -137,7 +140,7 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/users/savings/recurring/edit', 'SavingController', 'editRecurringPayment');
         // $router->addRoute('POST', '/users/savings/recurring/update', 'SavingController', 'updateRecurringPayment');
         $router->addRoute('POST', '/users/savings/recurring/store', 'SavingController', 'storeRecurringPayment');
-        $router->addRoute('GET', '/users/savings/recurring', 'SavingController', 'viewRecurringPayments');
+        $router->addRoute('GET', '/users/savings/recurring', 'SavingController', 'showRecurring');
         $router->addRoute('POST', '/users/savings/recurring/update/{id}', 'SavingController', 'updateRecurring');
         
         // User routes --Loans

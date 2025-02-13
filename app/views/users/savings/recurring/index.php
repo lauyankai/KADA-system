@@ -27,83 +27,38 @@
                     <?php if (!empty($loans)): ?>
                         <div class="alert alert-info mb-4">
                             <i class="bi bi-info-circle me-2"></i>
-                            Jumlah akan dipotong secara automatik dari akaun simpanan anda pada hari yang ditetapkan
+                            Jumlah akan dipotong secara automatik dari akaun simpanan anda pada tarikh yang ditetapkan
                         </div>
                         
-                        <?php foreach ($loans as $loan): ?>
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <form id="form-<?= $loan['id'] ?>" onsubmit="saveChanges(event, <?= $loan['id'] ?>)">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h5 class="card-subtitle text-muted">
-                                                <?= ucfirst($loan['loan_type']) ?> - <?= $loan['reference_no'] ?>
-                                            </h5>
-                                            <span class="badge bg-<?= ($loan['payment_status'] ?? 'active') === 'active' ? 'success' : 'warning' ?>">
-                                                <?= ($loan['payment_status'] ?? 'active') === 'active' ? 'Aktif' : 'Tidak Aktif' ?>
-                                            </span>
-                                        </div>
-
-                                        <div class="row g-3">
-                                            <div class="col-md-4">
-                                                <label class="form-label">Jumlah Bayaran Bulanan</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">RM</span>
-                                                    <input type="number" class="form-control" 
-                                                           name="monthly_payment"
-                                                           value="<?= number_format($loan['monthly_payment'], 2, '.', '') ?>" 
-                                                           min="<?= number_format($loan['monthly_payment'] * 0.8, 2, '.', '') ?>"
-                                                           max="<?= number_format($loan['monthly_payment'] * 2, 2, '.', '') ?>"
-                                                           step="0.01"
-                                                           onchange="formatAmount(this)">
-                                                </div>
-                                                <small class="text-muted">
-                                                    Minimum: RM <?= number_format($loan['monthly_payment'] * 0.8, 2) ?>
-                                                </small>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <label class="form-label">Hari Potongan</label>
-                                                <select class="form-select" name="deduction_day">
-                                                    <?php for($i = 1; $i <= 28; $i++): ?>
-                                                        <option value="<?= $i ?>" 
-                                                            <?= ($loan['deduction_day'] ?? 1) == $i ? 'selected' : '' ?>>
-                                                            <?= $i ?> hb
-                                                        </option>
-                                                    <?php endfor; ?>
-                                                </select>
-                                                <small class="text-muted">
-                                                    Hari potongan dalam setiap bulan
-                                                </small>
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <label class="form-label">Status Potongan Automatik</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" 
-                                                           name="status"
-                                                           <?= ($loan['payment_status'] ?? 'active') === 'active' ? 'checked' : '' ?>>
-                                                    <label class="form-check-label">
-                                                        <?= ($loan['payment_status'] ?? 'active') === 'active' ? 'Aktif' : 'Tidak Aktif' ?>
-                                                    </label>
-                                                </div>
-                                                <small class="text-muted">
-                                                    Potongan seterusnya: 
-                                                    <?= $loan['next_deduction_date'] ? 
-                                                        date('d/m/Y', strtotime($loan['next_deduction_date'])) : 
-                                                        'Belum ditetapkan' ?>
-                                                </small>
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-3 d-flex justify-content-end">
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="bi bi-save me-2"></i>Simpan Perubahan
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>No. Rujukan</th>
+                                        <th>Jenis Pembiayaan</th>
+                                        <th>Jumlah Bayaran (RM)</th>
+                                        <th>Tarikh Potongan Seterusnya</th>
+                                        <th>Tindakan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($loans as $loan): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($loan['reference_no']) ?></td>
+                                        <td><?= htmlspecialchars($loan['loan_type']) ?></td>
+                                        <td><?= number_format($loan['monthly_payment'], 2) ?></td>
+                                        <td><?= $loan['next_deduction_date'] ? date('d/m/Y', strtotime($loan['next_deduction_date'])) : '-' ?></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" 
+                                                    onclick="editRecurring('<?= $loan['id'] ?>', <?= $loan['monthly_payment'] ?>, '<?= $loan['next_deduction_date'] ?>')">
+                                                <i class="bi bi-pencil"></i> Kemaskini
                                             </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php else: ?>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>Tiada pembiayaan aktif ditemui
@@ -115,59 +70,72 @@
     </div>
 </div>
 
+<!-- Edit Modal -->
+<div class="modal fade" id="editRecurringModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kemaskini Bayaran Berulang</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editRecurringForm">
+                    <input type="hidden" id="loanId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Jumlah Bayaran (RM)</label>
+                        <input type="number" class="form-control" id="monthlyPayment" step="0.01" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tarikh Potongan Seterusnya</label>
+                        <input type="date" class="form-control" id="nextDeductionDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="updateRecurring()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-function formatAmount(input) {
-    // Ensure value has exactly 2 decimal places
-    let value = parseFloat(input.value);
-    if (!isNaN(value)) {
-        input.value = value.toFixed(2);
-    }
+function editRecurring(loanId, monthlyPayment, nextDeductionDate) {
+    document.getElementById('loanId').value = loanId;
+    document.getElementById('monthlyPayment').value = monthlyPayment;
+    document.getElementById('nextDeductionDate').value = nextDeductionDate;
+    
+    new bootstrap.Modal(document.getElementById('editRecurringModal')).show();
 }
 
-function calculateNextDeductionDate(day) {
-    let date = new Date();
-    date.setDate(day);
-    if (date < new Date()) {
-        date.setMonth(date.getMonth() + 1);
-    }
-    return date.toISOString().split('T')[0];
-}
-
-function saveChanges(event, loanId) {
-    event.preventDefault();
-    
-    const form = document.getElementById(`form-${loanId}`);
-    const formData = new FormData(form);
-    
+function updateRecurring() {
+    const loanId = document.getElementById('loanId').value;
     const data = {
-        monthly_payment: parseFloat(parseFloat(formData.get('monthly_payment')).toFixed(2)), // Ensure 2 decimal places
-        deduction_day: parseInt(formData.get('deduction_day')),
-        next_deduction_date: calculateNextDeductionDate(parseInt(formData.get('deduction_day'))),
-        status: formData.get('status') ? 'active' : 'inactive'
+        monthly_payment: document.getElementById('monthlyPayment').value,
+        next_deduction_date: document.getElementById('nextDeductionDate').value,
+        status: 'active'
     };
-
-    console.log('Sending data:', data);
 
     fetch(`/users/savings/recurring/update/${loanId}`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
     })
-    .then(async response => {
-        const responseData = await response.json();
-        console.log('Server response:', responseData);
-        
-        if (responseData.success) {
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
             location.reload();
         } else {
-            throw new Error(responseData.message || 'Gagal mengemaskini pembayaran berulang');
+            alert(data.message || 'Error updating recurring payment');
         }
     })
     .catch(error => {
-        console.error('Error details:', error);
-        alert('Ralat: ' + error.message);
+        console.error('Error:', error);
+        alert('Failed to update recurring payment');
     });
 }
 </script>

@@ -29,7 +29,7 @@
                         </div>
                     <?php endif; ?>
 
-                    <form action="/KADA-system/users/savings/transfer" method="POST" class="needs-validation" novalidate>
+                    <form action="/users/savings/transfer/make" method="POST" class="needs-validation" novalidate>
                         <!-- Sender Account Verification -->
                         <div class="mb-3">
                             <label class="form-label">Nombor Akaun Anda</label>
