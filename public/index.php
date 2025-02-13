@@ -30,6 +30,7 @@ require_once '../app/Models/Loan.php';
 require_once '../app/Models/Director.php';
 require_once '../app/Models/Statement.php';
 require_once '../app/Models/AnnualReport.php';
+require_once '../app/Models/MemberFee.php';
 
 // Include controllers
 require_once '../app/Controllers/HomeController.php';
@@ -44,6 +45,7 @@ require_once '../app/Controllers/DirectorController.php';
 require_once '../app/Controllers/InfoController.php';
 require_once '../app/Controllers/StatementController.php';
 require_once '../app/Controllers/AnnualReportController.php';
+require_once '../app/Controllers/UserFeeController.php';
 
 // Include middleware
 require_once '../app/Middleware/AuthMiddleware.php';
