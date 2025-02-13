@@ -1538,6 +1538,9 @@ class Saving extends BaseModel
                 throw new \Exception('Gagal membuat pemindahan: Baki tidak mencukupi (Baki: RM' . number_format($fromAccount['current_amount'], 2) . ')');
             }
 
+            // Generate reference number
+            $referenceNo = 'TRF' . date('YmdHis') . rand(100, 999);
+
             // Deduct from source account
             $sql = "UPDATE savings_accounts 
                     SET current_amount = current_amount - :amount 
@@ -1563,23 +1566,40 @@ class Saving extends BaseModel
                 ':account_id' => $toAccount['id']
             ]);
 
-            // Record transactions - Fix the SQL syntax
+            // Record sender's transaction
             $sql = "INSERT INTO savings_transactions 
-                    (savings_account_id, transaction_type, amount, description, created_at) 
+                    (savings_account_id, type, amount, payment_method, reference_no, description, 
+                    created_at, sender_account_number, recipient_account_number) 
                     VALUES 
-                    (:from_id, :type_out, :amount_out, :desc_out, NOW()),
-                    (:to_id, :type_in, :amount_in, :desc_in, NOW())";
+                    (:account_id, 'transfer_out', :amount, 'fpx', :reference_no, :description, 
+                    NOW(), :sender_account, :recipient_account)";
                     
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([
-                ':from_id' => $fromAccountId,
-                ':type_out' => 'transfer_out',
-                ':amount_out' => $amount,
-                ':desc_out' => 'Transfer keluar ke ' . $recipientAccountNumber . ($description ? ': ' . $description : ''),
-                ':to_id' => $toAccount['id'],
-                ':type_in' => 'transfer_in',
-                ':amount_in' => $amount,
-                ':desc_in' => 'Transfer masuk dari ' . $fromAccount['account_number'] . ($description ? ': ' . $description : '')
+                ':account_id' => $fromAccountId,
+                ':amount' => $amount,
+                ':reference_no' => $referenceNo,
+                ':description' => 'Transfer keluar ke ' . $recipientAccountNumber . ($description ? ': ' . $description : ''),
+                ':sender_account' => $fromAccount['account_number'],
+                ':recipient_account' => $recipientAccountNumber
+            ]);
+
+            // Record recipient's transaction
+            $sql = "INSERT INTO savings_transactions 
+                    (savings_account_id, type, amount, payment_method, reference_no, description, 
+                    created_at, sender_account_number, recipient_account_number) 
+                    VALUES 
+                    (:account_id, 'transfer_in', :amount, 'fpx', :reference_no, :description, 
+                    NOW(), :sender_account, :recipient_account)";
+                    
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':account_id' => $toAccount['id'],
+                ':amount' => $amount,
+                ':reference_no' => $referenceNo,
+                ':description' => 'Transfer masuk dari ' . $fromAccount['account_number'] . ($description ? ': ' . $description : ''),
+                ':sender_account' => $fromAccount['account_number'],
+                ':recipient_account' => $recipientAccountNumber
             ]);
 
             $this->getConnection()->commit();
@@ -1600,6 +1620,16 @@ class Saving extends BaseModel
         try {
             $this->getConnection()->beginTransaction();
 
+            // Get source account details
+            $sql = "SELECT * FROM savings_accounts WHERE id = :account_id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':account_id' => $fromAccountId]);
+            $fromAccount = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$fromAccount) {
+                throw new \Exception('Akaun tidak ditemui');
+            }
+
             // Deduct from source account
             $sql = "UPDATE savings_accounts 
                     SET current_amount = current_amount - :amount 
@@ -1615,36 +1645,65 @@ class Saving extends BaseModel
                 throw new \Exception('Baki tidak mencukupi');
             }
 
+            // Generate reference number
+            $referenceNo = 'TRF' . date('YmdHis') . rand(100, 999);
+
             // Record transaction
             $sql = "INSERT INTO savings_transactions (
                         savings_account_id,
-                        transaction_type,
+                        type,
                         amount,
+                        payment_method,
+                        reference_no,
                         description,
-                        created_at
+                        created_at,
+                        sender_account_number,
+                        recipient_account_number
                     ) VALUES (
                         :account_id,
                         'transfer_out',
                         :amount,
+                        'bank_transfer',
+                        :reference_no,
                         :description,
-                        NOW()
+                        NOW(),
+                        :sender_account,
+                        :recipient_account
                     )";
             
+            $description = sprintf(
+                'Transfer ke %s - %s (%s)%s',
+                $bankDetails['bank_name'],
+                $bankDetails['account_number'],
+                $bankDetails['recipient_name'],
+                $description ? ': ' . $description : ''
+            );
+
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([
                 ':account_id' => $fromAccountId,
                 ':amount' => $amount,
-                ':description' => 'Transfer ke ' . $bankDetails['bank_name'] . ' - ' . $bankDetails['account_number'] . 
-                                ' (' . $bankDetails['recipient_name'] . ')' . ($description ? ': ' . $description : '')
+                ':reference_no' => $referenceNo,
+                ':description' => $description,
+                ':sender_account' => $fromAccount['account_number'],
+                ':recipient_account' => $bankDetails['account_number']
             ]);
 
             $this->getConnection()->commit();
-            return true;
+            
+            return [
+                'reference_no' => $referenceNo,
+                'amount' => $amount,
+                'from_account' => $fromAccount['account_number'],
+                'to_account' => $bankDetails['account_number'],
+                'date' => date('Y-m-d H:i:s'),
+                'type' => 'transfer_out'
+            ];
 
         } catch (\PDOException $e) {
             $this->getConnection()->rollBack();
-            error_log('Database Error: ' . $e->getMessage());
-            throw new \Exception('Gagal membuat pemindahan');
+            error_log('Database Error in transferToOther: ' . $e->getMessage());
+            throw new \Exception('Gagal membuat pemindahan ke bank lain');
         }
     }
 }

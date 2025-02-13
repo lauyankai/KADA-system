@@ -475,10 +475,16 @@ class SavingController extends BaseController
                 $memberId = $_SESSION['member_id'];
                 $senderAccountNumber = $_POST['sender_account_number'];
                 
+                // Get member details
+                $member = $this->user->getUserById($memberId);
+                if (!$member) {
+                    throw new \Exception('Gagal membuat pemindahan: Data ahli tidak ditemui');
+                }
+                
                 // Verify sender account belongs to logged in member
                 $senderAccount = $this->saving->verifyMemberAccount($memberId, $senderAccountNumber);
                 if (!$senderAccount) {
-                    throw new \Exception('Gagal membuat pemindahan: Nombor akaun pengirim tidak sah');
+                    throw new \Exception('Nombor akaun anda tidak sah');
                 }
 
                 $amount = $_POST['amount'];
@@ -519,16 +525,17 @@ class SavingController extends BaseController
 
                     // Generate transaction data for receipt
                     $transaction = [
-                        'reference_no' => 'TRF' . date('YmdHis'),
+                        'reference_no' => 'TRF' . date('YmdHis') . rand(100, 999),
                         'created_at' => date('Y-m-d H:i:s'),
                         'type' => 'transfer_out',
                         'amount' => $amount,
-                        'member_name' => $_SESSION['name'],
+                        'member_name' => $member->name,
                         'member_id' => $memberId,
                         'account_number' => $senderAccount['account_number'],
+                        'sender_account_number' => $senderAccount['account_number'],
                         'recipient_account_number' => $recipientAccountNumber,
                         'description' => $description,
-                        'payment_method' => 'internal_transfer'
+                        'payment_method' => 'fpx'
                     ];
 
                     // Show receipt
@@ -552,11 +559,11 @@ class SavingController extends BaseController
 
                     // Generate transaction data for receipt
                     $transaction = [
-                        'reference_no' => 'TRF' . date('YmdHis'),
-                        'created_at' => date('Y-m-d H:i:s'),
+                        'reference_no' => $result['reference_no'],
+                        'created_at' => $result['date'],
                         'type' => 'transfer_out',
                         'amount' => $amount,
-                        'member_name' => $_SESSION['name'],
+                        'member_name' => $member->name,
                         'member_id' => $memberId,
                         'account_number' => $senderAccount['account_number'],
                         'recipient_account_number' => $bankAccountNumber,
