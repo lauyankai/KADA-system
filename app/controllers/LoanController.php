@@ -4,16 +4,19 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\Loan;
 use App\Models\User;
+use App\Models\Saving;
 
 class LoanController extends BaseController
 {
     private $loan;
     private $user;
+    private $saving;
 
     public function __construct()
     {
         $this->user = new User();
         $this->loan = new Loan();
+        $this->saving = new Saving();
     }
 
     public function showRequest()
@@ -218,6 +221,116 @@ class LoanController extends BaseController
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             header('Location: /admin/loans/review/' . $id);
+            exit;
+        }
+    }
+
+    public function index()
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            
+            // Get all loan applications for the member
+            $loans = $this->loan->getLoansByMemberId($memberId);
+            
+            $this->view('users/loans/index', [
+                'loans' => $loans
+            ]);
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/dashboard');
+            exit;
+        }
+    }
+
+    public function report($loanId = null)
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            $memberId = $_SESSION['member_id'];
+            
+            // If no loan ID specified, get all loans for dropdown
+            if (!$loanId) {
+                $loans = $this->loan->getLoansByMemberId($memberId);
+                $loan = !empty($loans) ? $loans[0] : null;
+                $loanId = $loan ? $loan['id'] : null;
+            } else {
+                $loan = $this->loan->getLoanById($loanId);
+            }
+
+            if (!$loan || $loan['member_id'] != $memberId) {
+                throw new \Exception('Maklumat pembiayaan tidak dijumpai');
+            }
+
+            // Get period from query parameters
+            $period = $_GET['period'] ?? 'today';
+            
+            // Calculate dates based on period
+            $dates = $this->calculateDates($period);
+            $startDate = $dates['startDate'];
+            $endDate = $dates['endDate'];
+
+            // Get loan transactions
+            $transactions = $this->loan->getTransactionsByDateRange($loanId, $startDate, $endDate);
+
+            $this->view('users/loans/report', [
+                'loan' => $loan,
+                'loans' => $loans ?? [],
+                'transactions' => $transactions,
+                'period' => $period,
+                'startDate' => $startDate,
+                'endDate' => $endDate
+            ]);
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/loans');
+            exit;
+        }
+    }
+
+    public function approveLoan()
+    {
+        try {
+            if (!isset($_SESSION['is_admin'])) {
+                throw new \Exception('Unauthorized access');
+            }
+
+            $loanId = $_POST['loan_id'] ?? null;
+            if (!$loanId) {
+                throw new \Exception('Invalid loan ID');
+            }
+
+            // Approve the loan
+            if ($this->loan->approveLoan($loanId)) {
+                // Set up recurring payment after loan is approved
+                $this->saving->setupInitialRecurringPayment($loanId);
+                
+                $_SESSION['success'] = 'Loan successfully approved';
+            } else {
+                throw new \Exception('Failed to approve loan');
+            }
+
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            exit;
+
+        } catch (\Exception $e) {
+            error_log('Error in approveLoan: ' . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
             exit;
         }
     }

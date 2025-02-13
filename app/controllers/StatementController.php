@@ -117,6 +117,7 @@ class StatementController extends BaseController
                 'accountType' => $accountType,
                 'account' => $account,
                 'transactions' => $transactions,
+                'period' => $period,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
                 'period' => $period,
@@ -124,7 +125,6 @@ class StatementController extends BaseController
                 'openingBalance' => $openingBalance
             ]);
         } catch (\Exception $e) {
-            error_log('Error in statement index: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
             header('Location: /users');
             exit;

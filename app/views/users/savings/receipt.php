@@ -73,19 +73,22 @@
                             </div>
                             <div class="border-top pt-3">
                                 <p class="mb-1">Dari Akaun:</p>
-                                <p class="fw-bold">
-                                    <?php
-                                    $senderAcc = $transaction['sender_account_number'];
-                                    echo substr($senderAcc, 0, 7) . str_repeat('X', 6) . substr($senderAcc, -4);
-                                    ?>
-                                </p>
-                                <p class="mb-1">Kepada Akaun:</p>
-                                <p class="fw-bold mb-0">
-                                    <?php
-                                    $recipientAcc = $transaction['recipient_account_number'];
-                                    echo substr($recipientAcc, 0, 7) . str_repeat('X', 6) . substr($recipientAcc, -4);
-                                    ?>
-                                </p>
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <small class="text-muted">Dari Akaun</small>
+                                        <div class="fw-bold">
+                                            <?= htmlspecialchars($transaction['sender_account_number'] ?? 'N/A') ?>
+                                        </div>
+                                    </div>
+                                    <?php if (isset($transaction['recipient_account_number'])): ?>
+                                    <div class="col-6">
+                                        <small class="text-muted">Ke Akaun</small>
+                                        <div class="fw-bold">
+                                            <?= htmlspecialchars($transaction['recipient_account_number']) ?>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     <?php endif; ?>

@@ -48,7 +48,7 @@ require_once '../app/Controllers/AnnualReportController.php';
 // Include middleware
 require_once '../app/Middleware/AuthMiddleware.php';
 
-// Instantiate the Router
+// Initialize the router
 $router = new App\Core\Router();
 
 // Home route
@@ -106,14 +106,18 @@ $router = new App\Core\Router();
     $router->addRoute('POST', '/users/profile/update', 'UserController', 'update');
     $router->addRoute('GET', '/users/resign', 'UserController', 'showResignForm');
     $router->addRoute('POST', '/users/resign/submit', 'UserController', 'submitResignation');
+    $router->addRoute('GET', '/users/dashboard', 'UserController', 'dashboard');
 
     // User routes -- Savings Routes
         $router->addRoute('GET', '/users/savings/verify-member/{id}', 'SavingController', 'verifyMember');
-        $router->addRoute('GET', '/users/savings', 'SavingController', 'savingsDashboard');
+        $router->addRoute('GET', '/users/savings/page', 'SavingController', 'savingsDashboard');
+        $router->addRoute('GET', '/users/savings', 'SavingController', 'savingsDashboard'); // Alias route
         $router->addRoute('GET', '/users/savings/deposit', 'SavingController', 'showDepositForm');
         $router->addRoute('POST', '/users/savings/deposit', 'SavingController', 'makeDeposit');
         $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'showTransferForm');
-        $router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
+        //$router->addRoute('POST', '/users/savings/transfer', 'SavingController', 'makeTransfer');
+        $router->addRoute('GET', '/users/savings/transfer', 'SavingController', 'transferPage');
+        $router->addRoute('POST', '/users/savings/transfer/make', 'SavingController', 'makeTransfer');
         $router->addRoute('POST', '/users/savings/goals', 'SavingController', 'createSavingsGoal');
 
         // User routes --Receipts
@@ -136,7 +140,9 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/users/savings/recurring/edit', 'SavingController', 'editRecurringPayment');
         // $router->addRoute('POST', '/users/savings/recurring/update', 'SavingController', 'updateRecurringPayment');
         $router->addRoute('POST', '/users/savings/recurring/store', 'SavingController', 'storeRecurringPayment');
-
+        $router->addRoute('GET', '/users/savings/recurring', 'SavingController', 'showRecurring');
+        $router->addRoute('POST', '/users/savings/recurring/update/{id}', 'SavingController', 'updateRecurring');
+        
         // User routes --Loans
         $router->addRoute('GET', '/users/loans/request', 'LoanController', 'showRequest');
         $router->addRoute('POST', '/users/loans/submitRequest', 'LoanController', 'submitRequest');
@@ -170,7 +176,11 @@ $router = new App\Core\Router();
 // $router->addRoute('POST', '/users/savings/goals/{id}/update', 'SavingController', 'updateSavingsGoal');
 // $router->addRoute('POST', '/users/savings/goals/{id}/delete', 'SavingController', 'deleteSavingsGoal');
 
-
+$router->addRoute('GET', '/users/fees/initial', 'UserFeeController', 'showInitialFees');
+$router->addRoute('POST', '/users/fees/confirm', 'UserFeeController', 'confirmPayment');
+$router->addRoute('GET', '/users/fees/success', 'UserFeeController', 'showSuccess');
+$router->addRoute('GET', '/auth/setup-password', 'AuthController', 'showSetupPassword');
+$router->addRoute('POST', '/auth/setup-password', 'AuthController', 'setupPassword'); 
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

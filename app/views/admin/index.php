@@ -32,7 +32,7 @@
                     </div>
                 </div>
             </div>
-            </div>
+        </div>
         <?php endif; ?>
         
     <!-- Main Content Row -->
@@ -65,9 +65,9 @@
                                         <h3 class="mb-0 text-primary"><?= $stats['total'] ?></h3>
                                         <p class="text-muted small mb-0">Jumlah Ahli</p>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                </div>
+            </div>
 
                         <!-- Active Members -->
                         <div class="col-md-6 col-lg-3">
@@ -80,9 +80,9 @@
                                         <h3 class="mb-0 text-success"><?= $stats['active'] ?></h3>
                                         <p class="text-muted small mb-0">Ahli Aktif</p>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                </div>
+            </div>
 
                         <!-- Rejected Members -->
                         <div class="col-md-6 col-lg-3">
@@ -95,9 +95,9 @@
                                         <h3 class="mb-0 text-danger"><?= $stats['rejected'] ?></h3>
                                         <p class="text-muted small mb-0">Ditolak</p>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                </div>
+            </div>
 
                         <!-- Pending Members -->
                         <div class="col-md-6 col-lg-3">
@@ -113,7 +113,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -144,7 +144,7 @@
                                     <h6 class="mb-0">Simpanan</h6>
                                 </div>
                                 <div class="interest-value">
-                                    <span class="h3 mb-0 text-success"><?= number_format($interestRates['savings'], 2) ?>%</span>
+                                    <span class="h3 mb-0 text-success"><?= number_format($interestRates['savings_rate'] ?? 0, 2) ?>%</span>
                                     <span class="text-muted ms-2">setahun</span>
                                 </div>
                             </div>
@@ -160,7 +160,7 @@
                                     <h6 class="mb-0">Pembiayaan</h6>
                                 </div>
                                 <div class="interest-value">
-                                    <span class="h3 mb-0 text-primary"><?= number_format($interestRates['loans'], 2) ?>%</span>
+                                    <span class="h3 mb-0 text-primary"><?= number_format($interestRates['loan_rate'] ?? 0, 2) ?>%</span>
                                     <span class="text-muted ms-2">setahun</span>
                                 </div>
                             </div>
@@ -169,7 +169,7 @@
                 </div>
             </div>
         </div>
-    </div>
+                </div>
 
     <!-- Second Row -->
     <div class="row g-3">
@@ -185,21 +185,21 @@
                             <button onclick="showUploadModal()" class="btn btn-success">
                                 <i class="bi bi-upload me-2"></i>Muat Naik
                             </button>
-                        </div>
                 </div>
+            </div>
 
-                <div class="table-responsive">
+            <div class="table-responsive">
                         <table class="table table-hover">
-                        <thead>
-                                <tr>
+                    <thead>
+                        <tr>
                                     <th>Tahun</th>
                                     <th>Tajuk</th>
                                     <th>Tarikh</th>
                                     <th>Saiz Fail</th>
-                                    <th>Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                            <th>Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                                 <?php if (isset($annual_reports) && !empty($annual_reports)): ?>
                                     <?php foreach ($annual_reports as $report): ?>
                                         <tr>
@@ -217,10 +217,10 @@
                                                 <button onclick="deleteReport(<?= $report['id'] ?>)" 
                                                         class="btn btn-sm btn-outline-danger">
                                                     <i class="bi bi-trash"></i>
-                                                </button>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                                        </button>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
                                         <td colspan="5" class="text-center py-4 text-muted">
@@ -229,12 +229,12 @@
                                         </td>
                                     </tr>
                                 <?php endif; ?>
-                        </tbody>
-                    </table>
+                    </tbody>
+                </table>
                 </div>
             </div>
         </div>                       
-    </div>
+            </div>
 
         <!-- Quick Actions Section -->
         <div class="col-lg-4">
@@ -324,17 +324,27 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Kadar Faedah Simpanan (%)</label>
-                                <input type="number" class="form-control" name="savings_rate" 
-                                       value="<?= $interestRates['savings'] ?? 3.00 ?>" 
-                                       step="0.01" min="0" max="100" required>
+                                <input type="number" 
+                                       name="savings_rate" 
+                                       class="form-control" 
+                                       value="<?= number_format($interestRates['savings_rate'] ?? 0, 2) ?>" 
+                                       step="0.01" 
+                                       min="0" 
+                                       max="100" 
+                                       required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Kadar Faedah Pembiayaan (%)</label>
-                                <input type="number" class="form-control" name="loan_rate" 
-                                       value="<?= $interestRates['loans'] ?? 6.00 ?>" 
-                                       step="0.01" min="0" max="100" required>
+                                <input type="number" 
+                                       name="loan_rate" 
+                                       class="form-control" 
+                                       value="<?= number_format($interestRates['loan_rate'] ?? 0, 2) ?>" 
+                                       step="0.01" 
+                                       min="0" 
+                                       max="100" 
+                                       required>
                             </div>
                         </div>
                     </div>

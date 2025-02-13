@@ -12,7 +12,7 @@
                         <h4 class="card-title mb-0">
                             <i class="bi bi-arrow-left-right me-2"></i>Pemindahan Dana
                         </h4>
-                        <a href="/users/savings" class="btn btn-outline-secondary">
+                        <a href="/users/dashboard" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Kembali
                         </a>
                     </div>
@@ -29,7 +29,7 @@
                         </div>
                     <?php endif; ?>
 
-                    <form action="/KADA-system/users/savings/transfer" method="POST" class="needs-validation" novalidate>
+                    <form action="/users/savings/transfer/make" method="POST" class="needs-validation" novalidate>
                         <!-- Sender Account Verification -->
                         <div class="mb-3">
                             <label class="form-label">Nombor Akaun Anda</label>

@@ -35,30 +35,26 @@ class AdminController extends BaseController {
             // Get interest rates
             $interestRates = $this->admin->getInterestRates();
             
+            // Get loan statistics
+            $loanStats = $this->admin->getLoanStatistics();
+            
             $this->view('admin/index', [
                 'members' => $allMembers,
                 'annual_reports' => $reports,
                 'stats' => [
                     'total' => count($allMembers),
                     'pending' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Pending')),
-                    'active' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Ahli')),
-                    'rejected' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Rejected'))
+                    'active' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Active')),
+                    'rejected' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Rejected')),
+                    'loans' => $loanStats['total_loans'] ?? 0,
+                    'loan_amount' => $loanStats['total_amount'] ?? 0
                 ],
-                'interestRates' => $interestRates
+                'interestRates' => $this->admin->getInterestRates()
             ]);
-        } catch (Exception $e) {
-            $_SESSION['error'] = "Error fetching data: " . $e->getMessage();
-            $this->view('admin/index', [
-                'members' => [], 
-                'annual_reports' => [],
-                'stats' => [
-                    'total' => 0,
-                    'pending' => 0,
-                    'active' => 0,
-                    'rejected' => 0
-                ],
-                'interestRates' => []
-            ]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /auth/login');
+            exit;
         }
     }
 

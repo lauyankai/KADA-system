@@ -3,6 +3,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\AuthUser;
 use App\Models\Director;
+use PDO;
 
 class AuthController extends BaseController
 {
@@ -74,12 +75,11 @@ class AuthController extends BaseController
                     if (password_verify($password, $member['password'])) {
                         error_log("Password verified successfully");
                         $_SESSION['member_id'] = $member['id'];
-                        $_SESSION['user_id'] = $member['id'];
                         $_SESSION['member_name'] = $member['name'];
-                        $_SESSION['username'] = $member['name'];
                         $_SESSION['user_type'] = 'member';
                         
-                        header('Location: /users');
+                        // Directly redirect to dashboard without checking fees
+                        header('Location: /users/dashboard');
                         exit;
                     } else {
                         error_log("Password verification failed");
