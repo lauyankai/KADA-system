@@ -165,27 +165,28 @@ class User extends BaseModel
                 (SELECT 
                     'loan' as type,
                     CASE 
-                        WHEN pl.id IS NOT NULL THEN 'pending'
-                        WHEN l.id IS NOT NULL THEN 'active'
-                        WHEN rl.id IS NOT NULL THEN 'rejected'
+                        WHEN pl.status = 'pending' THEN 'pending'
+                        WHEN l.status = 'approved' THEN 'approved'
+                        WHEN rl.status = 'rejected' THEN 'rejected'
                     END as action,
                     COALESCE(pl.amount, l.amount, rl.amount) as amount,
                     COALESCE(pl.date_received, l.approved_at, rl.rejected_at) as created_at,
                     CASE 
-                        WHEN pl.id IS NOT NULL THEN 'Permohonan pembiayaan sedang diproses'
-                        WHEN l.id IS NOT NULL THEN 'Permohonan pembiayaan telah diluluskan'
-                        WHEN rl.id IS NOT NULL THEN CONCAT('Permohonan pembiayaan ditolak: ', rl.remarks)
+                        WHEN pl.status = 'pending' THEN 'Permohonan pembiayaan sedang diproses'
+                        WHEN l.status = 'approved' THEN 'Permohonan pembiayaan telah diluluskan'
+                        WHEN rl.status = 'rejected' THEN CASE WHEN rl.remarks IS NULL OR rl.remarks = '' THEN 'Permohonan pembiayaan ditolak' ELSE CONCAT('Permohonan pembiayaan ditolak: ', rl.remarks) END
+                        ELSE 'Status pembiayaan tidak diketahui'
                     END as description
                 FROM (
-                    SELECT member_id, id FROM pendingloans WHERE member_id = :member_id
+                    SELECT member_id, id, 'pending' as status FROM pendingloans WHERE member_id = :member_id
                     UNION ALL 
-                    SELECT member_id, id FROM loans WHERE member_id = :member_id
+                    SELECT member_id, id, 'approved' as status FROM loans WHERE member_id = :member_id
                     UNION ALL
-                    SELECT member_id, id FROM rejectedloans WHERE member_id = :member_id
+                    SELECT member_id, id, 'rejected' as status FROM rejectedloans WHERE member_id = :member_id
                 ) all_loans
-                LEFT JOIN pendingloans pl ON pl.id = all_loans.id
-                LEFT JOIN loans l ON l.id = all_loans.id
-                LEFT JOIN rejectedloans rl ON rl.id = all_loans.id)
+                LEFT JOIN pendingloans pl ON pl.id = all_loans.id AND all_loans.status = 'pending'
+                LEFT JOIN loans l ON l.id = all_loans.id AND all_loans.status = 'approved'
+                LEFT JOIN rejectedloans rl ON rl.id = all_loans.id AND all_loans.status = 'rejected')
                 
                 ORDER BY created_at DESC
                 LIMIT :limit";
@@ -218,6 +219,88 @@ class User extends BaseModel
         } catch (\PDOException $e) {
             error_log('Database Error in getMemberById: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan maklumat ahli');
+        } 
+    }
+
+    public function updateProfile($userId, $data)
+    {
+        try {
+            $sql = "UPDATE members SET 
+                    email = :email,
+                    home_phone = :home_phone,
+                    office_phone = :office_phone,
+                    marital_status = :marital_status,
+                    home_address = :home_address,
+                    home_postcode = :home_postcode,
+                    home_state = :home_state,
+                    updated_at = NOW()
+                    WHERE id = :id";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':id' => $userId,
+                ':email' => $data['email'],
+                ':home_phone' => $data['home_phone'],
+                ':office_phone' => $data['office_phone'],
+                ':marital_status' => $data['marital_status'],
+                ':home_address' => $data['home_address'],
+                ':home_postcode' => $data['home_postcode'],
+                ':home_state' => $data['home_state']
+            ]);
+
+            return true;
+        } catch (\PDOException $e) {
+            error_log('Database Error in updateProfile: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function submitResignation($userId, $reasons)
+    {
+        try {
+            $this->getConnection()->beginTransaction();
+
+            // Insert resignation request
+            $sql = "INSERT INTO resignation_requests (
+                        member_id, 
+                        request_date, 
+                        status
+                    ) VALUES (
+                        :member_id,
+                        NOW(),
+                        'pending'
+                    )";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $userId]);
+            $resignationId = $this->getConnection()->lastInsertId();
+
+            // Insert reasons
+            $sql = "INSERT INTO resignation_reasons (
+                        resignation_id,
+                        reason
+                    ) VALUES (
+                        :resignation_id,
+                        :reason
+                    )";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            foreach ($reasons as $reason) {
+                $stmt->execute([
+                    ':resignation_id' => $resignationId,
+                    ':reason' => $reason
+                ]);
+            }
+
+            $this->getConnection()->commit();
+            return true;
+
+        } catch (\PDOException $e) {
+            if ($this->getConnection()->inTransaction()) {
+                $this->getConnection()->rollBack();
+            }
+            error_log('Database Error in submitResignation: ' . $e->getMessage());
+            return false;
         }
     }
 

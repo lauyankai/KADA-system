@@ -8,17 +8,17 @@
         <div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <?php if (isset($_SESSION['error'])): ?>
+        <?php if (isset($_SESSION['error'])): ?>
                         <div class="modal-header border-0 bg-danger bg-opacity-10">
                             <h5 class="modal-title text-danger">Error</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
                             <?= $_SESSION['error']; unset($_SESSION['error']); ?>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <?php if (isset($_SESSION['success'])): ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['success'])): ?>
                         <div class="modal-header border-0 bg-success bg-opacity-10">
                             <h5 class="modal-title text-success">Berjaya!</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -32,15 +32,15 @@
                     </div>
                 </div>
             </div>
-        </div>
-    <?php endif; ?>
-
+            </div>
+        <?php endif; ?>
+        
     <!-- Main Content Row -->
     <div class="row g-3 mb-4">
         <!-- Status Keahlian Card -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-body">
+            <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h5 class="card-title mb-1">
@@ -186,20 +186,20 @@
                                 <i class="bi bi-upload me-2"></i>Muat Naik
                             </button>
                         </div>
-                    </div>
+                </div>
 
-                    <div class="table-responsive">
+                <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead>
+                        <thead>
                                 <tr>
                                     <th>Tahun</th>
                                     <th>Tajuk</th>
                                     <th>Tarikh</th>
                                     <th>Saiz Fail</th>
                                     <th>Tindakan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                            </tr>
+                        </thead>
+                        <tbody>
                                 <?php if (isset($annual_reports) && !empty($annual_reports)): ?>
                                     <?php foreach ($annual_reports as $report): ?>
                                         <tr>
@@ -218,9 +218,9 @@
                                                         class="btn btn-sm btn-outline-danger">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
                                         <td colspan="5" class="text-center py-4 text-muted">
@@ -229,12 +229,12 @@
                                         </td>
                                     </tr>
                                 <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </div>                       
+    </div>
 
         <!-- Quick Actions Section -->
         <div class="col-lg-4">
