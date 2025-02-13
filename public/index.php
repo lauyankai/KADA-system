@@ -165,12 +165,6 @@ $router->addRoute('GET', '/users/fees/success', 'UserFeeController', 'showSucces
 $router->addRoute('GET', '/auth/setup-password', 'AuthController', 'showSetupPassword');
 $router->addRoute('POST', '/auth/setup-password', 'AuthController', 'setupPassword'); 
 
-// Add these routes for family member management
-$router->addRoute('POST', '/users/add-family-member', 'UserController', 'addFamilyMember');
-$router->addRoute('POST', '/users/update-family-member/{id}', 'UserController', 'updateFamilyMember');
-$router->addRoute('POST', '/users/delete-family-member/{id}', 'UserController', 'deleteFamilyMember'); 
-$router->addRoute('POST', '/users/update-family-members', 'UserController', 'updateFamilyMembers');
-
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];

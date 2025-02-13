@@ -15,19 +15,9 @@ use PHPMailer\PHPMailer\Exception;
 
 class Guest extends BaseModel
 {
-    private $familyMember;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->familyMember = new FamilyMember();
-    }
-
     public function create($data)
     {
         try {
-            $this->getConnection()->beginTransaction();
-
             // Generate reference number: REF[YEAR][MONTH][DAY][4-DIGIT-SEQUENCE]
             $date = date('Ymd');
             $sequence = $this->getNextSequence();
@@ -100,25 +90,12 @@ class Guest extends BaseModel
             // Get the last inserted ID
             $lastId = $this->getConnection()->lastInsertId();
             
-            // Add family member if provided
-            if (!empty($data['family_name'])) {
-                $familyData = [
-                    'member_type' => 'pending',
-                    'member_id' => $lastId,
-                    'name' => $data['family_name'],
-                    'relationship' => $data['family_relationship'],
-                    'ic_no' => $data['family_ic']
-                ];
-                $this->familyMember->addFamilyMember($familyData);
-            }
-
-            $this->getConnection()->commit();
-            return true;
+            // Fetch and return the created record
+            return $this->find($lastId);
 
         } catch (\PDOException $e) {
-            $this->getConnection()->rollBack();
-            error_log('Error creating pending member: ' . $e->getMessage());
-            throw new \Exception('Gagal mendaftar ahli');
+            error_log('Database Error: ' . $e->getMessage());
+            throw new \Exception('Database error occurred: ' . $e->getMessage());
         }
     }
 
