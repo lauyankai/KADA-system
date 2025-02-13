@@ -130,11 +130,11 @@ class AdminController extends BaseController {
                 $_SESSION['success'] = "Status telah berjaya dikemaskini kepada Lulus";
             }
             
-            header('Location: /admin');
+            header('Location: /admin/member-list');
             exit();
         } catch (\Exception $e) {
             $_SESSION['error'] = "Gagal mengemaskini status: " . $e->getMessage();
-            header('Location: /admin');
+            header('Location: /admin/member-list');
             exit();
         }
     }
