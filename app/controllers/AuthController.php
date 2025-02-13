@@ -135,39 +135,18 @@ class AuthController extends BaseController
 
     public function showSetupPassword()
     {
-        $token = $_GET['token'] ?? '';
-        if (empty($token)) {
-            $_SESSION['error'] = 'Token tidak sah';
-            header('Location: /auth/login');
-            exit;
-        }
-
-        // Verify token from session
-        if (!isset($_SESSION['setup_password_tokens'][$token]) || 
-            $_SESSION['setup_password_tokens'][$token]['expires'] < time()) {
-            $_SESSION['error'] = 'Pautan telah tamat tempoh atau tidak sah';
-            header('Location: /auth/login');
-            exit;
-        }
-
-        $this->view('auth/setup-password', ['token' => $token]);
+        $this->view('auth/setup-password', []);
     }
 
     public function setupPassword()
     {
         try {
-            $token = $_POST['token'] ?? '';
+            $ic = $_POST['ic'] ?? '';
             $password = $_POST['password'] ?? '';
             $confirmPassword = $_POST['confirm_password'] ?? '';
 
-            if (empty($token) || empty($password) || empty($confirmPassword)) {
+            if (empty($ic) || empty($password) || empty($confirmPassword)) {
                 throw new \Exception('Sila isi semua maklumat yang diperlukan');
-            }
-
-            // Verify token from session
-            if (!isset($_SESSION['setup_password_tokens'][$token]) || 
-                $_SESSION['setup_password_tokens'][$token]['expires'] < time()) {
-                throw new \Exception('Pautan telah tamat tempoh atau tidak sah');
             }
 
             if ($password !== $confirmPassword) {
@@ -178,14 +157,14 @@ class AuthController extends BaseController
                 throw new \Exception('Kata laluan mestilah sekurang-kurangnya 8 aksara');
             }
 
-            // Get member_id from session token
-            $memberId = $_SESSION['setup_password_tokens'][$token]['member_id'];
+            // Find member by IC
+            $member = $this->authUser->findMemberByIC($ic);
+            if (!$member) {
+                throw new \Exception('No. K/P tidak dijumpai. Sila pastikan anda telah diluluskan sebagai ahli.');
+            }
 
             // Update password
-            if ($this->authUser->setMemberPassword($memberId, $password)) {
-                // Clear the used token
-                unset($_SESSION['setup_password_tokens'][$token]);
-                
+            if ($this->authUser->setMemberPassword($member['id'], $password)) {
                 $_SESSION['success'] = 'Kata laluan berjaya ditetapkan. Sila log masuk.';
                 header('Location: /auth/login');
                 exit;
@@ -195,7 +174,7 @@ class AuthController extends BaseController
 
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
-            header('Location: /auth/setup-password?token=' . $token);
+            header('Location: /auth/setup-password');
             exit;
         }
     }
