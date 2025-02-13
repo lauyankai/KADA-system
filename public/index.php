@@ -13,39 +13,20 @@ if (file_exists($envFile)) {
     }
 }
 
-// Include core files first
-require_once '../app/Core/Autoload.php';
-require_once '../app/Core/Database.php';
-require_once '../app/Core/BaseModel.php';
-require_once '../app/Core/BaseController.php';
-require_once '../app/Core/Router.php';
+$coreFiles = glob('../app/Core/*.php');
+foreach ($coreFiles as $file) {
+    require_once $file;
+}
 
-// Then include models
-require_once '../app/Models/User.php';
-require_once '../app/Models/Guest.php';
-require_once '../app/Models/AuthUser.php';
-require_once '../app/Models/Admin.php';
-require_once '../app/Models/Saving.php';
-require_once '../app/Models/Loan.php';
-require_once '../app/Models/Director.php';
-require_once '../app/Models/Statement.php';
-require_once '../app/Models/AnnualReport.php';
-require_once '../app/Models/MemberFee.php';
+$modelFiles = glob('../app/Models/*.php');
+foreach ($modelFiles as $file) {
+    require_once $file;
+}
 
-// Include controllers
-require_once '../app/Controllers/HomeController.php';
-require_once '../app/Controllers/AuthController.php';
-require_once '../app/Controllers/UserController.php';
-require_once '../app/Controllers/GuestController.php';
-require_once '../app/Controllers/PaymentController.php';
-require_once '../app/Controllers/AdminController.php';
-require_once '../app/Controllers/LoanController.php';
-require_once '../app/Controllers/SavingController.php';
-require_once '../app/Controllers/DirectorController.php';
-require_once '../app/Controllers/InfoController.php';
-require_once '../app/Controllers/StatementController.php';
-require_once '../app/Controllers/AnnualReportController.php';
-require_once '../app/Controllers/UserFeeController.php';
+$controllerFiles = glob('../app/Controllers/*.php');
+foreach ($controllerFiles as $file) {
+    require_once $file;
+}
 
 // Include middleware
 require_once '../app/Middleware/AuthMiddleware.php';
