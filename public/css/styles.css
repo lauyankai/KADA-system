@@ -186,26 +186,22 @@ body {
 
         /* Navbar Styling */
         .navbar {
-            background-color: #ffffff; /* White background for navbar */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            background: linear-gradient(to right, #007bff, #00d4ff); /* Blue gradient */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
         }
+
         .navbar-brand {
+            color: #ffffff !important; /* White text for brand */
             font-weight: bold;
-            color: #333; /* Darker text for contrast */
         }
-        .nav-link {
-            color: #555; /* Slightly darker links */
+
+        .navbar-nav .nav-link {
+            color: #ffffff !important; /* White text for links */
+            transition: color 0.3s ease-in-out;
         }
-        .nav-link:hover {
-            color: #007bff; /* Bootstrap primary color on hover */
-        }
-        .btn-outline-danger {
-            border-color: #dc3545; /* Bootstrap danger color */
-            color: #dc3545;
-        }
-        .btn-outline-danger:hover {
-            background-color: #dc3545; /* Change background on hover */
-            color: white;
+
+        .navbar-nav .nav-link:hover {
+            color: #d4edda !important; /* Light green hover effect */
         }
 
         /* Dropdown Styling */
