@@ -527,15 +527,20 @@ class AdminController extends BaseController {
             }
 
             $memberId = $_POST['member_id'];
+            
+            // Add debug logging
+            error_log('Approving resignation for member ID: ' . $memberId);
+            
             if ($this->admin->approveResignation($memberId)) {
                 $_SESSION['success'] = 'Permohonan berhenti telah diluluskan';
+                header('Location: /admin/resignations');
+                exit();
             } else {
                 throw new \Exception('Gagal meluluskan permohonan');
             }
 
-            header('Location: /admin/resignations');
-            exit();
         } catch (\Exception $e) {
+            error_log('Error in approveResignation: ' . $e->getMessage());
             $_SESSION['error'] = $e->getMessage();
             header('Location: /admin/resignations');
             exit();

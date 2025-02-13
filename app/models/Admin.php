@@ -748,29 +748,57 @@ class Admin extends BaseModel
                 throw new \Exception('Member not found');
             }
 
+            // Debug log
+            error_log('Found member: ' . json_encode($member));
+
             // Update member status
             $updateSql = "UPDATE members 
                          SET status = 'Resigned',
-                             resigned_approved_at = NOW() 
+                             updated_at = NOW()
                          WHERE id = :member_id";
             
             $stmt = $this->getConnection()->prepare($updateSql);
-            $stmt->execute([':member_id' => $memberId]);
+            $result = $stmt->execute([':member_id' => $memberId]);
+            
+            if (!$result) {
+                throw new \Exception('Failed to update member status');
+            }
+
+            // Update resignation_reasons with approval date
+            $updateResignationSql = "UPDATE resignation_reasons 
+                                    SET approved_at = NOW() 
+                                    WHERE member_id = :member_id";
+            
+            $stmt = $this->getConnection()->prepare($updateResignationSql);
+            $result = $stmt->execute([':member_id' => $memberId]);
+
+            if (!$result) {
+                throw new \Exception('Failed to update resignation approval date');
+            }
+
+            // Debug log
+            error_log('Updated member status and approval date successfully');
 
             // Send email notification
-            $this->sendResignationApprovalEmail(
+            $emailResult = $this->sendResignationApprovalEmail(
                 $member['email'],
                 $member['name'],
                 $member['resignation_date']
             );
 
+            if (!$emailResult) {
+                error_log('Failed to send resignation approval email');
+            }
+
             $this->getConnection()->commit();
             return true;
 
-        } catch (\PDOException $e) {
-            $this->getConnection()->rollBack();
+        } catch (\Exception $e) {
+            if ($this->getConnection()->inTransaction()) {
+                $this->getConnection()->rollBack();
+            }
             error_log('Error approving resignation: ' . $e->getMessage());
-            throw new \Exception('Gagal meluluskan permohonan berhenti');
+            throw new \Exception('Gagal meluluskan permohonan berhenti: ' . $e->getMessage());
         }
     }
 
@@ -821,12 +849,18 @@ class Admin extends BaseModel
             $sql = "SELECT m.*, r.reasons, r.created_at as resignation_date 
                     FROM members m 
                     JOIN resignation_reasons r ON m.id = r.member_id 
-                    WHERE m.status = 'Inactive'
+                    WHERE m.status = 'Inactive' 
+                    AND r.approved_at IS NULL
                     ORDER BY r.created_at DESC";
             
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Debug log
+            error_log('Found ' . count($results) . ' pending resignations');
+            
+            return $results;
         } catch (\PDOException $e) {
             error_log('Error getting pending resignations: ' . $e->getMessage());
             return [];
