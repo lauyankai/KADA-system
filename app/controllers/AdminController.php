@@ -332,26 +332,24 @@ class AdminController extends BaseController {
         try {
             $admin = new Admin();
             $allMembers = $admin->getAllMembers();
-            
+            $stats = $admin->getMemberStats();
 
             $this->view('admin/member_list', [
                 'members' => $allMembers,
-                'stats' => [
-                    'total' => count($allMembers),
-
-                    'pending' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Pending')),
-                    'active' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Ahli')),
-                    'rejected' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Rejected'))
-                ]
+                'stats' => $stats
             ]);
         } catch (Exception $e) {
             $_SESSION['error'] = "Error fetching members: " . $e->getMessage();
-            $this->view('admin/member_list', ['members' => [], 'stats' => [
-                'total' => 0,
-                'pending' => 0,
-                'active' => 0,
-                'rejected' => 0
-            ]]);
+            $this->view('admin/member_list', [
+                'members' => [], 
+                'stats' => [
+                    'total' => 0,
+                    'pending' => 0,
+                    'active' => 0,
+                    'rejected' => 0,
+                    'resigned' => 0
+                ]
+            ]);
         }
     }
 

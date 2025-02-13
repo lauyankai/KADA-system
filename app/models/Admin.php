@@ -377,8 +377,11 @@ class Admin extends BaseModel
                     gender COLLATE utf8mb4_general_ci as gender,
                     position COLLATE utf8mb4_general_ci as position,
                     monthly_salary,
-                    'Ahli' COLLATE utf8mb4_general_ci as member_type,
-                    'Active' COLLATE utf8mb4_general_ci as status
+                    CASE 
+                        WHEN status = 'Active' THEN 'Active'
+                        WHEN status = 'Resigned' THEN 'Resigned'
+                        ELSE status
+                    END as status
                 FROM members
                 UNION ALL
                 SELECT 
@@ -388,8 +391,7 @@ class Admin extends BaseModel
                     gender COLLATE utf8mb4_general_ci as gender,
                     position COLLATE utf8mb4_general_ci as position,
                     monthly_salary,
-                    'Pending' COLLATE utf8mb4_general_ci as member_type,
-                    COALESCE(status, 'Pending') COLLATE utf8mb4_general_ci as status
+                    'Pending' COLLATE utf8mb4_general_ci as status
                 FROM pendingmember
                 UNION ALL
                 SELECT 
@@ -399,8 +401,7 @@ class Admin extends BaseModel
                     gender COLLATE utf8mb4_general_ci as gender,
                     position COLLATE utf8mb4_general_ci as position,
                     monthly_salary,
-                    'Rejected' COLLATE utf8mb4_general_ci as member_type,
-                    'Tolak' COLLATE utf8mb4_general_ci as status
+                    'Rejected' COLLATE utf8mb4_general_ci as status
                 FROM rejectedmember
                 ORDER BY id ASC";
 
@@ -864,6 +865,46 @@ class Admin extends BaseModel
         } catch (\PDOException $e) {
             error_log('Error getting pending resignations: ' . $e->getMessage());
             return [];
+        }
+    }
+
+    public function getMemberStats()
+    {
+        try {
+            $sql = "SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN status = 'Active' THEN 1 ELSE 0 END) as active,
+                    SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) as rejected,
+                    SUM(CASE WHEN status = 'Resigned' THEN 1 ELSE 0 END) as resigned
+                    FROM (
+                        SELECT 'Pending' as status FROM pendingmember
+                        UNION ALL
+                        SELECT status FROM members
+                        UNION ALL
+                        SELECT 'Rejected' as status FROM rejectedmember
+                    ) all_members";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute();
+            $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return [
+                'total' => (int)($stats['total'] ?? 0),
+                'pending' => (int)($stats['pending'] ?? 0),
+                'active' => (int)($stats['active'] ?? 0),
+                'rejected' => (int)($stats['rejected'] ?? 0),
+                'resigned' => (int)($stats['resigned'] ?? 0)
+            ];
+        } catch (\PDOException $e) {
+            error_log('Error getting member stats: ' . $e->getMessage());
+            return [
+                'total' => 0,
+                'pending' => 0,
+                'active' => 0,
+                'rejected' => 0,
+                'resigned' => 0
+            ];
         }
     }
 }

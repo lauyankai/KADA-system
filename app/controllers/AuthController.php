@@ -61,7 +61,6 @@ class AuthController extends BaseController
                         throw new \Exception('Kata laluan diperlukan untuk log masuk');
                     }
 
-                    // First try to find the member
                     $member = $this->authUser->findMemberByIC($cleanIC);
                     error_log("Found member from AuthUser: " . ($member ? json_encode($member) : "No member found"));
 
@@ -81,10 +80,6 @@ class AuthController extends BaseController
                         $_SESSION['member_name'] = $member['name'];
                         $_SESSION['user_type'] = 'member';
                         
-                        // Debug log for member status
-                        error_log("Member status: " . $member['status']);
-                        
-                        // Check if member is resigned
                         if ($member['status'] === 'Resigned') {
                             error_log("Member is resigned, checking resignation info");
                             $resignationInfo = $this->user->getResignationInfo($member['id']);
@@ -95,7 +90,6 @@ class AuthController extends BaseController
                             }
                         }
 
-                        // If not resigned, proceed to dashboard
                         header('Location: /users/dashboard');
                         exit;
                     } else {

@@ -49,9 +49,6 @@ class AuthUser extends BaseModel
     public function findMemberByIC($ic)
     {
         try {
-            // Debug log
-            error_log("Finding member with IC: " . $ic);
-            
             // Remove any dashes or spaces from the input IC
             $cleanIC = str_replace(['-', ' '], '', $ic);
             
@@ -63,9 +60,6 @@ class AuthUser extends BaseModel
             $stmt->execute([':ic_no' => $cleanIC]);
             $member = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            // Debug log
-            error_log("Found member: " . ($member ? json_encode($member) : "No member found"));
-            
             return $member;
         } catch (\PDOException $e) {
             error_log("Database error in findMemberByIC: " . $e->getMessage());
@@ -73,7 +67,6 @@ class AuthUser extends BaseModel
         }
     }
 
-    // Add a method to set initial password for members
     public function setMemberPassword($memberId, $password)
     {
         try {

@@ -2,16 +2,33 @@
     $title = 'Senarai Ahli';
     require_once '../app/views/layouts/header.php';
 
-function getBadgeClass($memberType) {
-    switch ($memberType) {
+function getBadgeClass($status) {
+    switch ($status) {
         case 'Pending':
             return 'bg-warning';
-        case 'Ahli':
+        case 'Active':
             return 'bg-success';
+        case 'Resigned':
+            return 'bg-secondary';
         case 'Rejected':
             return 'bg-danger';
         default:
             return 'bg-secondary';
+    }
+}
+
+function getStatusLabel($status) {
+    switch ($status) {
+        case 'Pending':
+            return 'Pending';
+        case 'Active':
+            return 'Ahli Aktif';
+        case 'Resigned':
+            return 'Berhenti';
+        case 'Rejected':
+            return 'Tolak';
+        default:
+            return $status;
     }
 }
 ?>
@@ -87,6 +104,16 @@ function getBadgeClass($memberType) {
                     <p>Ditolak</p>
                 </div>
             </div>
+
+            <div class="stat-card resigned">
+                <div class="stat-icon">
+                    <i class="bi bi-person-x"></i>
+                </div>
+                <div class="stat-details">
+                    <h3><?= $stats['resigned'] ?></h3>
+                    <p>Berhenti</p>
+                </div>
+            </div>
         </div>
 
         <!-- Alerts -->
@@ -120,7 +147,8 @@ function getBadgeClass($memberType) {
                     <select class="filter-select" onchange="filterTable(this.value)">
                         <option value="">Semua Status</option>
                         <option value="Pending">Pending</option>
-                        <option value="Ahli">Ahli</option>
+                        <option value="Active">Ahli Aktif</option>
+                        <option value="Resigned">Berhenti</option>
                         <option value="Rejected">Tolak</option>
                     </select>
                 </div>
@@ -146,7 +174,7 @@ function getBadgeClass($memberType) {
                         $counter = 1;
                         foreach ($members as $member): 
                         ?>
-                        <tr class="member-row" data-status="<?= $member['member_type'] ?>">
+                        <tr class="member-row" data-status="<?= $member['status'] ?>">
                             <td class="row-number"><?= $counter++ ?></td>
                             <td class="member-name"><?= htmlspecialchars($member['name']) ?></td>
                             <td><?= htmlspecialchars($member['ic_no']) ?></td>
@@ -154,14 +182,8 @@ function getBadgeClass($memberType) {
                             <td><?= htmlspecialchars($member['position']) ?></td>
                             <td>RM <?= number_format($member['monthly_salary'], 2) ?></td>
                             <td>
-                                <span class="status-badge badge <?= getBadgeClass($member['member_type']) ?>">
-                                    <?php 
-                                    if ($member['member_type'] === 'Rejected') {
-                                        echo 'Tolak';
-                                    } else {
-                                        echo htmlspecialchars($member['member_type']);
-                                    }
-                                    ?>
+                                <span class="status-badge badge <?= getBadgeClass($member['status']) ?>">
+                                    <?= getStatusLabel($member['status']) ?>
                                 </span>
                             </td>
                             <td>
@@ -171,7 +193,7 @@ function getBadgeClass($memberType) {
                                             title="Lihat">
                                         <i class="bi bi-eye"></i>
                                     </button>
-                                    <?php if ($member['member_type'] === 'Pending'): ?>
+                                    <?php if ($member['status'] === 'Pending'): ?>
                                         <button onclick="confirmAction('approve', <?= $member['id'] ?>)" 
                                                 class="action-btn approve" 
                                                 data-bs-toggle="tooltip" 
@@ -184,7 +206,7 @@ function getBadgeClass($memberType) {
                                                 title="Tolak">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
-                                    <?php elseif ($member['member_type'] === 'Rejected'): ?>
+                                    <?php elseif ($member['status'] === 'Rejected'): ?>
                                         <button onclick="confirmAction('approve', <?= $member['id'] ?>)" 
                                                 class="action-btn approve" 
                                                 data-bs-toggle="tooltip" 
