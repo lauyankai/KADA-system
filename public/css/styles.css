@@ -95,15 +95,16 @@ body {
     position: relative;
 }
 
-.form-wizard .step-indicator::before {
+/* Add connecting lines between steps */
+.step-indicator::before {
     content: '';
     position: absolute;
     top: 50%;
     left: 0;
     right: 0;
-    background: #dee2e6;
-    transform: translateY(-50%);
-    z-index: 0;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 1;
 }
 
 .form-wizard .step {
@@ -837,15 +838,15 @@ select.form-select.is-invalid {
 
 /* Gradient backgrounds for service icons */
 .gradient-1 {
-    background: linear-gradient(135deg, #0061f2 0%, #6900c7 100%);
+    background: linear-gradient(135deg, #0061f2, #6900c7);
 }
 
 .gradient-2 {
-    background: linear-gradient(135deg, #00ba94 0%, #00cfd5 100%);
+    background: linear-gradient(135deg, #00ba94, #00cfd5);
 }
 
 .gradient-3 {
-    background: linear-gradient(135deg, #f4a100 0%, #f6830f 100%);
+    background: linear-gradient(135deg, #f4a100, #f6830f);
 }
 
 /* Header line decoration */
