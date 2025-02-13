@@ -141,7 +141,7 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/users/statements/savings', 'StatementController', 'savings');
         $router->addRoute('GET', '/users/statements/loans', 'StatementController', 'loans');
         $router->addRoute('POST', '/users/statements/notifications', 'StatementController', 'notifications');
-        
+        $router->addRoute('GET', '/users/resigned', 'UserController', 'resigned');
 
         // User routes --Loan Info
         $router->addRoute('GET', '/users/info/loantype', 'InfoController', 'showLoanTypes');
@@ -167,7 +167,6 @@ $router->addRoute('POST', '/users/fees/confirm', 'UserFeeController', 'confirmPa
 $router->addRoute('GET', '/users/fees/success', 'UserFeeController', 'showSuccess');
 $router->addRoute('GET', '/auth/setup-password', 'AuthController', 'showSetupPassword');
 $router->addRoute('POST', '/auth/setup-password', 'AuthController', 'setupPassword'); 
-
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

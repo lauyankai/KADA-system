@@ -2,6 +2,7 @@
 namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\AuthUser;
+use App\Models\User;
 use App\Models\Director;
 use PDO;
 
@@ -24,99 +25,35 @@ class AuthController extends BaseController
     public function login()
     {
         try {
-            $username = $_POST['username'] ?? '';
-            $password = $_POST['password'] ?? '';
-            
-            // Auto identify user type
-            $userType = \App\Middleware\AuthMiddleware::identifyUserType($username);
-
-            // Director login
-            if ($userType === 'director') {
-                $director = $this->director->findByUsername($username);
-                
-                if ($director && password_verify($password, $director['password'])) {
-                    $_SESSION['director_id'] = $director['id'];
-                    $_SESSION['director_name'] = $director['name'];
-                    $_SESSION['user_type'] = 'director';
-                    
-                    // Update last login
-                    $this->director->updateLastLogin($director['id']);
-                    
-                    header('Location: /director');
-                    exit;
-                }
-                throw new \Exception('ID Pengarah atau kata laluan tidak sah');
+            if (!isset($_POST['username']) || !isset($_POST['password'])) {
+                throw new \Exception('Sila isi semua maklumat yang diperlukan');
             }
 
-            // Member login
-            if ($userType === 'member') {
-                try {
-                    $cleanIC = str_replace('-', '', $username);
-                    error_log("Login attempt - IC: " . $cleanIC);
-                    
-                    if (empty($password)) {
-                        throw new \Exception('Kata laluan diperlukan untuk log masuk');
-                    }
+            $user = new User();
+            $member = $user->authenticate($_POST['username'], $_POST['password']);
 
-                    $member = $this->authUser->findMemberByIC($cleanIC);
-                    
-                    if (!$member) {
-                        error_log("No member found with IC: " . $cleanIC);
-                        throw new \Exception('No. K/P atau kata laluan tidak sah');
-                    }
+            if ($member) {
+                $_SESSION['member_id'] = $member['id'];
+                $_SESSION['member_type'] = $member['member_type'];
 
-                    error_log("Found member: " . print_r($member, true));
-                    
-                    if (empty($member['password'])) {
-                        error_log("Member has no password set");
-                        throw new \Exception('Kata laluan belum ditetapkan. Sila semak emel anda untuk pautan penetapan kata laluan.');
-                    }
-
-                    if (password_verify($password, $member['password'])) {
-                        error_log("Password verified successfully");
-                        $_SESSION['member_id'] = $member['id'];
-                        $_SESSION['member_name'] = $member['name'];
-                        $_SESSION['user_type'] = 'member';
-                        
-                        // Directly redirect to dashboard without checking fees
-                        header('Location: /users/dashboard');
-                        exit;
-                    } else {
-                        error_log("Password verification failed");
-                        throw new \Exception('No. K/P atau kata laluan tidak sah');
-                    }
-                } catch (\Exception $e) {
-                    error_log("Login error: " . $e->getMessage());
-                    $_SESSION['error'] = $e->getMessage();
-                    header('Location: /auth/login');
-                    exit;
+                // Check if member is resigned
+                if ($member['status'] === 'Resigned') {
+                    // Get resignation date
+                    $resignationInfo = $user->getResignationInfo($member['id']);
+                    header('Location: /users/resigned?date=' . urlencode($resignationInfo['approved_at']));
+                    exit();
                 }
+
+                header('Location: /users/dashboard');
+                exit();
             }
 
-            // Admin login
-            if ($userType === 'admin') {
-                if (empty($password)) {
-                    throw new \Exception('Kata laluan diperlukan untuk log masuk admin');
-                }
-
-                $admin = $this->authUser->findAdminByUsername($username);
-                if ($admin && password_verify($password, $admin['password'])) {
-                    $_SESSION['admin_id'] = $admin['id'];
-                    $_SESSION['user_id'] = $admin['id'];
-                    $_SESSION['admin_username'] = $admin['username'];
-                    $_SESSION['username'] = $admin['username'];
-                    $_SESSION['user_type'] = 'admin';
-                    
-                    header('Location: /admin');
-                    exit;
-                }
-                throw new \Exception('ID Admin atau kata laluan tidak sah');
-            }
+            throw new \Exception('ID Pengguna atau kata laluan tidak sah');
 
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             header('Location: /auth/login');
-            exit;
+            exit();
         }
     }
 

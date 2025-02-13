@@ -267,4 +267,28 @@ class UserController extends BaseController
             exit;
         }
     }
+
+    public function resigned()
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                header('Location: /auth/login');
+                exit();
+            }
+
+            $resignedDate = $_GET['date'] ?? null;
+            if (!$resignedDate) {
+                $resignationInfo = $this->user->getResignationInfo($_SESSION['member_id']);
+                $resignedDate = $resignationInfo['approved_at'];
+            }
+
+            $this->view('users/resigned', [
+                'resignedDate' => $resignedDate
+            ]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /auth/login');
+            exit();
+        }
+    }
 }

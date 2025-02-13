@@ -368,6 +368,44 @@ class User extends BaseModel
             return false;
         }
     }
+
+    public function getResignationInfo($memberId)
+    {
+        try {
+            $sql = "SELECT r.approved_at, r.created_at 
+                    FROM resignation_reasons r 
+                    WHERE r.member_id = :member_id 
+                    ORDER BY r.approved_at DESC 
+                    LIMIT 1";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Error getting resignation info: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function authenticate($username, $password)
+    {
+        try {
+            $sql = "SELECT * FROM members WHERE ic_no = :username";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':username' => $username]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user && password_verify($password, $user['password'])) {
+                // Allow login even if resigned, status check handled in controller
+                return $user;
+            }
+
+            return false;
+        } catch (\PDOException $e) {
+            error_log('Authentication Error: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
 
 
