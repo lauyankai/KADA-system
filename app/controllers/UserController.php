@@ -68,7 +68,6 @@ class UserController extends BaseController
     {
         try {
             if (!isset($_SESSION['member_id'])) {
-            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
@@ -163,7 +162,6 @@ class UserController extends BaseController
     {
         try {
             if (!isset($_SESSION['member_id'])) {
-            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
@@ -188,7 +186,6 @@ class UserController extends BaseController
     {
         try {
             if (!isset($_SESSION['member_id'])) {
-            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
@@ -203,7 +200,6 @@ class UserController extends BaseController
             }
 
             $user = new User();
-            if ($user->submitResignation($_SESSION['member_id'], $reasons)) {
             if ($user->submitResignation($_SESSION['member_id'], $reasons)) {
                 $_SESSION['success'] = 'Permohonan berhenti telah berjaya dihantar';
                 header('Location: /users/dashboard');
