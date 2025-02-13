@@ -168,6 +168,10 @@ $router->addRoute('GET', '/users/fees/success', 'UserFeeController', 'showSucces
 $router->addRoute('GET', '/auth/setup-password', 'AuthController', 'showSetupPassword');
 $router->addRoute('POST', '/auth/setup-password', 'AuthController', 'setupPassword'); 
 
+// Reactivation routes
+$router->addRoute('GET', '/users/reactivate', 'UserController', 'showReactivateForm');
+$router->addRoute('POST', '/users/reactivate/submit', 'UserController', 'submitReactivation');
+
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];

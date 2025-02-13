@@ -406,6 +406,89 @@ class User extends BaseModel
             return false;
         }
     }
+
+    public function submitReactivation($memberId, $reasons)
+    {
+        try {
+            $this->getConnection()->beginTransaction();
+
+            // Combine reasons into a numbered list
+            $formattedReasons = array_filter($reasons, function($reason) {
+                return !empty(trim($reason));
+            });
+            
+            $numberedReasons = '';
+            foreach ($formattedReasons as $index => $reason) {
+                $numberedReasons .= ($index + 1) . ". " . trim($reason) . "\n";
+            }
+
+            // Insert reactivation request
+            $sql = "INSERT INTO reactivation_requests 
+                    (member_id, reasons, created_at) 
+                    VALUES (:member_id, :reasons, NOW())";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':member_id' => $memberId,
+                ':reasons' => trim($numberedReasons)
+            ]);
+
+            // Send confirmation email
+            $member = $this->getMemberById($memberId);
+            if ($member) {
+                $this->sendReactivationEmail($member['email'], $member['name']);
+            }
+
+            $this->getConnection()->commit();
+            return true;
+
+        } catch (\PDOException $e) {
+            $this->getConnection()->rollBack();
+            error_log('Error submitting reactivation: ' . $e->getMessage());
+            throw new \Exception('Gagal menghantar permohonan semula');
+        }
+    }
+
+    private function sendReactivationEmail($email, $name)
+    {
+        $mail = new PHPMailer(true);
+        try {
+            $config = require __DIR__ . '/../../config/mail.php';
+
+            $mail->isSMTP();
+            $mail->Host = $config['smtp_host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $config['smtp_username'];
+            $mail->Password = $config['smtp_password'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = $config['smtp_port'];
+            $mail->CharSet = 'UTF-8';
+
+            $mail->setFrom($config['from_address'], $config['from_name']);
+            $mail->addAddress($email, $name);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Pengesahan Permohonan Semula';
+            $mail->Body = "
+                <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                    <h2>Pengesahan Permohonan Semula</h2>
+                    <p>Salam sejahtera {$name},</p>
+                    
+                    <p>Permohonan semula anda telah diterima dan akan diproses dalam tempoh 14 hari bekerja.</p>
+                    
+                    <p>Anda akan menerima emel pengesahan setelah permohonan diluluskan.</p>
+                    
+                    <p>Sekian, terima kasih.</p>
+                </div>
+            ";
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log('Error sending reactivation email: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
 
 

@@ -291,4 +291,56 @@ class UserController extends BaseController
             exit();
         }
     }
+
+    public function showReactivateForm()
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                header('Location: /auth/login');
+                exit();
+            }
+
+            $this->view('users/reactivate');
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /auth/login');
+            exit();
+        }
+    }
+
+    public function submitReactivation()
+    {
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                header('Location: /auth/login');
+                exit();
+            }
+
+            if (!isset($_POST['reasons']) || empty($_POST['reasons'])) {
+                throw new \Exception('Sila nyatakan sebab memohon semula');
+            }
+
+            if (!isset($_POST['agreement'])) {
+                throw new \Exception('Sila sahkan maklumat yang diberikan');
+            }
+
+            $reasons = array_filter($_POST['reasons']); // Remove empty values
+            if (count($reasons) > 5) {
+                throw new \Exception('Maksimum 5 sebab sahaja dibenarkan');
+            }
+
+            if ($this->user->submitReactivation($_SESSION['member_id'], $reasons)) {
+                $_SESSION['success'] = 'Permohonan semula telah berjaya dihantar';
+                header('Location: /auth/logout');
+                exit();
+            }
+
+            throw new \Exception('Gagal menghantar permohonan');
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/reactivate');
+            exit();
+        }
+    }
 }
