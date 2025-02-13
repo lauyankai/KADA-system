@@ -575,7 +575,8 @@ class Admin extends BaseModel
         }
     }
 
-    private function sendStatusEmail($email, $name, $status, $memberId = null, $databaseId = null) {
+    private function sendStatusEmail($email, $name, $status, $memberId = null, $databaseId = null)
+    {
         require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
         require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/SMTP.php';
         require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/Exception.php';
@@ -599,21 +600,20 @@ class Admin extends BaseModel
             $mail->setFrom($config['from_address'], $config['from_name']);
             $mail->addAddress($email, $name);
 
-            // Content
-            $mail->isHTML(true);
-            
             if ($status === 'Lulus') {
-                // Store the actual database ID in the session token
-                $token = bin2hex(random_bytes(32));
-                $_SESSION['setup_password_tokens'][$token] = [
-                    'member_id' => $databaseId, // Use the actual database ID
-                    'expires' => time() + (24 * 60 * 60) // 24 hours
-                ];
+                // Get the member's IC number
+                $stmt = $this->getConnection()->prepare(
+                    "SELECT ic_no FROM members WHERE id = :id"
+                );
+                $stmt->execute([':id' => $databaseId]);
+                $member = $stmt->fetch(PDO::FETCH_ASSOC);
+                $icNo = $member['ic_no'];
 
-                // Create password setup link
-                $setupLink = "http://" . $_SERVER['HTTP_HOST'] . "/auth/setup-password?token=" . $token;
+                // Create setup password link
+                $setupLink = "http://" . $_SERVER['HTTP_HOST'] . "/auth/setup-password";
 
                 $mail->Subject = 'Tahniah! Permohonan Keahlian Anda Telah Diluluskan';
+                $mail->isHTML(true); // Set email format to HTML
                 $mail->Body = "
                     <div style='font-family: Arial, sans-serif; padding: 20px;'>
                         <h2>Permohonan Keahlian Diluluskan</h2>
@@ -623,13 +623,12 @@ class Admin extends BaseModel
                         
                         <div style='background-color: #f5f5f5; padding: 15px; margin: 20px 0;'>
                             <p><strong>ID Ahli:</strong> {$memberId}</p>
-                            <p><strong>ID Pengguna:</strong> No. Kad Pengenalan Anda</p>
+                            <p><strong>ID Pengguna:</strong> {$icNo}</p>
                             <p>Untuk menetapkan kata laluan akaun anda, sila klik pautan di bawah:</p>
                             <p><a href='{$setupLink}' style='background-color: #198754; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>Tetapkan Kata Laluan</a></p>
-                            <p style='font-size: 0.9em; color: #666;'>Pautan ini sah untuk 24 jam sahaja.</p>
                         </div>
                         
-                        <p>Selepas menetapkan kata laluan, anda boleh log masuk menggunakan nombor kad pengenalan anda sebagai ID Pengguna.</p>
+                        <p>Selepas menetapkan kata laluan, anda boleh log masuk menggunakan ID Pengguna (No. K/P) anda.</p>
                         
                         <p>Selamat datang ke keluarga Koperasi KADA!</p>
                         

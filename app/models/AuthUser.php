@@ -49,38 +49,17 @@ class AuthUser extends BaseModel
     public function findMemberByIC($ic_no)
     {
         try {
-            // Remove any hyphens from the input IC
-            $cleanIC = str_replace('-', '', $ic_no);
+            // Remove any non-digit characters (including dashes)
+            $cleanIC = preg_replace('/\D/', '', $ic_no);
             
-            error_log("Attempting to find member with IC: " . $cleanIC);
-            
-            // First try to find in members table with more detailed logging
-            $sql = "SELECT * FROM members 
-                    WHERE REPLACE(ic_no, '-', '') = :ic_no 
-                    AND status = 'Active'";
-                    
-            error_log("SQL Query: " . $sql);
-            
-            $stmt = $this->getConnection()->prepare($sql);
+            // First try to find in members table
+            $stmt = $this->getConnection()->prepare(
+                "SELECT * FROM members 
+                 WHERE REPLACE(REPLACE(ic_no, '-', ''), ' ', '') = :ic_no 
+                 AND status = 'Active'"
+            );
             $stmt->execute([':ic_no' => $cleanIC]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($result) {
-                error_log("Found member with data: " . print_r($result, true));
-                // Check if password exists
-                if (empty($result['password'])) {
-                    error_log("Member found but no password set");
-                }
-                return $result;
-            } else {
-                error_log("No member found with IC: " . $cleanIC);
-                // Try a direct query to see what's in the database
-                $stmt = $this->getConnection()->query("SELECT ic_no FROM members");
-                $allICs = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                error_log("All ICs in database: " . print_r($allICs, true));
-            }
-            
-            return null;
+            return $stmt->fetch(PDO::FETCH_ASSOC);
             
         } catch (\PDOException $e) {
             error_log('Database Error in findMemberByIC: ' . $e->getMessage());
