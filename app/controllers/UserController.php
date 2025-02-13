@@ -199,10 +199,9 @@ class UserController extends BaseController
                 throw new \Exception('Maksimum 5 sebab sahaja dibenarkan');
             }
 
-            $user = new User();
-            if ($user->submitResignation($_SESSION['member_id'], $reasons)) {
-                $_SESSION['success'] = 'Permohonan berhenti telah berjaya dihantar';
-                header('Location: /users/dashboard');
+            if ($this->user->submitResignation($_SESSION['member_id'], $reasons)) {
+                // Show success page instead of redirecting with message
+                $this->view('users/resign_success');
             } else {
                 throw new \Exception('Gagal menghantar permohonan');
             }
@@ -210,8 +209,8 @@ class UserController extends BaseController
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             header('Location: /users/resign');
+            exit();
         }
-        exit();
     }
 
     public function showInitialFees()

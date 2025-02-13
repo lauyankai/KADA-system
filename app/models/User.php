@@ -3,6 +3,8 @@ namespace App\Models;
 use App\Core\Database;
 use App\Core\BaseModel;
 use PDO;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class User extends BaseModel
 {
@@ -261,55 +263,92 @@ class User extends BaseModel
         }
     }
 
-    public function submitResignation($userId, $reasons)
+    public function submitResignation($memberId, $reasons)
     {
         try {
             $this->getConnection()->beginTransaction();
 
-            // Insert resignation request
-            $sql = "INSERT INTO resignation_requests (
-                        member_id, 
-                        request_date, 
-                        status
-                    ) VALUES (
-                        :member_id,
-                        NOW(),
-                        'pending'
-                    )";
+            // Update member status to inactive
+            $updateSql = "UPDATE members SET 
+                         status = 'Inactive',
+                         resigned_at = NOW()
+                         WHERE id = :member_id";
             
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([':member_id' => $userId]);
-            $resignationId = $this->getConnection()->lastInsertId();
+            $stmt = $this->getConnection()->prepare($updateSql);
+            $stmt->execute([':member_id' => $memberId]);
 
-            // Insert reasons
-            $sql = "INSERT INTO resignation_reasons (
-                        resignation_id,
-                        reason
-                    ) VALUES (
-                        :resignation_id,
-                        :reason
-                    )";
+            // Store resignation reasons
+            $reasonSql = "INSERT INTO resignation_reasons 
+                         (member_id, reason, created_at) 
+                         VALUES (:member_id, :reason, NOW())";
             
-            $stmt = $this->getConnection()->prepare($sql);
+            $reasonStmt = $this->getConnection()->prepare($reasonSql);
             foreach ($reasons as $reason) {
-                $stmt->execute([
-                    ':resignation_id' => $resignationId,
-                    ':reason' => $reason
-                ]);
+                if (!empty($reason)) {
+                    $reasonStmt->execute([
+                        ':member_id' => $memberId,
+                        ':reason' => $reason
+                    ]);
+                }
+            }
+
+            // Send resignation confirmation email
+            $member = $this->getMemberById($memberId);
+            if ($member) {
+                $this->sendResignationEmail($member['email'], $member['name']);
             }
 
             $this->getConnection()->commit();
             return true;
 
         } catch (\PDOException $e) {
-            if ($this->getConnection()->inTransaction()) {
-                $this->getConnection()->rollBack();
-            }
-            error_log('Database Error in submitResignation: ' . $e->getMessage());
-            return false;
+            $this->getConnection()->rollBack();
+            error_log('Error submitting resignation: ' . $e->getMessage());
+            throw new \Exception('Gagal menghantar permohonan berhenti');
         }
     }
 
+    private function sendResignationEmail($email, $name)
+    {
+        $mail = new PHPMailer(true);
+        try {
+            $config = require __DIR__ . '/../../config/mail.php';
+
+            $mail->isSMTP();
+            $mail->Host = $config['smtp_host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $config['smtp_username'];
+            $mail->Password = $config['smtp_password'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = $config['smtp_port'];
+            $mail->CharSet = 'UTF-8';
+
+            $mail->setFrom($config['from_address'], $config['from_name']);
+            $mail->addAddress($email, $name);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Pengesahan Permohonan Berhenti';
+            $mail->Body = "
+                <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                    <h2>Pengesahan Permohonan Berhenti</h2>
+                    <p>Salam sejahtera {$name},</p>
+                    
+                    <p>Permohonan berhenti anda telah diterima dan akan diproses dalam tempoh 14 hari bekerja.</p>
+                    
+                    <p>Anda akan menerima emel pengesahan setelah permohonan diluluskan.</p>
+                    
+                    <p>Sekian, terima kasih.</p>
+                </div>
+            ";
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log('Error sending resignation email: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
 }
 
 
