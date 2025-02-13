@@ -377,7 +377,7 @@
                                         <small class="text-muted"><?= htmlspecialchars($director['position']) ?></small>
                                     </div>
                                     <div class="btn-group">
-                                        <a href="/director/edit/<?= $director['id'] ?>" 
+                                        <a href="/admin/edit-director/<?= $director['id'] ?>" 
                                            class="btn btn-outline-secondary btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>

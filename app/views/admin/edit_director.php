@@ -1,5 +1,5 @@
 <?php 
-    $title = 'Kemaskini Admin';
+    $title = 'Kemaskini Pengarah';
     require_once '../app/views/layouts/header.php';
 ?>
 
@@ -13,21 +13,21 @@
                         <div class="col-md-4 border-end">
                             <div class="text-center mb-4">
                                 <div class="avatar-placeholder mb-3">
-                                    <i class="bi bi-person-circle display-1 text-primary opacity-50"></i>
+                                    <i class="bi bi-person-badge display-1 text-primary opacity-50"></i>
                                 </div>
-                                <h5 class="mb-1"><?= htmlspecialchars($admin['username']) ?></h5>
-                                <p class="text-muted mb-3"><?= htmlspecialchars($admin['email']) ?></p>
-                                <div class="badge bg-primary">Administrator</div>
+                                <h5 class="mb-1"><?= htmlspecialchars($director['name']) ?></h5>
+                                <p class="text-muted mb-3"><?= htmlspecialchars($director['position']) ?></p>
+                                <div class="badge bg-primary">Pengarah</div>
                             </div>
 
                             <div class="list-group list-group-flush small">
                                 <div class="list-group-item px-0">
-                                    <i class="bi bi-shield-check me-2 text-success"></i>
-                                    Status: Aktif
+                                    <i class="bi bi-envelope me-2 text-primary"></i>
+                                    <?= htmlspecialchars($director['email'] ?: 'Tiada emel') ?>
                                 </div>
                                 <div class="list-group-item px-0">
-                                    <i class="bi bi-calendar3 me-2 text-primary"></i>
-                                    ID: <?= htmlspecialchars($admin['id']) ?>
+                                    <i class="bi bi-telephone me-2 text-success"></i>
+                                    <?= htmlspecialchars($director['phone_number'] ?: 'Tiada telefon') ?>
                                 </div>
                             </div>
                         </div>
@@ -37,9 +37,9 @@
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div>
                                     <h5 class="card-title mb-1">
-                                        <i class="bi bi-person-gear me-2"></i>Kemaskini Admin
+                                        <i class="bi bi-person-gear me-2"></i>Kemaskini Pengarah
                                     </h5>
-                                    <p class="text-muted small mb-0">Kemaskini maklumat admin</p>
+                                    <p class="text-muted small mb-0">Kemaskini maklumat pengarah</p>
                                 </div>
                                 <a href="/admin" class="btn btn-outline-secondary btn-sm">
                                     <i class="bi bi-arrow-left me-2"></i>Kembali
@@ -53,15 +53,26 @@
                                 </div>
                             <?php endif; ?>
 
-                            <form action="/admin/update-admin/<?= $admin['id'] ?>" method="POST">
+                            <form action="/admin/update-director/<?= $director['id'] ?>" method="POST">
                                 <div class="mb-3">
                                     <label class="form-label d-flex align-items-center">
-                                        <i class="bi bi-person me-2 text-primary"></i>Nama Pengguna
+                                        <i class="bi bi-person me-2 text-primary"></i>Nama Penuh
                                     </label>
                                     <input type="text" 
-                                           name="username" 
+                                           name="name" 
                                            class="form-control" 
-                                           value="<?= htmlspecialchars($admin['username']) ?>" 
+                                           value="<?= htmlspecialchars($director['name']) ?>" 
+                                           required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label d-flex align-items-center">
+                                        <i class="bi bi-briefcase me-2 text-primary"></i>Jawatan
+                                    </label>
+                                    <input type="text" 
+                                           name="position" 
+                                           class="form-control" 
+                                           value="<?= htmlspecialchars($director['position']) ?>" 
                                            required>
                                 </div>
 
@@ -72,37 +83,17 @@
                                     <input type="email" 
                                            name="email" 
                                            class="form-control" 
-                                           value="<?= htmlspecialchars($admin['email']) ?>" 
-                                           required>
-                                </div>
-
-                                <div class="alert alert-info d-flex align-items-center mb-4">
-                                    <i class="bi bi-info-circle-fill me-2"></i>
-                                    <div>Biarkan medan kata laluan kosong jika tidak ingin menukar kata laluan</div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label d-flex align-items-center">
-                                        <i class="bi bi-key me-2 text-primary"></i>Kata Laluan Baru
-                                    </label>
-                                    <div class="input-group">
-                                        <input type="password" name="new_password" class="form-control" id="newPassword">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('newPassword')">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </div>
+                                           value="<?= htmlspecialchars($director['email']) ?>">
                                 </div>
 
                                 <div class="mb-4">
                                     <label class="form-label d-flex align-items-center">
-                                        <i class="bi bi-key-fill me-2 text-primary"></i>Sahkan Kata Laluan Baru
+                                        <i class="bi bi-telephone me-2 text-primary"></i>No. Telefon
                                     </label>
-                                    <div class="input-group">
-                                        <input type="password" name="confirm_password" class="form-control" id="confirmPassword">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPassword')">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </div>
+                                    <input type="tel" 
+                                           name="phone_number" 
+                                           class="form-control" 
+                                           value="<?= htmlspecialchars($director['phone_number']) ?>">
                                 </div>
 
                                 <div class="d-grid gap-2">
@@ -150,17 +141,4 @@
 }
 </style>
 
-<script>
-function togglePassword(inputId) {
-    const input = document.getElementById(inputId);
-    const type = input.type === 'password' ? 'text' : 'password';
-    input.type = type;
-    
-    // Update icon
-    const icon = event.currentTarget.querySelector('i');
-    icon.classList.toggle('bi-eye');
-    icon.classList.toggle('bi-eye-slash');
-}
-</script>
-
-<?php require_once '../app/views/layouts/footer.php'; ?>
+<?php require_once '../app/views/layouts/footer.php'; ?> 

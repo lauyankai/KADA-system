@@ -769,4 +769,63 @@ class AdminController extends BaseController {
             exit;
         }
     }
+
+    public function showEditDirector($id)
+    {
+        try {
+            if (!isset($_SESSION['admin_id'])) {
+                throw new \Exception('Sila log masuk sebagai admin');
+            }
+
+            $director = $this->admin->getDirectorById($id);
+            if (!$director) {
+                throw new \Exception('Pengarah tidak dijumpai');
+            }
+
+            $this->view('admin/edit_director', ['director' => $director]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin');
+            exit;
+        }
+    }
+
+    public function updateDirector($id)
+    {
+        try {
+            if (!isset($_SESSION['admin_id'])) {
+                throw new \Exception('Sila log masuk sebagai admin');
+            }
+
+            $name = $_POST['name'] ?? '';
+            $position = $_POST['position'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $phone = $_POST['phone'] ?? '';
+
+            if (empty($name) || empty($position)) {
+                throw new \Exception('Sila isi semua maklumat yang diperlukan');
+            }
+
+            $data = [
+                'id' => $id,
+                'name' => $name,
+                'position' => $position,
+                'email' => $email,
+                'phone' => $phone
+            ];
+
+            if ($this->admin->updateDirector($data)) {
+                $_SESSION['success'] = 'Maklumat pengarah berjaya dikemaskini';
+                header('Location: /admin');
+                exit;
+            }
+
+            throw new \Exception('Gagal mengemaskini maklumat pengarah');
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/edit-director/' . $id);
+            exit;
+        }
+    }
 }

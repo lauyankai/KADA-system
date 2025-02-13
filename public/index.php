@@ -177,6 +177,8 @@ $router->addRoute('GET', '/admin/edit-profile', 'AdminController', 'showEditProf
 $router->addRoute('POST', '/admin/update-profile', 'AdminController', 'updateProfile');
 $router->addRoute('GET', '/admin/edit-admin/{id}', 'AdminController', 'showEditAdmin');
 $router->addRoute('POST', '/admin/update-admin/{id}', 'AdminController', 'updateAdminById');
+$router->addRoute('GET', '/admin/edit-director/{id}', 'AdminController', 'showEditDirector');
+$router->addRoute('POST', '/admin/update-director/{id}', 'AdminController', 'updateDirector');
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -1018,4 +1018,41 @@ class Admin extends BaseModel
             return false;
         }
     }
+
+    public function getDirectorById($id)
+    {
+        try {
+            $sql = "SELECT * FROM directors WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Error getting director: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function updateDirector($data)
+    {
+        try {
+            $sql = "UPDATE directors SET 
+                    name = :name, 
+                    position = :position, 
+                    email = :email, 
+                    phone = :phone 
+                    WHERE id = :id";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            return $stmt->execute([
+                ':id' => $data['id'],
+                ':name' => $data['name'],
+                ':position' => $data['position'],
+                ':email' => $data['email'],
+                ':phone' => $data['phone']
+            ]);
+        } catch (\PDOException $e) {
+            error_log('Error updating director: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
