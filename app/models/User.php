@@ -6,6 +6,9 @@ use PDO;
 
 class User extends BaseModel
 {
+    private $familyMember;
+
+
     public function all() 
     {
         $stmt = $this->getConnection()->query("SELECT * FROM admins"); // Use query() for SELECT statements
@@ -308,6 +311,24 @@ class User extends BaseModel
             error_log('Database Error in submitResignation: ' . $e->getMessage());
             return false;
         }
+    }
+
+    public function getFamilyMembers($memberId)
+    {
+        return $this->familyMember->getFamilyMembers($memberId, 'member');
+    }
+
+    public function addFamilyMember($memberId, $familyData)
+    {
+        $data = [
+            'member_type' => 'member',
+            'member_id' => $memberId,
+            'name' => $familyData['name'],
+            'relationship' => $familyData['relationship'],
+            'ic_no' => $familyData['ic_no']
+        ];
+        
+        return $this->familyMember->addFamilyMember($data);
     }
 
 }
