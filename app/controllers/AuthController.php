@@ -2,6 +2,7 @@
 namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\AuthUser;
+use App\Models\User;
 use App\Models\Director;
 use PDO;
 
@@ -9,11 +10,13 @@ class AuthController extends BaseController
 {
     private $authUser;
     private $director;
+    private $user;
 
     public function __construct()
     {
         $this->authUser = new AuthUser();
         $this->director = new Director();
+        $this->user = new User();
     }
 
     public function showLogin()
@@ -58,22 +61,15 @@ class AuthController extends BaseController
                         throw new \Exception('Kata laluan diperlukan untuk log masuk');
                     }
 
+                    // First try to find the member
                     $member = $this->authUser->findMemberByIC($cleanIC);
-                    
-                    // Check if member is resigned
-                    if ($member['status'] === 'Resigned') {
-                        // Get resignation date
-                        $resignationInfo = $user->getResignationInfo($member['id']);
-                        header('Location: /users/resigned?date=' . urlencode($resignationInfo['approved_at']));
-                        exit();
-                    }
+                    error_log("Found member from AuthUser: " . ($member ? json_encode($member) : "No member found"));
+
                     if (!$member) {
                         error_log("No member found with IC: " . $cleanIC);
                         throw new \Exception('No. K/P atau kata laluan tidak sah');
                     }
 
-                    error_log("Found member: " . print_r($member, true));
-                    
                     if (empty($member['password'])) {
                         error_log("Member has no password set");
                         throw new \Exception('Kata laluan belum ditetapkan. Sila semak emel anda untuk pautan penetapan kata laluan.');
@@ -85,7 +81,21 @@ class AuthController extends BaseController
                         $_SESSION['member_name'] = $member['name'];
                         $_SESSION['user_type'] = 'member';
                         
-                        // Directly redirect to dashboard without checking fees
+                        // Debug log for member status
+                        error_log("Member status: " . $member['status']);
+                        
+                        // Check if member is resigned
+                        if ($member['status'] === 'Resigned') {
+                            error_log("Member is resigned, checking resignation info");
+                            $resignationInfo = $this->user->getResignationInfo($member['id']);
+                            error_log("Resignation info: " . json_encode($resignationInfo));
+                            if ($resignationInfo) {
+                                header('Location: /users/resigned?date=' . urlencode($resignationInfo['approved_at']));
+                                exit();
+                            }
+                        }
+
+                        // If not resigned, proceed to dashboard
                         header('Location: /users/dashboard');
                         exit;
                     } else {

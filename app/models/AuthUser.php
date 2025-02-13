@@ -46,24 +46,30 @@ class AuthUser extends BaseModel
         return $result && $result['is_admin'];
     }
 
-    public function findMemberByIC($ic_no)
+    public function findMemberByIC($ic)
     {
         try {
-            // Remove any non-digit characters (including dashes)
-            $cleanIC = preg_replace('/\D/', '', $ic_no);
+            // Debug log
+            error_log("Finding member with IC: " . $ic);
             
-            // First try to find in members table
-            $stmt = $this->getConnection()->prepare(
-                "SELECT * FROM members 
-                 WHERE REPLACE(REPLACE(ic_no, '-', ''), ' ', '') = :ic_no 
-                 AND status = 'Active'"
-            );
+            // Remove any dashes or spaces from the input IC
+            $cleanIC = str_replace(['-', ' '], '', $ic);
+            
+            // Query without status filter
+            $sql = "SELECT * FROM members 
+                    WHERE REPLACE(REPLACE(ic_no, '-', ''), ' ', '') = :ic_no";
+            
+            $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':ic_no' => $cleanIC]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $member = $stmt->fetch(PDO::FETCH_ASSOC);
             
+            // Debug log
+            error_log("Found member: " . ($member ? json_encode($member) : "No member found"));
+            
+            return $member;
         } catch (\PDOException $e) {
-            error_log('Database Error in findMemberByIC: ' . $e->getMessage());
-            throw new \Exception('Error finding member: ' . $e->getMessage());
+            error_log("Database error in findMemberByIC: " . $e->getMessage());
+            return false;
         }
     }
 

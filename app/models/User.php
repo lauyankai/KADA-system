@@ -390,16 +390,23 @@ class User extends BaseModel
     public function authenticate($username, $password)
     {
         try {
+            // Debug log
+            error_log("Authenticating user with username: " . $username);
+            
             $sql = "SELECT * FROM members WHERE ic_no = :username";
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':username' => $username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+            
+            // Debug log
+            error_log("Found user: " . ($user ? json_encode($user) : "No user found"));
+            
             if ($user && password_verify($password, $user['password'])) {
-                // Allow login even if resigned, status check handled in controller
+                // Allow login regardless of status
                 return $user;
             }
-
+            
+            error_log("Authentication failed - either user not found or password mismatch");
             return false;
         } catch (\PDOException $e) {
             error_log('Authentication Error: ' . $e->getMessage());
