@@ -32,7 +32,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
         <?php endif; ?>
         
     <!-- Main Content Row -->
@@ -186,20 +186,20 @@
                                 <i class="bi bi-upload me-2"></i>Muat Naik
                             </button>
                 </div>
-            </div>
+                </div>
 
-            <div class="table-responsive">
+                <div class="table-responsive">
                         <table class="table table-hover">
-                    <thead>
+                        <thead>
                         <tr>
                                     <th>Tahun</th>
                                     <th>Tajuk</th>
                                     <th>Tarikh</th>
                                     <th>Saiz Fail</th>
                             <th>Tindakan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                            </tr>
+                        </thead>
+                        <tbody>
                                 <?php if (isset($annual_reports) && !empty($annual_reports)): ?>
                                     <?php foreach ($annual_reports as $report): ?>
                                         <tr>
@@ -218,9 +218,9 @@
                                                         class="btn btn-sm btn-outline-danger">
                                                     <i class="bi bi-trash"></i>
                                         </button>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
                                         <td colspan="5" class="text-center py-4 text-muted">
@@ -229,12 +229,12 @@
                                         </td>
                                     </tr>
                                 <?php endif; ?>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>                       
-            </div>
+    </div>
 
         <!-- Quick Actions Section -->
         <div class="col-lg-4">
