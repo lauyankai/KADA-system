@@ -237,44 +237,67 @@
 
     <!-- Admin Profile Card -->
     <div class="col-lg-4">
-            <div class="card shadow h-100">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h5 class="card-title mb-1">
-                                <i class="bi bi-person-badge me-2"></i>Profil Admin
-                            </h5>
-                            <p class="text-muted small mb-0">Maklumat admin semasa</p>
-                        </div>
-                        <a href="/admin/edit-profile" class="btn btn-primary btn-sm">
-                            <i class="bi bi-pencil me-2"></i>Kemaskini
-                        </a>
+        <div class="card shadow h-100">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="bi bi-person-badge me-2"></i>Profil Admin
+                        </h5>
+                        <p class="text-muted small mb-0">Maklumat admin semasa</p>
                     </div>
-
-                    <?php if (isset($currentAdmin)): ?>
-                        <div class="profile-details flex-grow-1 d-flex flex-column justify-content-center">
-                            <div class="list-group list-group-flush">
-                                <div class="list-group-item px-0">
-                                    <small class="text-muted d-inline-block me-2">Nama Pengguna:</small>
-                                    <span><?= htmlspecialchars($currentAdmin['username']) ?></span>
-                                </div>
-                                <div class="list-group-item px-0">
-                                    <small class="text-muted d-inline-block me-2">Emel:</small>
-                                    <span><?= htmlspecialchars($currentAdmin['email']) ?></span>
-                                </div>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <div class="text-center py-4 text-muted flex-grow-1 d-flex align-items-center justify-content-center">
-                            <div>
-                                <i class="bi bi-exclamation-circle display-6 d-block mb-3"></i>
-                                Tiada maklumat admin
-                            </div>
-                        </div>
-                    <?php endif; ?>
+                    <a href="/admin/edit-profile" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil me-2"></i>Kemaskini
+                    </a>
                 </div>
+
+                <?php if (isset($currentAdmin)): ?>
+                    <div class="profile-details flex-grow-1 d-flex flex-column justify-content-center">
+                        <!-- Avatar and Name Section -->
+                        <div class="text-center mb-4">
+                            <h5 class="mb-0"><?= htmlspecialchars($currentAdmin['username']) ?></h5>
+                            <span class="badge bg-success mt-2">Admin Aktif</span>
+                        </div>
+
+                        <!-- Admin Details -->
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-circle bg-primary bg-opacity-10 me-3">
+                                        <i class="bi bi-envelope text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Emel</small>
+                                        <span class="fw-medium"><?= htmlspecialchars($currentAdmin['email']) ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-circle bg-success bg-opacity-10 me-3">
+                                        <i class="bi bi-clock-history text-success"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Status Log Masuk</small>
+                                        <span class="fw-medium text-success">
+                                            <i class="bi bi-circle-fill fs-xs me-1"></i>Aktif
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="text-center py-4 text-muted flex-grow-1 d-flex align-items-center justify-content-center">
+                        <div>
+                            <i class="bi bi-exclamation-circle display-6 d-block mb-3"></i>
+                            Tiada maklumat admin
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
+    </div>
     
     <div class="col-lg-4">
         <div class="card shadow h-100">
@@ -566,10 +589,10 @@
     .interest-icon i {
         font-size: 1.25rem;
     }
-    .avatar-placeholder {
+    .avatar-circle {
         width: 80px;
         height: 80px;
-        background-color: #f8f9fa;
+        background-color: #4e73df;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -577,17 +600,35 @@
         margin: 0 auto;
     }
 
-    .profile-details .list-group-item {
+    .avatar-initials {
+        color: white;
+        font-size: 2rem;
+        font-weight: 500;
+    }
+
+    .icon-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-circle i {
+        font-size: 1.2rem;
+    }
+
+    .fs-xs {
+        font-size: 0.5rem;
+    }
+
+    .list-group-item {
         padding: 1rem 0;
     }
 
-    .profile-details .list-group-item small {
-        font-size: 0.875rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .profile-details .list-group-item span {
-        font-weight: 500;
+    .badge {
+        padding: 0.5em 1em;
     }
     </style>
 
