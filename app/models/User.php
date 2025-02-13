@@ -222,33 +222,39 @@ class User extends BaseModel
         } 
     }
 
-    public function updateProfile($userId, $data)
+    public function updateProfile($memberId, $data)
     {
         try {
-            $sql = "UPDATE members SET 
-                    email = :email,
-                    home_phone = :home_phone,
-                    office_phone = :office_phone,
-                    marital_status = :marital_status,
-                    home_address = :home_address,
-                    home_postcode = :home_postcode,
-                    home_state = :home_state,
-                    updated_at = NOW()
-                    WHERE id = :id";
+            $allowedFields = [
+                'email', 'home_phone', 'mobile_phone', 'office_phone', 
+                'marital_status', 'home_address', 'home_postcode', 
+                'home_state', 'office_address', 'office_postcode', 
+                'office_state', 'position', 'grade', 'monthly_salary',
+                'family_name', 'family_ic', 'family_relationship'
+            ];
+
+            $updateFields = array_intersect_key($data, array_flip($allowedFields));
+            
+            if (empty($updateFields)) {
+                return false;
+            }
+
+            $sql = "UPDATE members SET ";
+            $updates = [];
+            $params = [];
+
+            foreach ($updateFields as $field => $value) {
+                $updates[] = "$field = :$field";
+                $params[":$field"] = $value;
+            }
+
+            $sql .= implode(', ', $updates);
+            $sql .= " WHERE id = :member_id";
+            $params[':member_id'] = $memberId;
 
             $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute([
-                ':id' => $userId,
-                ':email' => $data['email'],
-                ':home_phone' => $data['home_phone'],
-                ':office_phone' => $data['office_phone'],
-                ':marital_status' => $data['marital_status'],
-                ':home_address' => $data['home_address'],
-                ':home_postcode' => $data['home_postcode'],
-                ':home_state' => $data['home_state']
-            ]);
+            return $stmt->execute($params);
 
-            return true;
         } catch (\PDOException $e) {
             error_log('Database Error in updateProfile: ' . $e->getMessage());
             return false;

@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="/">
                 <i class="bi bi-shield-check me-2"></i>KADA System
@@ -28,63 +28,22 @@
                             <i class="bi bi-info-circle me-2"></i>Tentang Kami
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="tentangKamiDropdown">
-                            <li><a class="dropdown-item" href="/about/vision"><i class="bi bi-eye"></i>Visi & Misi</a></li>
                             <li><a class="dropdown-item" href="/about/history"><i class="bi bi-book"></i>Sejarah</a></li>
                             <li><a class="dropdown-item" href="/about/facts"><i class="bi bi-bar-chart"></i>Fakta & Angka</a></li>
                         </ul>
                     </li>
-
-                    <!-- Perkhidmatan -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="perkhidmatanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-wrench me-2"></i>Perkhidmatan
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="perkhidmatanDropdown">
-                            <li><a class="dropdown-item" href="info/loantype"><i class="bi bi-cash"></i>Pinjaman</a></li>
-                            <li><a class="dropdown-item" href="/users/savings"><i class="bi bi-piggy-bank"></i>Tabung</a></li>
-                            <li><a class="dropdown-item" href="/users"><i class="bi bi-credit-card"></i>Pembiayaan</a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Hubungi Kami -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="hubungiKamiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-envelope"></i>Hubungi Kami
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="hubungiKamiDropdown">
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="bi bi-geo-alt me-2"></i>D/A Lembaga Kemajuan Pertanian Kemubu, P/S 127, 15710 Kota Bharu, Kelantan.
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="tel:097447088">
-                                    <i class="bi bi-telephone me-2"></i>09-7447088 samb. 5339 @ 5312
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="mailto:prokada@kada.gov.my">
-                                    <i class="bi bi-envelope me-2"></i>koperasi_kada@yahoo.com
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="bi bi-clock me-2"></i>Ahad - Khamis: 8:00 AM - 4:00 PM
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    </ul>
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                    <div class="d-flex align-items-center">
+                </ul>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                <div class="d-flex align-items-center">
                     <span class="me-3">Welcome, <?= htmlspecialchars($_SESSION['username'] ?? '') ?></span>
                     <a href="/auth/logout" class="btn btn-outline-danger">
                         <i class="bi bi-box-arrow-right me-2"></i>Keluar
                     </a>
-                    </div>
-                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </nav>
 
 </body>
+</html>
