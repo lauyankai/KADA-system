@@ -1,4 +1,7 @@
-<?php $title = 'Sejarah KADA'; ?>
+<?php 
+    $title = 'Sejarah Koperasi';
+    require_once '../app/views/layouts/header.php';
+?>
 
 <div class="container mt-4">
     <div class="row justify-content-center">
@@ -7,8 +10,8 @@
                 <div class="card-body p-5">
                     <!-- Header with decorative line -->
                     <h2 class="card-title text-center mb-4 position-relative">
-                        <i class="bi bi-book me-2 text-primary"></i>
-                        <span class="fw-bold">Sejarah KADA</span>
+                        <i class="bi bi-clock-history me-2 text-primary"></i>
+                        <span class="fw-bold">Sejarah Koperasi KADA</span>
                         <div class="position-relative mt-3">
                             <hr class="bg-primary" style="height: 2px; width: 50%; margin: 0 auto;">
                             <div class="position-absolute top-50 start-50 translate-middle bg-white px-3">
@@ -17,50 +20,35 @@
                         </div>
                     </h2>
 
-                    <!-- History Content -->
-                    <div class="history-content">
-                        <div class="timeline">
-                            <!-- First Section -->
-                            <div class="timeline-item mb-4">
-                                <div class="card bg-light border-0 shadow-sm">
-                                    <div class="card-body">
-                                        <h5 class="text-primary mb-3">
-                                            <i class="bi bi-calendar-event me-2"></i>30 Mac 1972
-                                        </h5>
-                                        <p class="mb-0">
-                                            Disempurnakan penubuhannya melalui Akta 69, Akta Lembaga Pertanian Kemubu, 1972 dan dilancarkan dengan rasminya oleh Y.A.B. Tun Hj. Abdul Razak bin Hussein, Perdana Menteri Malaysia pada 2 Mac 1973.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- Timeline Section -->
+                    <div class="timeline">
+                        <div class="timeline-item mb-4">
+                            <h5 class="fw-bold text-primary">
+                                <i class="bi bi-calendar-event me-2"></i>Penubuhan
+                            </h5>
+                            <p class="lead ms-4 mb-0" style="line-height: 1.6;">
+                                Koperasi Kakitangan KADA Kelantan Berhad telah ditubuhkan pada tahun [tahun penubuhan] di bawah Akta Koperasi 1993.
+                            </p>
+                        </div>
 
-                            <!-- Second Section -->
-                            <div class="timeline-item mb-4">
-                                <div class="card bg-light border-0 shadow-sm">
-                                    <div class="card-body">
-                                        <h5 class="text-primary mb-3">
-                                            <i class="bi bi-calendar-event me-2"></i>1 Ogos 1972
-                                        </h5>
-                                        <p class="mb-0">
-                                            Setelah KADA diwujudkan, Kerajaan Negeri Kelantan pula menyusuli tindakan dengan meluluskan Enakmen Pihak Berkuasa Kemajuan Pertanian Kemubu, 1972 (Enakmen no.2 Tahun 1972 Kelantan) membolehkan Menteri Pertanian dan Perikanan melaksanakan Akta Lembaga Kemajuan Pertanian Kemubu, 1972.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Third Section -->
-                            <div class="timeline-item">
-                                <div class="card bg-light border-0 shadow-sm">
-                                    <div class="card-body">
-                                        <h5 class="text-primary mb-3">
-                                            <i class="bi bi-geo-alt me-2"></i>Kampung Kemubu
-                                        </h5>
-                                        <p class="mb-0">
-                                            Kampung Kemubu terletak di tebing Sungai Kelantan, 30km dari Kota Bharu telah disemadikan namanya dalam lipatan sejarah KADA. Di situlah terbina sebuah rumah pam membekalkan air ke Rancangan Pengairan Kemubu (RPK), rancangan terbesar dalam gugusan rancangan-rancangan pengairan lain yang dipersatukan di bawah kuasa pengendalian KADA.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="timeline-item mb-4">
+                            <h5 class="fw-bold text-primary">
+                                <i class="bi bi-bullseye me-2"></i>Objektif Penubuhan
+                            </h5>
+                            <ul class="list-group list-group-flush ms-4">
+                                <li class="list-group-item bg-transparent d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                    Menggalakkan penjimatan di kalangan anggota
+                                </li>
+                                <li class="list-group-item bg-transparent d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                    Memberi kemudahan pembiayaan kepada anggota
+                                </li>
+                                <li class="list-group-item bg-transparent d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                    Meningkatkan kesejahteraan sosio-ekonomi anggota
+                                </li>
+                            </ul>
                         </div>
                     </div>
 
@@ -78,24 +66,31 @@
 
 <!-- Add custom styles -->
 <style>
-    .timeline-item {
-        position: relative;
-        padding-left: 20px;
-        border-left: 2px solid #0d6efd;
-        transition: transform 0.3s ease;
-    }
-
-    .timeline-item:hover {
-        transform: translateX(10px);
-    }
-
     .card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s ease;
     }
     
     .card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    .timeline-item {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+    }
+
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        border-radius: 0;
+        padding: 1rem 0.5rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: rgba(0,0,0,0.02);
     }
 
     .text-primary {
@@ -106,3 +101,5 @@
         background-color: #f8f9fa !important;
     }
 </style>
+
+<?php require_once '../app/views/layouts/footer.php'; ?>

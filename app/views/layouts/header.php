@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -40,7 +41,6 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="perkhidmatanDropdown">
                             <li><a class="dropdown-item" href="info/loantype"><i class="bi bi-cash"></i>Pinjaman</a></li>
-                            <li><a class="dropdown-item" href="/users/"><i class="bi bi-graph-up"></i>Pelaburan</a></li>
                             <li><a class="dropdown-item" href="/users/savings"><i class="bi bi-piggy-bank"></i>Tabung</a></li>
                             <li><a class="dropdown-item" href="/users"><i class="bi bi-credit-card"></i>Pembiayaan</a></li>
                         </ul>
