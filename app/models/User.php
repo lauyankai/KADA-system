@@ -277,20 +277,26 @@ class User extends BaseModel
             $stmt = $this->getConnection()->prepare($updateSql);
             $stmt->execute([':member_id' => $memberId]);
 
-            // Store resignation reasons
+            // Combine reasons into a numbered list
+            $formattedReasons = array_filter($reasons, function($reason) {
+                return !empty(trim($reason));
+            });
+            
+            $numberedReasons = '';
+            foreach ($formattedReasons as $index => $reason) {
+                $numberedReasons .= ($index + 1) . ". " . trim($reason) . "\n";
+            }
+
+            // Store combined resignation reasons
             $reasonSql = "INSERT INTO resignation_reasons 
-                         (member_id, reason, created_at) 
-                         VALUES (:member_id, :reason, NOW())";
+                         (member_id, reasons, created_at) 
+                         VALUES (:member_id, :reasons, NOW())";
             
             $reasonStmt = $this->getConnection()->prepare($reasonSql);
-            foreach ($reasons as $reason) {
-                if (!empty($reason)) {
-                    $reasonStmt->execute([
-                        ':member_id' => $memberId,
-                        ':reason' => $reason
-                    ]);
-                }
-            }
+            $reasonStmt->execute([
+                ':member_id' => $memberId,
+                ':reasons' => trim($numberedReasons)
+            ]);
 
             // Send resignation confirmation email
             $member = $this->getMemberById($memberId);
