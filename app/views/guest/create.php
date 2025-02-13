@@ -12,21 +12,17 @@
                         <i class="bi bi-person-plus-fill me-2"></i>Pendaftaran Anggota
                     </h1>
                     <!-- Step Indicators -->
-                    <div class="step-indicator mb-5">
+                    <div class="step-indicator">
                         <div class="step active" data-step="1">
-                            <span class="step-number">1</span>
                             <div class="step-text">Maklumat Pemohon</div>
                         </div>
                         <div class="step" data-step="2">
-                            <span class="step-number">2</span>
                             <div class="step-text">Maklumat Pekerjaan</div>
                         </div>
                         <div class="step" data-step="3">
-                            <span class="step-number">3</span>
                             <div class="step-text">Maklumat Kediaman</div>
                         </div>
-                        <div class="step" data-step="4">
-                            <span class="step-number">4</span>
+                        <div class="step" data-step="4">                           
                             <div class="step-text">Maklumat Keluarga</div>
                         </div>
                     </div>
