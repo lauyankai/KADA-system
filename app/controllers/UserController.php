@@ -330,12 +330,11 @@ class UserController extends BaseController
             }
 
             if ($this->user->submitReactivation($_SESSION['member_id'], $reasons)) {
-                $_SESSION['success'] = 'Permohonan semula telah berjaya dihantar';
-                header('Location: /auth/logout');
-                exit();
+                // Show success page instead of redirecting
+                $this->view('users/reactivate_success');
+            } else {
+                throw new \Exception('Gagal menghantar permohonan');
             }
-
-            throw new \Exception('Gagal menghantar permohonan');
 
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
