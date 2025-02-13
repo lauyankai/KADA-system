@@ -24,6 +24,7 @@
                                 <th>ID Ahli</th>
                                 <th>Nama</th>
                                 <th>Tarikh Mohon</th>
+                                <th>Sebab-sebab</th>
                                 <th>Tindakan</th>
                             </tr>
                         </thead>
@@ -33,6 +34,7 @@
                                     <td><?= htmlspecialchars($resignation['member_id']) ?></td>
                                     <td><?= htmlspecialchars($resignation['name']) ?></td>
                                     <td><?= date('d/m/Y', strtotime($resignation['resignation_date'])) ?></td>
+                                    <td><?= nl2br(htmlspecialchars($resignation['reasons'] ?? '-')) ?></td>
                                     <td>
                                         <form action="/admin/resignations/approve" method="POST" class="d-inline">
                                             <input type="hidden" name="member_id" value="<?= $resignation['id'] ?>">
