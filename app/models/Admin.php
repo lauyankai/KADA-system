@@ -9,41 +9,34 @@ use PHPMailer\PHPMailer\Exception;
 
 class Admin extends BaseModel
 {
-    private $familyMember;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->familyMember = new FamilyMember();
-    }
-
     public function updateStatus($id, $status)
     {
         try {
             $this->getConnection()->beginTransaction();
 
             if ($status === 'Lulus') {
-                // Get member data
+                // Get member data first
                 $memberData = $this->getMemberById($id);
-                
-                // Get family members
-                $familyMembers = $this->familyMember->getFamilyMembers($id, 'pending');
-                
-                // Create new member
-                $newMemberId = $this->migrateToMembers($id, $memberData);
-                
-                // Update family members to point to new member
-                foreach ($familyMembers as $family) {
-                    $this->familyMember->addFamilyMember([
-                        'member_type' => 'member',
-                        'member_id' => $newMemberId,
-                        'name' => $family['name'],
-                        'relationship' => $family['relationship'],
-                        'ic_no' => $family['ic_no']
-                    ]);
+                if (!$memberData) {
+                    throw new \Exception("Member not found");
                 }
-                
-                // Delete from pending
+
+                // Migrate to members table and get the new ID
+                $newMemberId = $this->migrateToMembers($id, $memberData, false);
+
+                // Generate member ID
+                $memberId = $this->generateMemberId();
+
+                // Send approval email with the correct database ID
+                $this->sendStatusEmail(
+                    $memberData['email'],
+                    $memberData['name'],
+                    'Lulus',
+                    $memberId,
+                    $newMemberId  // Pass the actual database ID
+                );
+
+                // Delete from pending table
                 $sql = "DELETE FROM pendingmember WHERE id = :id";
                 $stmt = $this->getConnection()->prepare($sql);
                 $stmt->execute([':id' => $id]);

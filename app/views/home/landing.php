@@ -40,7 +40,7 @@
                 </div>
             </div>
             <div class="col-lg-6 position-relative d-none d-lg-block">
-                <img src="/img/logo-kada.png" alt="KADA" class="img-fluid">
+                <img src="/img/hero-illustration.svg" alt="KADA" class="img-fluid">
             </div>
         </div>
     </div>

@@ -5,19 +5,16 @@ use App\Core\BaseController;
 use App\Models\User;
 use App\Models\Saving;
 use App\Models\Loan;
-use App\Models\FamilyMember;
 
 class UserController extends BaseController
 {
     private $user;
     private $saving;
-    private $familyMember;
 
     public function __construct()
     {
         $this->user = new User();
         $this->saving = new Saving();
-        $this->familyMember = new FamilyMember();
     }
 
     // User Dashboard
@@ -75,18 +72,15 @@ class UserController extends BaseController
                 exit();
             }
 
-            $member = $this->user->getUserById($_SESSION['member_id']);
+            $user = new User();
+            $member = $user->getUserById($_SESSION['member_id']);
+            $member = $user->getUserById($_SESSION['member_id']);
+
             if (!$member) {
                 throw new \Exception('Member not found');
             }
 
-            // Get family members
-            $familyMembers = $this->familyMember->getFamilyMembers($_SESSION['member_id'], 'member');
-
-            $this->view('users/profile', [
-                'member' => $member,
-                'familyMembers' => $familyMembers
-            ]);
+            $this->view('users/profile', ['member' => $member]);
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             header('Location: /dashboard');
@@ -270,155 +264,5 @@ class UserController extends BaseController
             header('Location: /users/fees/initial');
             exit;
         }
-    }
-
-    public function addFamilyMember()
-    {
-        try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
-            }
-
-            $data = [
-                'member_type' => 'member',
-                'member_id' => $_SESSION['member_id'],
-                'name' => $_POST['family_name'],
-                'relationship' => $_POST['family_relationship'],
-                'ic_no' => $_POST['family_ic']
-            ];
-
-            if ($this->familyMember->addFamilyMember($data)) {
-                $_SESSION['success'] = 'Maklumat ahli keluarga berjaya ditambah';
-            } else {
-                throw new \Exception('Gagal menambah ahli keluarga');
-            }
-
-        } catch (\Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-        }
-
-        header('Location: /users/profile');
-        exit;
-    }
-
-    public function updateFamilyMember($id)
-    {
-        try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
-            }
-
-            // Validate input
-            if (empty($_POST['family_name']) || empty($_POST['family_ic']) || empty($_POST['family_relationship'])) {
-                throw new \Exception('Sila lengkapkan semua maklumat');
-            }
-
-            // Validate IC format
-            if (!preg_match('/^\d{6}-\d{2}-\d{4}$/', $_POST['family_ic'])) {
-                throw new \Exception('Format no. kad pengenalan tidak sah');
-            }
-
-            $data = [
-                'name' => $_POST['family_name'],
-                'relationship' => $_POST['family_relationship'],
-                'ic_no' => $_POST['family_ic']
-            ];
-
-            // Verify ownership of family member
-            $familyMember = $this->familyMember->getFamilyMemberById($id);
-            if (!$familyMember || $familyMember['member_id'] != $_SESSION['member_id']) {
-                throw new \Exception('Tiada kebenaran untuk mengemaskini maklumat ini');
-            }
-
-            if ($this->familyMember->updateFamilyMember($id, $data)) {
-                $_SESSION['success'] = 'Maklumat waris berjaya dikemaskini';
-            } else {
-                throw new \Exception('Gagal mengemaskini maklumat waris');
-            }
-
-        } catch (\Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-        }
-
-        header('Location: /users/profile#family');
-        exit;
-    }
-
-    public function deleteFamilyMember($id)
-    {
-        try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
-            }
-
-            if ($this->familyMember->deleteFamilyMember($id)) {
-                echo json_encode(['success' => true]);
-            } else {
-                throw new \Exception('Gagal memadam ahli keluarga');
-            }
-
-        } catch (\Exception $e) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-        exit;
-    }
-
-    public function updateFamilyMembers()
-    {
-        try {
-            if (!isset($_SESSION['member_id'])) {
-                throw new \Exception('Sila log masuk untuk mengakses');
-            }
-
-            $familyIds = $_POST['family_id'] ?? [];
-            $names = $_POST['family_name'] ?? [];
-            $relationships = $_POST['family_relationship'] ?? [];
-            $icNumbers = $_POST['family_ic'] ?? [];
-
-            // Begin transaction
-            $this->familyMember->getConnection()->beginTransaction();
-
-            // Update existing family members
-            foreach ($familyIds as $index => $id) {
-                if (isset($names[$index], $relationships[$index], $icNumbers[$index])) {
-                    $data = [
-                        'name' => $names[$index],
-                        'relationship' => $relationships[$index],
-                        'ic_no' => $icNumbers[$index]
-                    ];
-                    $this->familyMember->updateFamilyMember($id, $data);
-                }
-            }
-
-            // Add new family members
-            for ($i = count($familyIds); $i < count($names); $i++) {
-                if (!empty($names[$i]) && !empty($relationships[$i]) && !empty($icNumbers[$i])) {
-                    $data = [
-                        'member_type' => 'member',
-                        'member_id' => $_SESSION['member_id'],
-                        'name' => $names[$i],
-                        'relationship' => $relationships[$i],
-                        'ic_no' => $icNumbers[$i]
-                    ];
-                    $this->familyMember->addFamilyMember($data);
-                }
-            }
-
-            $this->familyMember->getConnection()->commit();
-            $_SESSION['success'] = 'Maklumat waris berjaya dikemaskini';
-
-        } catch (\Exception $e) {
-            if ($this->familyMember->getConnection()->inTransaction()) {
-                $this->familyMember->getConnection()->rollBack();
-            }
-            $_SESSION['error'] = $e->getMessage();
-        }
-
-        header('Location: /users/profile#family');
-        exit;
     }
 }
