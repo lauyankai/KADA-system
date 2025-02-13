@@ -67,13 +67,13 @@ class UserController extends BaseController
     public function profile()
     {
         try {
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
 
             $user = new User();
-            $member = $user->getUserById($_SESSION['user_id']);
+            $member = $user->getUserById($_SESSION['member_id']);
 
             if (!$member) {
                 throw new \Exception('Member not found');
@@ -90,12 +90,12 @@ class UserController extends BaseController
     public function update()
     {
         try {
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
 
-            $userId = $_SESSION['user_id'];
+            $memberId = $_SESSION['member_id'];
             $data = [
                 'email' => $_POST['email'],
                 'home_phone' => $_POST['home_phone'],
@@ -108,7 +108,7 @@ class UserController extends BaseController
             ];
 
             $user = new User();
-            if ($user->updateProfile($userId, $data)) {
+            if ($user->updateProfile($memberId, $data)) {
                 $_SESSION['success'] = 'Profil berjaya dikemaskini';
             } else {
                 throw new \Exception('Gagal mengemaskini profil');
@@ -126,13 +126,13 @@ class UserController extends BaseController
     public function showResignForm()
     {
         try {
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
 
             $user = new User();
-            $member = $user->getUserById($_SESSION['user_id']);
+            $member = $user->getUserById($_SESSION['member_id']);
 
             if (!$member) {
                 throw new \Exception('Member not found');
@@ -149,7 +149,7 @@ class UserController extends BaseController
     public function submitResignation()
     {
         try {
-            if (!isset($_SESSION['user_id'])) {
+            if (!isset($_SESSION['member_id'])) {
                 header('Location: /auth/login');
                 exit();
             }
@@ -164,7 +164,7 @@ class UserController extends BaseController
             }
 
             $user = new User();
-            if ($user->submitResignation($_SESSION['user_id'], $reasons)) {
+            if ($user->submitResignation($_SESSION['member_id'], $reasons)) {
                 $_SESSION['success'] = 'Permohonan berhenti telah berjaya dihantar';
                 header('Location: /users/dashboard');
             } else {
