@@ -1002,5 +1002,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('family-members-container');
+    const addButton = document.getElementById('add-family-member');
+    let familyCount = 0;
+
+    function addFamilyMemberFields() {
+        familyCount++;
+        fetch('/views/partials/family_member_fields.php')
+            .then(response => response.text())
+            .then(html => {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                div.querySelector('.family-number').textContent = `#${familyCount}`;
+                container.appendChild(div);
+
+                // Add remove button handler
+                div.querySelector('.remove-family-member').addEventListener('click', function() {
+                    div.remove();
+                    updateFamilyNumbers();
+                });
+            });
+    }
+
+    function updateFamilyNumbers() {
+        const containers = document.querySelectorAll('.family-member-container');
+        containers.forEach((container, index) => {
+            container.querySelector('.family-number').textContent = `#${index + 1}`;
+        });
+        familyCount = containers.length;
+    }
+
+    addButton.addEventListener('click', addFamilyMemberFields);
+});
 </script>
 <?php require_once '../app/views/layouts/footer.php'; ?>

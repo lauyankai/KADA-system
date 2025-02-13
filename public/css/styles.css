@@ -2148,3 +2148,23 @@ select.form-select.is-invalid {
 .bg-light-subtle {
     background-color: #e1f5fe !important;
 }
+
+.family-member-container {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.family-member-container:hover {
+    background-color: #f8f9fa;
+}
+
+.remove-family-member {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.family-number {
+    color: #6c757d;
+    font-size: 0.9rem;
+}

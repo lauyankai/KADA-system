@@ -84,19 +84,56 @@
                                 <div class="row g-4">
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Jantina</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->gender ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $gender = [
+                                                'Male' => 'Lelaki',
+                                                'Female' => 'Perempuan'
+                                            ];
+                                            echo htmlspecialchars($gender[$member->gender] ?? $member->gender);
+                                            ?>
+                                        </p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Agama</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->religion ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $religion = [
+                                                'Islam' => 'Islam',
+                                                'Buddha' => 'Buddha',
+                                                'Hindu' => 'Hindu',
+                                                'Christian' => 'Kristian',
+                                                'Others-Religion' => 'Lain-lain'
+                                            ];
+                                            echo htmlspecialchars($religion[$member->religion] ?? $member->religion);
+                                            ?>
+                                        </p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Bangsa</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->race ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $race = [
+                                                'Malay' => 'Melayu',
+                                                'Chinese' => 'Cina',
+                                                'Indian' => 'India',
+                                                'Others-Race' => 'Lain-lain'
+                                            ];
+                                            echo htmlspecialchars($race[$member->race] ?? $member->race);
+                                            ?>
+                                        </p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Status Perkahwinan</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->marital_status ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $maritalStatus = [
+                                                'Single' => 'Bujang',
+                                                'Married' => 'Berkahwin'
+                                            ];
+                                            echo htmlspecialchars($maritalStatus[$member->marital_status] ?? $member->marital_status);
+                                            ?>
+                                        </p>
                                     </div>
                                     <div class="col-12">
                                         <label class="text-muted small d-block">Alamat Rumah</label>
@@ -142,10 +179,10 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Status Perkahwinan</label>
-                                        <select name="marital_status" class="form-select">
-                                            <option value="Bujang" <?= $member->marital_status == 'Bujang' ? 'selected' : '' ?>>Bujang</option>
-                                            <option value="Berkahwin" <?= $member->marital_status == 'Berkahwin' ? 'selected' : '' ?>>Berkahwin</option>
-                                            <option value="Bercerai" <?= $member->marital_status == 'Bercerai' ? 'selected' : '' ?>>Bercerai</option>
+                                        <select name="marital_status" class="form-select" required>
+                                            <option value="">Pilih</option>
+                                            <option value="Single" <?= $member->marital_status == 'Single' ? 'selected' : '' ?>>Bujang</option>
+                                            <option value="Married" <?= $member->marital_status == 'Married' ? 'selected' : '' ?>>Berkahwin</option>
                                         </select>
                                     </div>
                                     <div class="col-12">
@@ -294,56 +331,101 @@
                             <!-- View Mode -->
                             <div class="view-mode">
                                 <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <label class="text-muted small d-block">Nama Waris</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->family_name ?? '') ?></p>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-muted small d-block">No. K/P Waris</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->family_ic ?? '') ?></p>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-muted small d-block">Hubungan</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->family_relationship ?? '') ?></p>
-                                    </div>
+                                    <?php if (empty($familyMembers)): ?>
+                                        <div class="col-12">
+                                            <p class="text-muted">Tiada maklumat ahli keluarga</p>
+                                        </div>
+                                    <?php else: ?>
+                                        <?php foreach ($familyMembers as $family): ?>
+                                            <div class="col-12">
+                                                <div class="family-member-card p-3 border rounded">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <h6 class="mb-0">
+                                                            <i class="bi bi-person me-2"></i>
+                                                            <?php
+                                                            $relationships = [
+                                                                'Spouse' => 'Pasangan',
+                                                                'Child' => 'Anak',
+                                                                'Parent' => 'Ibu/Bapa',
+                                                                'Sibling' => 'Adik-beradik'
+                                                            ];
+                                                            echo htmlspecialchars($relationships[$family['relationship']] ?? $family['relationship']);
+                                                            ?>
+                                                        </h6>
+                                                    </div>
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label class="text-muted small d-block">Nama</label>
+                                                            <p class="mb-0"><?= htmlspecialchars($family['name']) ?></p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="text-muted small d-block">No. K/P</label>
+                                                            <p class="mb-0"><?= htmlspecialchars($family['ic_no']) ?></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
-                            <!-- Edit Mode (Initially Hidden) -->
-                            <form class="edit-mode d-none" action="/users/profile/update" method="POST">
-                                <input type="hidden" name="section" value="family">
-                                <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Nama Waris</label>
-                                        <input type="text" name="family_name" class="form-control" value="<?= htmlspecialchars($member->family_name) ?>" required>
+                            <!-- Edit Mode -->
+                            <div class="edit-mode d-none">
+                                <form action="/users/update-family-members" method="POST">
+                                    <div id="family-members-container">
+                                        <?php if (!empty($familyMembers)): ?>
+                                            <?php foreach ($familyMembers as $index => $family): ?>
+                                                <div class="family-member-container mb-4 border rounded p-3">
+                                                    <input type="hidden" name="family_id[]" value="<?= $family['id'] ?>">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">Nama Ahli Keluarga</label>
+                                                            <input type="text" name="family_name[]" class="form-control" 
+                                                                   value="<?= htmlspecialchars($family['name']) ?>" required>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">No. Kad Pengenalan</label>
+                                                            <input type="text" name="family_ic[]" class="form-control ic-input" 
+                                                                   value="<?= htmlspecialchars($family['ic_no']) ?>" 
+                                                                   pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000" required>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="form-label">Hubungan</label>
+                                                            <select name="family_relationship[]" class="form-select" required>
+                                                                <option value="">Pilih Hubungan</option>
+                                                                <option value="Spouse" <?= $family['relationship'] == 'Spouse' ? 'selected' : '' ?>>Pasangan</option>
+                                                                <option value="Child" <?= $family['relationship'] == 'Child' ? 'selected' : '' ?>>Anak</option>
+                                                                <option value="Parent" <?= $family['relationship'] == 'Parent' ? 'selected' : '' ?>>Ibu/Bapa</option>
+                                                                <option value="Sibling" <?= $family['relationship'] == 'Sibling' ? 'selected' : '' ?>>Adik-beradik</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-1">
+                                                            <label class="form-label d-block">&nbsp;</label>
+                                                            <button type="button" class="btn btn-danger delete-family" data-id="<?= $family['id'] ?>">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">No. K/P Waris</label>
-                                        <input type="text" name="family_ic" class="form-control" value="<?= htmlspecialchars($member->family_ic) ?>" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Hubungan</label>
-                                        <select name="family_relationship" class="form-select" required>
-                                            <?php
-                                            $relationships = ['Ibu', 'Bapa', 'Suami', 'Isteri', 'Anak', 'Adik-beradik'];
-                                            foreach ($relationships as $rel) {
-                                                $selected = ($member->family_relationship == $rel) ? 'selected' : '';
-                                                echo "<option value=\"$rel\" $selected>$rel</option>";
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-save me-2"></i>Simpan
+                                    
+                                    <button type="button" class="btn btn-success mb-3" id="add-family-member">
+                                        <i class="bi bi-plus-circle me-2"></i>Tambah Ahli Keluarga
                                     </button>
-                                    <button type="button" class="btn btn-light ms-2" onclick="toggleEdit()">
-                                        <i class="bi bi-x me-2"></i>Batal
-                                    </button>
-                                </div>
-                            </form>
+
+                                    <div class="mt-4">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-save me-2"></i>Simpan
+                                        </button>
+                                        <button type="button" class="btn btn-light ms-2" onclick="toggleEdit()">
+                                            <i class="bi bi-x me-2"></i>Batal
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -422,6 +504,39 @@
     </div>
 </div>
 
+<!-- Template for new family member -->
+<template id="family-member-template">
+    <div class="family-member-container mb-4 border rounded p-3">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Nama Ahli Keluarga</label>
+                <input type="text" name="family_name[]" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">No. Kad Pengenalan</label>
+                <input type="text" name="family_ic[]" class="form-control ic-input" 
+                       pattern="\d{6}-\d{2}-\d{4}" placeholder="000000-00-0000" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Hubungan</label>
+                <select name="family_relationship[]" class="form-select" required>
+                    <option value="">Pilih Hubungan</option>
+                    <option value="Spouse">Pasangan</option>
+                    <option value="Child">Anak</option>
+                    <option value="Parent">Ibu/Bapa</option>
+                    <option value="Sibling">Adik-beradik</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <label class="form-label d-block">&nbsp;</label>
+                <button type="button" class="btn btn-danger remove-family">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
 <script>
 function proceedToResign() {
     window.location.href = '/users/resign';
@@ -439,6 +554,58 @@ function toggleEdit() {
         edit.classList.toggle('d-none');
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // IC number formatter
+    function formatIC(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 12) value = value.substr(0, 12);
+        if (value.length >= 6) value = value.substr(0, 6) + '-' + value.substr(6);
+        if (value.length >= 9) value = value.substr(0, 9) + '-' + value.substr(9);
+        input.value = value;
+    }
+
+    // Add IC formatter to all IC inputs
+    function initICFormatters() {
+        document.querySelectorAll('.ic-input').forEach(input => {
+            input.addEventListener('input', function() {
+                formatIC(this);
+            });
+        });
+    }
+
+    // Initialize IC formatters
+    initICFormatters();
+
+    // Add new family member
+    const addButton = document.getElementById('add-family-member');
+    const container = document.getElementById('family-members-container');
+    const template = document.getElementById('family-member-template');
+
+    if (addButton && container && template) {
+        addButton.addEventListener('click', function() {
+            const clone = template.content.cloneNode(true);
+            container.appendChild(clone);
+            initICFormatters();
+
+            // Add remove handler to new element
+            const newContainer = container.lastElementChild;
+            newContainer.querySelector('.remove-family').addEventListener('click', function() {
+                newContainer.remove();
+            });
+        });
+    }
+
+    // Delete existing family member
+    document.querySelectorAll('.delete-family').forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('Adakah anda pasti untuk memadam maklumat ahli keluarga ini?')) {
+                const container = this.closest('.family-member-container');
+                container.remove();
+            }
+        });
+    });
+});
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 
