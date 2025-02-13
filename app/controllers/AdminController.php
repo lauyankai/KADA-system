@@ -31,12 +31,11 @@ class AdminController extends BaseController {
             $admin = new Admin();
             $allMembers = $admin->getAllMembers();
             $reports = $this->annualReport->getAllReports();
-            
-            // Get interest rates
             $interestRates = $this->admin->getInterestRates();
-            
-            // Get loan statistics
             $loanStats = $this->admin->getLoanStatistics();
+            $resignations = $this->admin->getPendingResignations();
+            $directors = $this->admin->getDirectors();
+            $admins = $this->admin->getAllAdmins();
             
             $this->view('admin/index', [
                 'members' => $allMembers,
@@ -46,10 +45,14 @@ class AdminController extends BaseController {
                     'pending' => count(array_filter($allMembers, fn($m) => $m['status'] === 'Pending')),
                     'active' => count(array_filter($allMembers, fn($m) => $m['status'] === 'Active')),
                     'rejected' => count(array_filter($allMembers, fn($m) => $m['status'] === 'Rejected')),
+                    'resigned' => count(array_filter($allMembers, fn($m) => $m['status'] === 'Resigned')),
                     'loans' => $loanStats['total_loans'] ?? 0,
                     'loan_amount' => $loanStats['total_amount'] ?? 0
                 ],
-                'interestRates' => $this->admin->getInterestRates()
+                'interestRates' => $interestRates,
+                'resignations' => $resignations,
+                'directors' => $directors,
+                'admins' => $admins
             ]);
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
@@ -543,5 +546,71 @@ class AdminController extends BaseController {
             header('Location: /admin/resignations');
             exit();
         }
+    }
+
+    public function showAddAdmin()
+    {
+        $this->view('admin/add_admin');
+    }
+
+    public function storeAdmin()
+    {
+        try {
+            $username = $_POST['username'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+
+            if (empty($username) || empty($email) || empty($password)) {
+                throw new \Exception('Sila isi semua maklumat yang diperlukan');
+            }
+
+            if ($password !== $confirmPassword) {
+                throw new \Exception('Kata laluan tidak sepadan');
+            }
+
+            if (strlen($password) < 8) {
+                throw new \Exception('Kata laluan mestilah sekurang-kurangnya 8 aksara');
+            }
+
+            $data = [
+                'username' => $username,
+                'email' => $email,
+                'password' => password_hash($password, PASSWORD_DEFAULT)
+            ];
+
+            if ($this->admin->createAdmin($data)) {
+                $_SESSION['success'] = 'Admin baru berjaya ditambah';
+                header('Location: /admin');
+                exit;
+            }
+
+            throw new \Exception('Gagal menambah admin');
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/add-admin');
+            exit;
+        }
+    }
+
+    public function deleteAdmin($id)
+    {
+        try {
+            if ($id == $_SESSION['admin_id']) {
+                throw new \Exception('Tidak boleh memadam akaun sendiri');
+            }
+
+            if ($this->admin->deleteAdmin($id)) {
+                $_SESSION['success'] = 'Admin berjaya dipadam';
+            } else {
+                throw new \Exception('Gagal memadam admin');
+            }
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+
+        header('Location: /admin');
+        exit;
     }
 }

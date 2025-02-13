@@ -78,6 +78,10 @@ $router = new App\Core\Router();
         $router->addRoute('GET', '/admin/view/{id}', 'AdminController', 'viewMember');
         $router->addRoute('POST', '/admin/export-pdf', 'AdminController', 'exportPdf');
         $router->addRoute('POST', '/admin/export-excel', 'AdminController', 'exportExcel');
+        $router->addRoute('GET', '/admin/add-admin', 'AdminController', 'showAddAdmin');
+        $router->addRoute('POST', '/admin/store-admin', 'AdminController', 'storeAdmin');
+        $router->addRoute('GET', '/admin/delete-admin/{id}', 'AdminController', 'deleteAdmin');
+
     
     // Admin routes --annual reports
         // $router->addRoute('GET', '/admin/annual-reports', 'AnnualReportController', 'index');
@@ -167,10 +171,9 @@ $router->addRoute('POST', '/users/fees/confirm', 'UserFeeController', 'confirmPa
 $router->addRoute('GET', '/users/fees/success', 'UserFeeController', 'showSuccess');
 $router->addRoute('GET', '/auth/setup-password', 'AuthController', 'showSetupPassword');
 $router->addRoute('POST', '/auth/setup-password', 'AuthController', 'setupPassword'); 
-
-// Reactivation routes
 $router->addRoute('GET', '/users/reactivate', 'UserController', 'showReactivateForm');
 $router->addRoute('POST', '/users/reactivate/submit', 'UserController', 'submitReactivation');
+
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

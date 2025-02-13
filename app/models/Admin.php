@@ -907,4 +907,58 @@ class Admin extends BaseModel
             ];
         }
     }
+
+    public function getDirectors()
+    {
+        try {
+            $sql = "SELECT * FROM directors ORDER BY created_at DESC";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Error getting directors: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getAllAdmins()
+    {
+        try {
+            $sql = "SELECT id, username, email FROM admins ORDER BY created_at DESC";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Error getting admins: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function deleteAdmin($id)
+    {
+        try {
+            $sql = "DELETE FROM admins WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            return $stmt->execute([':id' => $id]);
+        } catch (\PDOException $e) {
+            error_log('Error deleting admin: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function createAdmin($data)
+    {
+        try {
+            $sql = "INSERT INTO admins (username, email, password) VALUES (:username, :email, :password)";
+            $stmt = $this->getConnection()->prepare($sql);
+            return $stmt->execute([
+                ':username' => $data['username'],
+                ':email' => $data['email'],
+                ':password' => $data['password']
+            ]);
+        } catch (\PDOException $e) {
+            error_log('Error creating admin: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
