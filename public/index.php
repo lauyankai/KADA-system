@@ -67,6 +67,9 @@ $router = new App\Core\Router();
     $router->addRoute('GET', '/admin/downloadReport/{id}', 'AdminController', 'downloadReport');
     $router->addRoute('GET', '/admin/deleteReport/{id}', 'AdminController', 'deleteReport');
     $router->addRoute('POST', '/admin/update-interest-rates', 'AdminController', 'updateInterestRates'); 
+    $router->addRoute('GET', '/admin/resignations', 'AdminController', 'showResignations');
+    $router->addRoute('POST', '/admin/resignations/approve', 'AdminController', 'approveResignation');
+
 
     // Admin routes --approve, reject, edit, viewMember
         $router->addRoute('GET', '/admin/approve/{id}', 'AdminController', 'approve');
@@ -164,6 +167,7 @@ $router->addRoute('POST', '/users/fees/confirm', 'UserFeeController', 'confirmPa
 $router->addRoute('GET', '/users/fees/success', 'UserFeeController', 'showSuccess');
 $router->addRoute('GET', '/auth/setup-password', 'AuthController', 'showSetupPassword');
 $router->addRoute('POST', '/auth/setup-password', 'AuthController', 'setupPassword'); 
+
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

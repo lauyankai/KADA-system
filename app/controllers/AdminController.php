@@ -504,4 +504,41 @@ class AdminController extends BaseController {
         header('Location: /admin');
         exit;
     }
+
+    public function showResignations()
+    {
+        try {
+            $pendingResignations = $this->admin->getPendingResignations();
+            $this->view('admin/resignations', [
+                'resignations' => $pendingResignations
+            ]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/dashboard');
+            exit();
+        }
+    }
+
+    public function approveResignation()
+    {
+        try {
+            if (!isset($_POST['member_id'])) {
+                throw new \Exception('ID Ahli tidak sah');
+            }
+
+            $memberId = $_POST['member_id'];
+            if ($this->admin->approveResignation($memberId)) {
+                $_SESSION['success'] = 'Permohonan berhenti telah diluluskan';
+            } else {
+                throw new \Exception('Gagal meluluskan permohonan');
+            }
+
+            header('Location: /admin/resignations');
+            exit();
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/resignations');
+            exit();
+        }
+    }
 }

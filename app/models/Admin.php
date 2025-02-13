@@ -728,4 +728,108 @@ class Admin extends BaseModel
             ];
         }
     }
+
+    public function approveResignation($memberId)
+    {
+        try {
+            $this->getConnection()->beginTransaction();
+
+            // Get member details first
+            $sql = "SELECT m.*, r.reasons, r.created_at as resignation_date 
+                    FROM members m 
+                    JOIN resignation_reasons r ON m.id = r.member_id 
+                    WHERE m.id = :member_id";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':member_id' => $memberId]);
+            $member = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$member) {
+                throw new \Exception('Member not found');
+            }
+
+            // Update member status
+            $updateSql = "UPDATE members 
+                         SET status = 'Resigned',
+                             resigned_approved_at = NOW() 
+                         WHERE id = :member_id";
+            
+            $stmt = $this->getConnection()->prepare($updateSql);
+            $stmt->execute([':member_id' => $memberId]);
+
+            // Send email notification
+            $this->sendResignationApprovalEmail(
+                $member['email'],
+                $member['name'],
+                $member['resignation_date']
+            );
+
+            $this->getConnection()->commit();
+            return true;
+
+        } catch (\PDOException $e) {
+            $this->getConnection()->rollBack();
+            error_log('Error approving resignation: ' . $e->getMessage());
+            throw new \Exception('Gagal meluluskan permohonan berhenti');
+        }
+    }
+
+    private function sendResignationApprovalEmail($email, $name, $resignationDate)
+    {
+        $mail = new PHPMailer(true);
+        try {
+            $config = require __DIR__ . '/../../config/mail.php';
+
+            $mail->isSMTP();
+            $mail->Host = $config['smtp_host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $config['smtp_username'];
+            $mail->Password = $config['smtp_password'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = $config['smtp_port'];
+            $mail->CharSet = 'UTF-8';
+
+            $mail->setFrom($config['from_address'], $config['from_name']);
+            $mail->addAddress($email, $name);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Pengesahan Permohonan Berhenti';
+            $mail->Body = "
+                <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                    <h2>Permohonan Berhenti Diluluskan</h2>
+                    <p>Salam sejahtera {$name},</p>
+                    
+                    <p>Permohonan berhenti anda bertarikh " . date('d/m/Y', strtotime($resignationDate)) . " telah diluluskan.</p>
+                    
+                    <p>Anda kini telah berhenti menjadi ahli koperasi.</p>
+                    
+                    <p>Sekian, terima kasih.</p>
+                </div>
+            ";
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log('Error sending resignation approval email: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getPendingResignations()
+    {
+        try {
+            $sql = "SELECT m.*, r.reasons, r.created_at as resignation_date 
+                    FROM members m 
+                    JOIN resignation_reasons r ON m.id = r.member_id 
+                    WHERE m.status = 'Inactive'
+                    ORDER BY r.created_at DESC";
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Error getting pending resignations: ' . $e->getMessage());
+            return [];
+        }
+    }
 }

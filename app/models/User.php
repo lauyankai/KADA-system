@@ -270,7 +270,7 @@ class User extends BaseModel
 
             // Update member status to inactive
             $updateSql = "UPDATE members SET 
-                         status = 'Inactive',
+                         status = 'Active',
                          resigned_at = NOW()
                          WHERE id = :member_id";
             
