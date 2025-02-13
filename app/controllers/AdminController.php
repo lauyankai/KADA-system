@@ -43,9 +43,9 @@ class AdminController extends BaseController {
                 'annual_reports' => $reports,
                 'stats' => [
                     'total' => count($allMembers),
-                    'pending' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Pending')),
-                    'active' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Active')),
-                    'rejected' => count(array_filter($allMembers, fn($m) => $m['member_type'] === 'Rejected')),
+                    'pending' => count(array_filter($allMembers, fn($m) => $m['status'] === 'Pending')),
+                    'active' => count(array_filter($allMembers, fn($m) => $m['status'] === 'Active')),
+                    'rejected' => count(array_filter($allMembers, fn($m) => $m['status'] === 'Rejected')),
                     'loans' => $loanStats['total_loans'] ?? 0,
                     'loan_amount' => $loanStats['total_amount'] ?? 0
                 ],
