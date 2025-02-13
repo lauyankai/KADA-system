@@ -762,21 +762,25 @@
 
                         <!-- Navigation Buttons -->
                         <div class="step-buttons mt-4 d-flex justify-content-between align-items-center">
-                            <a href="/" class="btn btn-outline-secondary" style="min-width: 200px;">
-                                <i class="bi bi-arrow-left me-2"></i>Kembali ke Halaman Utama
-                            </a>
                             <div>
-                                <button type="button" class="btn btn-secondary prev-step" style="display: none; min-width: 140px;">
-                                    <i class="bi bi-arrow-left me-2"></i>Sebelumnya
+                              <!-- "Sebelumnya" button will be on the left and hidden initially -->
+                             <button type="button" class="btn btn-secondary prev-step" style="display: none; min-width: 140px;" id="prev-button">
+                             <i class="bi bi-arrow-left me-2"></i>Sebelumnya
+                             </button>
+                           </div>
+    
+                                 <div>
+                                     <!-- "Seterusnya" button will be on the right -->
+                                      <button type="button" class="btn btn-gradient next-step" style="min-width: 140px;" id="next-button">
+                                       Seterusnya<i class="bi bi-arrow-right ms-2"></i>
+                                      </button>
+        
+                                      <!-- "Hantar" button is shown on the last page -->
+                                <button type="submit" class="btn btn-gradient submit-form" style="display: none; min-width: 140px;" id="submit-button">
+                                 Hantar<i class="bi bi-check-circle ms-2"></i>
                                 </button>
-                                <button type="button" class="btn btn-gradient next-step" style="min-width: 140px;">
-                                    Seterusnya<i class="bi bi-arrow-right ms-2"></i>
-                                </button>
-                                <button type="submit" class="btn btn-gradient submit-form" style="display: none; min-width: 140px;">
-                                    Hantar<i class="bi bi-check-circle ms-2"></i>
-                                </button>
-                            </div>
-                        </div>
+                                 </div>
+                        </div>                                
                     </form>
                 </div>
             </div>

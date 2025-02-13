@@ -4,13 +4,37 @@
 ?>
 
 <div class="container py-4">
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show">
-            <?= $_SESSION['success']; unset($_SESSION['success']); ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif; ?>
-
+    <?php if (isset($_SESSION['error']) || isset($_SESSION['success'])): ?>
+        <div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+        <?php if (isset($_SESSION['error'])): ?>
+                        <div class="modal-header border-0 bg-danger bg-opacity-10">
+                            <h5 class="modal-title text-danger">Error</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['success'])): ?>
+                        <div class="modal-header border-0 bg-success bg-opacity-10">
+                            <h5 class="modal-title text-success">Berjaya!</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        <?php endif; ?>
+        
     <!-- Welcome Section -->
     <div class="row mb-4">
         <div class="col-12">
