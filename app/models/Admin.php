@@ -961,4 +961,61 @@ class Admin extends BaseModel
             return false;
         }
     }
+
+    public function getAdminById($id)
+    {
+        try {
+            $sql = "SELECT id, username, email FROM admins WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Error getting admin details: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function updateAdmin($data)
+    {
+        try {
+            $sql = "UPDATE admins SET username = :username, email = :email";
+            $params = [
+                ':id' => $data['id'],
+                ':username' => $data['username'],
+                ':email' => $data['email']
+            ];
+
+            if (isset($data['password'])) {
+                $sql .= ", password = :password";
+                $params[':password'] = $data['password'];
+            }
+
+            $sql .= " WHERE id = :id";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            return $stmt->execute($params);
+        } catch (\PDOException $e) {
+            error_log('Error updating admin: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function verifyPassword($id, $password)
+    {
+        try {
+            $sql = "SELECT password FROM admins WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$admin) {
+                return false;
+            }
+
+            return password_verify($password, $admin['password']);
+        } catch (\PDOException $e) {
+            error_log('Error verifying password: ' . $e->getMessage());
+            return false;
+        }
+    }
 }

@@ -118,7 +118,6 @@
             </div>
         </div>
 
-        <!-- Interest Rates Card -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
@@ -169,7 +168,7 @@
                 </div>
             </div>
         </div>
-                </div>
+    </div>        
 
     <!-- Second Row -->
     <div class="row g-3">
@@ -236,6 +235,47 @@
         </div>                       
     </div>
 
+    <!-- Admin Profile Card -->
+    <div class="col-lg-4">
+            <div class="card shadow h-100">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="card-title mb-1">
+                                <i class="bi bi-person-badge me-2"></i>Profil Admin
+                            </h5>
+                            <p class="text-muted small mb-0">Maklumat admin semasa</p>
+                        </div>
+                        <a href="/admin/edit-profile" class="btn btn-primary btn-sm">
+                            <i class="bi bi-pencil me-2"></i>Kemaskini
+                        </a>
+                    </div>
+
+                    <?php if (isset($currentAdmin)): ?>
+                        <div class="profile-details flex-grow-1 d-flex flex-column justify-content-center">
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item px-0">
+                                    <small class="text-muted d-inline-block me-2">Nama Pengguna:</small>
+                                    <span><?= htmlspecialchars($currentAdmin['username']) ?></span>
+                                </div>
+                                <div class="list-group-item px-0">
+                                    <small class="text-muted d-inline-block me-2">Emel:</small>
+                                    <span><?= htmlspecialchars($currentAdmin['email']) ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-center py-4 text-muted flex-grow-1 d-flex align-items-center justify-content-center">
+                            <div>
+                                <i class="bi bi-exclamation-circle display-6 d-block mb-3"></i>
+                                Tiada maklumat admin
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    
     <div class="col-lg-4">
         <div class="card shadow h-100">
             <div class="card-body">
@@ -525,6 +565,29 @@
     }
     .interest-icon i {
         font-size: 1.25rem;
+    }
+    .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        background-color: #f8f9fa;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .profile-details .list-group-item {
+        padding: 1rem 0;
+    }
+
+    .profile-details .list-group-item small {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-details .list-group-item span {
+        font-weight: 500;
     }
     </style>
 

@@ -28,6 +28,9 @@ class AdminController extends BaseController {
                 throw new \Exception('Sila log masuk sebagai admin');
             }
 
+            // Get current admin details
+            $currentAdmin = $this->admin->getAdminById($_SESSION['admin_id']);
+            
             $admin = new Admin();
             $allMembers = $admin->getAllMembers();
             $reports = $this->annualReport->getAllReports();
@@ -52,7 +55,8 @@ class AdminController extends BaseController {
                 'interestRates' => $interestRates,
                 'resignations' => $resignations,
                 'directors' => $directors,
-                'admins' => $admins
+                'admins' => $admins,
+                'currentAdmin' => $currentAdmin
             ]);
         } catch (\Exception $e) {
             $_SESSION['error'] = $e->getMessage();
@@ -612,5 +616,157 @@ class AdminController extends BaseController {
 
         header('Location: /admin');
         exit;
+    }
+
+    public function showEditProfile()
+    {
+        try {
+            if (!isset($_SESSION['admin_id'])) {
+                throw new \Exception('Sila log masuk sebagai admin');
+            }
+
+            $admin = $this->admin->getAdminById($_SESSION['admin_id']);
+            if (!$admin) {
+                throw new \Exception('Profil admin tidak dijumpai');
+            }
+
+            $this->view('admin/edit_profile', ['admin' => $admin]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin');
+            exit;
+        }
+    }
+
+    public function updateProfile()
+    {
+        try {
+            if (!isset($_SESSION['admin_id'])) {
+                throw new \Exception('Sila log masuk sebagai admin');
+            }
+
+            $username = $_POST['username'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $currentPassword = $_POST['current_password'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+
+            if (empty($username) || empty($email)) {
+                throw new \Exception('Sila isi semua maklumat yang diperlukan');
+            }
+
+            $data = [
+                'id' => $_SESSION['admin_id'],
+                'username' => $username,
+                'email' => $email
+            ];
+
+            // If changing password
+            if (!empty($currentPassword)) {
+                if (empty($newPassword) || empty($confirmPassword)) {
+                    throw new \Exception('Sila isi semua medan kata laluan');
+                }
+
+                if ($newPassword !== $confirmPassword) {
+                    throw new \Exception('Kata laluan baru tidak sepadan');
+                }
+
+                if (strlen($newPassword) < 8) {
+                    throw new \Exception('Kata laluan mestilah sekurang-kurangnya 8 aksara');
+                }
+
+                if (!$this->admin->verifyPassword($_SESSION['admin_id'], $currentPassword)) {
+                    throw new \Exception('Kata laluan semasa tidak sah');
+                }
+
+                $data['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
+            }
+
+            if ($this->admin->updateAdmin($data)) {
+                $_SESSION['success'] = 'Profil berjaya dikemaskini';
+            } else {
+                throw new \Exception('Gagal mengemaskini profil');
+            }
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+
+        header('Location: /admin/edit-profile');
+        exit;
+    }
+
+    public function showEditAdmin($id)
+    {
+        try {
+            if (!isset($_SESSION['admin_id'])) {
+                throw new \Exception('Sila log masuk sebagai admin');
+            }
+
+            $admin = $this->admin->getAdminById($id);
+            if (!$admin) {
+                throw new \Exception('Admin tidak dijumpai');
+            }
+
+            $this->view('admin/edit_admin', ['admin' => $admin]);
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin');
+            exit;
+        }
+    }
+
+    public function updateAdminById($id)
+    {
+        try {
+            if (!isset($_SESSION['admin_id'])) {
+                throw new \Exception('Sila log masuk sebagai admin');
+            }
+
+            $username = $_POST['username'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+
+            if (empty($username) || empty($email)) {
+                throw new \Exception('Sila isi semua maklumat yang diperlukan');
+            }
+
+            $data = [
+                'id' => $id,
+                'username' => $username,
+                'email' => $email
+            ];
+
+            // If setting new password
+            if (!empty($newPassword)) {
+                if (empty($confirmPassword)) {
+                    throw new \Exception('Sila sahkan kata laluan baru');
+                }
+
+                if ($newPassword !== $confirmPassword) {
+                    throw new \Exception('Kata laluan baru tidak sepadan');
+                }
+
+                if (strlen($newPassword) < 8) {
+                    throw new \Exception('Kata laluan mestilah sekurang-kurangnya 8 aksara');
+                }
+
+                $data['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
+            }
+
+            if ($this->admin->updateAdmin($data)) {
+                $_SESSION['success'] = 'Admin berjaya dikemaskini';
+                header('Location: /admin');
+                exit;
+            }
+
+            throw new \Exception('Gagal mengemaskini admin');
+
+        } catch (\Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /admin/edit-admin/' . $id);
+            exit;
+        }
     }
 }

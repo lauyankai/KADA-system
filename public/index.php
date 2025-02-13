@@ -173,7 +173,10 @@ $router->addRoute('GET', '/auth/setup-password', 'AuthController', 'showSetupPas
 $router->addRoute('POST', '/auth/setup-password', 'AuthController', 'setupPassword'); 
 $router->addRoute('GET', '/users/reactivate', 'UserController', 'showReactivateForm');
 $router->addRoute('POST', '/users/reactivate/submit', 'UserController', 'submitReactivation');
-
+$router->addRoute('GET', '/admin/edit-profile', 'AdminController', 'showEditProfile');
+$router->addRoute('POST', '/admin/update-profile', 'AdminController', 'updateProfile');
+$router->addRoute('GET', '/admin/edit-admin/{id}', 'AdminController', 'showEditAdmin');
+$router->addRoute('POST', '/admin/update-admin/{id}', 'AdminController', 'updateAdminById');
 
 // Get current URI and HTTP method
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
