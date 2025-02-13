@@ -8,7 +8,7 @@
                     <!-- Header -->
                     <h2 class="card-title text-center mb-4 position-relative">
                         <i class="bi bi-bar-chart me-2 text-primary"></i>
-                        <span class="fw-bold">Fakta & Angka KADA</span>
+                        <span class="fw-bold">Fakta & Angka Koperasi KADA</span>
                         <div class="position-relative mt-3">
                             <hr class="bg-primary" style="height: 2px; width: 50%; margin: 0 auto;">
                             <div class="position-absolute top-50 start-50 translate-middle bg-white px-3">
@@ -17,339 +17,104 @@
                         </div>
                     </h2>
 
-                    <!-- Main Content -->
-                    <div class="facts-content">
-                        <!-- General Info Section -->
-                        <div class="fact-section mb-4">
-                            <h3 class="text-primary mb-3">
-                                <i class="bi bi-info-circle me-2"></i>Maklumat Am
-                            </h3>
-                            <div class="card bg-light border-0 shadow-sm mb-3">
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li class="mb-2"><strong>Tajuk:</strong> Akta Lembaga Kemajuan Pertanian Kemubu 1972</li>
-                                        <li class="mb-2"><strong>Tarikh Perkenan Diraja:</strong> 23 Mac 1972</li>
-                                        <li class="mb-2"><strong>Tarikh Penyiaran dalam Warta:</strong> 30 Mac 1972</li>
-                                        <li class="mb-2">
-                                            <strong>Cetakan Semula:</strong>
-                                            <ul>
-                                                <li>Cetakan pertama: 1993</li>
-                                                <li>Cetakan kedua: 1999</li>
-                                            </ul>
-                                        </li>
-                                        <li><strong>Pindaan sehingga:</strong> 1 Januari 2006</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Koperasi Information -->
+                    <div class="mb-5">
+                        <h4 class="text-primary">KOPERASI KAKITANGAN KADA</h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-transparent">NAMA BERDAFTAR: KOPERASI KAKITANGAN KADA SDN BHD</li>
+                            <li class="list-group-item bg-transparent">NO. PENDAFTARAN: IP5429/1</li>
+                            <li class="list-group-item bg-transparent">TARIKH DAFTAR: 29 Ogos 1981</li>
+                            <li class="list-group-item bg-transparent">PEJABAT BERDAFTAR: D/A Lembaga Kemajuan Pertanian Kemubu, P/S 127, 15710 Kota Bharu, Kelantan.</li>
+                            <li class="list-group-item bg-transparent">NO. TELEFON: 09-7447088 samb. 5339 @ 5312</li>
+                            <li class="list-group-item bg-transparent">EMEL: koperasi_kada@yahoo.com</li>
+                        </ul>
+                    </div>
 
-                        <!-- Structure Section -->
-                        <div class="fact-section mb-4">
-                            <h3 class="text-primary mb-3">
-                                <i class="bi bi-diagram-3 me-2"></i>Struktur Organisasi
-                            </h3>
-                            <div class="accordion" id="structureAccordion">
-                                <!-- Bahagian I -->
-                                <div class="accordion-item border-0 mb-3">
-                                    <h4 class="accordion-header">
-                                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                            Bahagian I: Permulaan
-                                        </button>
-                                    </h4>
-                                    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#structureAccordion">
-                                        <div class="accordion-body">
-                                            <!-- Tajuk Ringkas -->
-                                            <div class="mb-4">
-                                                <h5 class="text-primary mb-3">
-                                                    <i class="bi bi-bookmark me-2"></i>Tajuk Ringkas
-                                                </h5>
-                                                <p class="ms-4">Akta ini bolehlah dinamakan Akta Lembaga Kemajuan Pertanian Kemubu 1972.</p>
-                                            </div>
+                    <!-- Akta Koperasi Section -->
+                    <div class="mb-5">
+                        <h4 class="text-primary">Akta Koperasi</h4>
+                        <p class="lead ms-4 mb-0" style="line-height: 1.6;">
+                            Koperasi Kakitangan KADA Kelantan Berhad ditubuhkan di bawah Akta Koperasi 1993.
+                        </p>
+                    </div>
 
-                                            <!-- Tafsiran -->
-                                            <div>
-                                                <h5 class="text-primary mb-3">
-                                                    <i class="bi bi-book me-2"></i>Tafsiran
-                                                </h5>
-                                                <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item bg-transparent">
-                                                        <i class="bi bi-geo-alt me-2 text-primary"></i>
-                                                        <strong>Kawasan Kemubu:</strong> Mana-mana kawasan yang ditetapkan oleh Menteri menurut seksyen 9
-                                                    </li>
-                                                    <li class="list-group-item bg-transparent">
-                                                        <i class="bi bi-cash me-2 text-primary"></i>
-                                                        <strong>Kumpulan Wang:</strong> Kumpulan wang yang ditubuhkan di bawah seksyen 17
-                                                    </li>
-                                                    <li class="list-group-item bg-transparent">
-                                                        <i class="bi bi-person-badge me-2 text-primary"></i>
-                                                        <strong>Menteri:</strong> Menteri yang bertanggungjawab bagi Pertanian dan Industri Asas Tani
-                                                    </li>
-                                                    <li class="list-group-item bg-transparent">
-                                                        <i class="bi bi-flag me-2 text-primary"></i>
-                                                        <strong>Negeri:</strong> Negeri Kelantan
-                                                    </li>
-                                                    <li class="list-group-item bg-transparent">
-                                                        <i class="bi bi-building me-2 text-primary"></i>
-                                                        <strong>Lembaga:</strong> Lembaga Kemajuan Pertanian Kemubu yang ditubuhkan di bawah seksyen 3
-                                                    </li>
-                                                    <li class="list-group-item bg-transparent">
-                                                        <i class="bi bi-person-fill me-2 text-primary"></i>
-                                                        <strong>Pengerusi:</strong> Pengerusi Lembaga yang dilantik di bawah seksyen 5
-                                                    </li>
-                                                    <li class="list-group-item bg-transparent">
-                                                        <i class="bi bi-building-fill me-2 text-primary"></i>
-                                                        <strong>Perbadanan:</strong> Perbadanan yang ditubuhkan di bawah seksyen 28
-                                                    </li>
-                                                    <li class="list-group-item bg-transparent">
-                                                        <i class="bi bi-briefcase me-2 text-primary"></i>
-                                                        <strong>Syarikat:</strong> Mempunyai erti yang sama seperti yang diberikan kepada "perbadanan" di bawah subseksyen 4(1) Akta Syarikat 1965 [Akta 125]
-                                                    </li>
-                                                    <li class="list-group-item bg-transparent">
-                                                        <i class="bi bi-person me-2 text-primary"></i>
-                                                        <strong>Timbalan Pengerusi:</strong> Timbalan Pengerusi Lembaga yang dilantik di bawah seksyen 5
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    <!-- Bank Information -->
+                    <div class="mb-5">
+                        <h4 class="text-primary">BANK</h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-transparent">BANK ISLAM MALAYSIA BHD – CAWANGAN KUBANG KERIAN</li>
+                            <li class="list-group-item bg-transparent">BANK MUAMALAT MALAYSIA BERHAD – CAWANGAN JALAN SULTAN YAHYA PETRA</li>
+                            <li class="list-group-item bg-transparent">BANK MUAMALAT MALAYSIA BERHAD – CAWANGAN KOTA BHARU</li>
+                        </ul>
+                    </div>
 
-                                <!-- Bahagian II -->
-                                <div class="accordion-item border-0 mb-3">
-                                    <h4 class="accordion-header">
-                                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                            Bahagian II: Lembaga
-                                        </button>
-                                    </h4>
-                                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#structureAccordion">
-                                        <div class="accordion-body">
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-building me-2 text-primary"></i>Penubuhan Lembaga sebagai badan berkanun
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-list-check me-2 text-primary"></i>Fungsi Lembaga dalam pembangunan ekonomi dan sosial
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-people me-2 text-primary"></i>Keanggotaan Lembaga termasuk Pengerusi dan Timbalan
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-shield me-2 text-primary"></i>Perlindungan Pihak Berkuasa Awam
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-person-badge me-2 text-primary"></i>Status sebagai pekhidmat awam
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                    <!-- Committee Members -->
+                    <div class="mb-5">
+                        <h4 class="text-primary">SENARAI AHLI JAWATANKUASA KOPERASI BAGI TAHUN 2015 HINGGA 2019</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>JAWATAN</th>
+                                    <th>NAMA AHLI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>PENGERUSI</td><td>Wan Badri b. Wan Omar</td></tr>
+                                <tr><td>TIMBALAN PENGERUSI</td><td>Shazlan b. Sekari@Shokri</td></tr>
+                                <tr><td>SETIAUSAHA</td><td>Mohamed Azami b. Mohamed Salleh</td></tr>
+                                <tr><td>TIMBALAN SETIAUSAHA</td><td>Zariani bt. Hussin</td></tr>
+                                <tr><td>BENDAHARI</td><td>Mohd Badli Shah b. Che Mohamad</td></tr>
+                                <tr><td>TIMBALAN BENDAHARI</td><td>Ab. Aziz b. Mustapha</td></tr>
+                                <tr><td>PENGERUSI PERNIAGAAN & PELABURAN</td><td>Shazlan b. Sekari@Shokri</td></tr>
+                                <tr><td>PENGERUSI KEBAJIKAN & SYARIE</td><td>Engku Safrudin b. Engku Chik</td></tr>
+                                <tr><td>TIMB. PENGERUSI KEBAJIKAN & SYARIE</td><td>Wan Nur Hasyila bt. Wan Suleman</td></tr>
+                                <tr><td>PENGERUSI PENTADBIRAN ICT & DISIPLIN</td><td>Mohammad Hazwan b. Mohamad</td></tr>
+                                <tr><td>TIMB. PENGERUSI PENTADBIRAN ICT & DISIPLIN</td><td>Siti Salwani bt. Mustapha</td></tr>
+                                <tr><td>TIMB. PENGERUSI PERNIAGAAN & PELABURAN I</td><td>Wan Mahidin b. Wan Shafie</td></tr>
+                                <tr><td>TIMB. PENGERUSI PERNIAGAAN & PELABURAN II</td><td>Mohd Zalimin b. Husin</td></tr>
+                                <tr><td>AUDIT LUAR (1)</td><td>Khairuddin Hasyudeen & Razi</td></tr>
+                                <tr><td>AUDIT LUAR (2)</td><td>Chartered Accountants (AF1161)</td></tr>
+                                <tr><td>AUDIT DALAM (1)</td><td>Zulfikri Bin Mohamad</td></tr>
+                                <tr><td>AUDIT DALAM (2)</td><td>Nor Salwana bt. Zaini</td></tr>
+                                <tr><td>AUDIT DALAM (3)</td><td>Wan Shafini bt. Wan Muhamad</td></tr>
+                                <tr><td>KAKITANGAN (1)</td><td>Ahmad Rohailan b. Hani</td></tr>
+                                <tr><td>KAKITANGAN (2)</td><td>Noor Zafran bt. Ahmad Kamal</td></tr>
+                                <tr><td>KAKITANGAN (3)</td><td>Wan Shafini bt. Wan Muhamad</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                                <!-- Bahagian III -->
-                                <div class="accordion-item border-0 mb-3">
-                                    <h4 class="accordion-header">
-                                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                                            Bahagian III: Penubuhan Lembaga
-                                        </button>
-                                    </h4>
-                                    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#structureAccordion">
-                                        <div class="accordion-body">
-                                            <div class="mb-4">
-                                                <h5 class="text-primary mb-3">
-                                                    <i class="bi bi-building me-2"></i>Penubuhan Lembaga
-                                                </h5>
-                                                <p class="ms-4">Suatu pertubuhan perbadanan bernama "Lembaga Kemajuan Pertanian Kemubu" ditubuhkan yang kekal turun-temurun dan mempunyai suatu meterai perbadanan dan boleh membawa guaman dan dibawa guaman atas namanya...</p>
-                                            </div>
+                    <!-- Welfare and Charity Fund -->
+                    <div class="mb-5">
+                        <h4 class="text-primary">TABUNG KEBAJIKAN DAN KHAIRAT</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>TABUNG KEBAJIKAN & KHAIRAT</th>
+                                    <th>NILAI SUMBANGAN (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>KEMATIAN</td><td></td></tr>
+                                <tr><td>Anggota</td><td>800</td></tr>
+                                <tr><td>Anak @ Anak angkat yang sah (21 tahun ke bawah)</td><td>200</td></tr>
+                                <tr><td>Ibu dan bapa anggota</td><td>200</td></tr>
+                                <tr><td>MELANJUTKAN PELAJARAN</td><td></td></tr>
+                                <tr><td>Ijazah (seberang laut)</td><td>150</td></tr>
+                                <tr><td>Ijazah (dalam negeri)</td><td>100</td></tr>
+                                <tr><td>Hadiah bersalin (maksima 5 kali)</td><td>100</td></tr>
+                                <tr><td>Anggota pencen (wang tunai)</td><td>100</td></tr>
+                                <tr><td>Menunaikan Haji (1 kali / anggota)</td><td>200</td></tr>
+                                <tr><td>Menunaikan Umrah (1 kali / anggota)</td><td>150</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                                            <div class="mb-4">
-                                                <h5 class="text-primary mb-3">
-                                                    <i class="bi bi-list-task me-2"></i>Fungsi Lembaga
-                                                </h5>
-                                                <div class="ms-4">
-                                                    <p class="mb-3">Fungsi Lembaga adalah:</p>
-                                                    <ul class="list-group list-group-flush">
-                                                        <li class="list-group-item bg-transparent">
-                                                            <i class="bi bi-check2-circle me-2 text-success"></i>
-                                                            Memajukan, menggalakkan, memudahkan dan mengusahakan pembangunan ekonomi dan sosial dalam Kawasan Kemubu
-                                                        </li>
-                                                        <li class="list-group-item bg-transparent">
-                                                            <i class="bi bi-check2-circle me-2 text-success"></i>
-                                                            Merancang dan mengusahakan dalam Kawasan Kemubu apa-apa kemajuan pertanian sebagaimana yang diuntukkan padanya oleh Negeri
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <h5 class="text-primary mb-3">
-                                                    <i class="bi bi-gear me-2"></i>Kuasa Lembaga
-                                                </h5>
-                                                <div class="ms-4">
-                                                    <p class="mb-3">Lembaga mempunyai kuasa untuk:</p>
-                                                    <ul class="list-group list-group-flush">
-                                                        <li class="list-group-item bg-transparent">
-                                                            <i class="bi bi-arrow-right me-2 text-primary"></i>
-                                                            Menjalankan segala kegiatan yang berkaitan dengan fungsinya
-                                                        </li>
-                                                        <li class="list-group-item bg-transparent">
-                                                            <i class="bi bi-arrow-right me-2 text-primary"></i>
-                                                            Bekerjasama dengan pelbagai pihak berkuasa dan badan
-                                                        </li>
-                                                        <li class="list-group-item bg-transparent">
-                                                            <i class="bi bi-arrow-right me-2 text-primary"></i>
-                                                            Memajukan dan menyelaraskan kegiatan pembangunan
-                                                        </li>
-                                                        <li class="list-group-item bg-transparent">
-                                                            <i class="bi bi-arrow-right me-2 text-primary"></i>
-                                                            Menubuhkan atau memperbesar syarikat dan perbadanan
-                                                        </li>
-                                                        <li class="list-group-item bg-transparent">
-                                                            <i class="bi bi-arrow-right me-2 text-primary"></i>
-                                                            Memberikan bantuan kepada pihak berkuasa dan badan lain
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Bahagian IV -->
-                                <div class="accordion-item border-0 mb-3">
-                                    <h4 class="accordion-header">
-                                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
-                                            Bahagian IV: Kewangan
-                                        </button>
-                                    </h4>
-                                    <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#structureAccordion">
-                                        <div class="accordion-body">
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-cash-stack me-2 text-primary"></i>Penubuhan Kumpulan Wang
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-graph-up me-2 text-primary"></i>Pengimbangan akaun hasil
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-piggy-bank me-2 text-primary"></i>Kumpulan wang rizab
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-calculator me-2 text-primary"></i>Anggaran tahunan
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-file-earmark-text me-2 text-primary"></i>Akaun dan audit
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Bahagian V -->
-                                <div class="accordion-item border-0 mb-3">
-                                    <h4 class="accordion-header">
-                                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive">
-                                            Bahagian V: Kuasa Lain Lembaga
-                                        </button>
-                                    </h4>
-                                    <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#structureAccordion">
-                                        <div class="accordion-body">
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-arrow-left-right me-2 text-primary"></i>Pewakilan kuasa
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-currency-exchange me-2 text-primary"></i>Kuasa untuk meminjam
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-graph-up-arrow me-2 text-primary"></i>Pelaburan
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-people me-2 text-primary"></i>Pengambilan kerja ejen
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-building-add me-2 text-primary"></i>Penubuhan perbadanan
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Bahagian VI -->
-                                <div class="accordion-item border-0 mb-3">
-                                    <h4 class="accordion-header">
-                                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix">
-                                            Bahagian VI: Peruntukan Am
-                                        </button>
-                                    </h4>
-                                    <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#structureAccordion">
-                                        <div class="accordion-body">
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-lock me-2 text-primary"></i>Obligasi kerahsiaan
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-journal-text me-2 text-primary"></i>Kuasa membuat peraturan
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-clipboard-check me-2 text-primary"></i>Peraturan tatatertib
-                                                </li>
-                                                <li class="list-group-item bg-transparent">
-                                                    <i class="bi bi-clock-history me-2 text-primary"></i>Perkara sementara
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Pindaan Akta -->
-                                <div class="accordion-item border-0">
-                                    <h4 class="accordion-header">
-                                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven">
-                                            Akta Koperasi 1993 (Akta 502)
-                                        </button>
-                                    </h4>
-                                    <div id="collapseSeven" class="accordion-collapse collapse" data-bs-parent="#structureAccordion">
-                                        <div class="accordion-body">
-                                            <div class="mb-4">
-                                                <h5 class="text-primary">1. Menyokong Petani dan Perniagaan Pertanian</h5>
-                                                <div class="ms-3">
-                                                    <p><strong>Seksyen 20: Pelupusan Hasil kepada atau Melalui Sesuatu Koperasi Berdaftar</strong></p>
-                                                    <p>Membenarkan koperasi memasukkan dalam undang-undang kecilnya peruntukan yang mewajibkan anggota menjual hasil pertanian mereka melalui koperasi.</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-4">
-                                                <h5 class="text-primary">2. Menyediakan Bantuan Kewangan, Bekalan, atau Perkhidmatan</h5>
-                                                <div class="ms-3">
-                                                    <p><strong>Seksyen 51: Pinjaman oleh Sesuatu Koperasi Berdaftar</strong></p>
-                                                    <p>Membenarkan koperasi memberikan pinjaman atau kemudahan kredit kepada anggotanya.</p>
-                                                    
-                                                    <p><strong>Seksyen 50: Dana Sesuatu Koperasi Berdaftar</strong></p>
-                                                    <p>Menggariskan sumber dana koperasi untuk menyediakan bekalan dan perkhidmatan kepada anggota.</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-4">
-                                                <h5 class="text-primary">3. Pengurusan Operasi</h5>
-                                                <div class="ms-3">
-                                                    <p><strong>Seksyen 19: Penubuhan Anak Syarikat</strong></p>
-                                                    <p>Membolehkan koperasi menubuhkan entiti khusus untuk menguruskan aspek tertentu operasi.</p>
-                                                    
-                                                    <p><strong>Seksyen 44: Tugas dan Kuasa Lembaga</strong></p>
-                                                    <p>Memberikan kuasa kepada Lembaga koperasi untuk menguruskan perniagaan dan operasi koperasi.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Back button -->
-                        <div class="text-center mt-4">
-                            <a href="/" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Kembali ke Halaman Utama
-                            </a>
-                        </div>
+                    <!-- Back button -->
+                    <div class="text-center mt-4">
+                        <a href="/" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left me-2"></i>Kembali ke Halaman Utama
+                        </a>
                     </div>
                 </div>
             </div>

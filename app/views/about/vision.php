@@ -8,7 +8,7 @@
                     <!-- Header with decorative line -->
                     <h2 class="card-title text-center mb-4 position-relative">
                         <i class="bi bi-eye me-2 text-primary"></i>
-                        <span class="fw-bold">Visi & Misi KADA</span>
+                        <span class="fw-bold">Visi & Misi Koperasi KADA</span>
                         <div class="position-relative mt-3">
                             <hr class="bg-primary" style="height: 2px; width: 50%; margin: 0 auto;">
                             <div class="position-absolute top-50 start-50 translate-middle bg-white px-3">
@@ -25,7 +25,7 @@
                                     <i class="bi bi-bullseye me-2"></i>Visi
                                 </h3>
                                 <p class="lead ms-4 mb-0" style="line-height: 1.6;">
-                                    Menjadi Satu Agensi Peneraju Dalam Bidang Penanaman Padi dan Agro-makanan Kearah Melahirkan Golongan Sasar Berpendapatan Tinggi
+                                    Menjadi Satu Agensi Peneraju ke arah Melahirkan Golongan Sasar Berpendapatan Tinggi
                                 </p>
                             </div>
                         </div>
@@ -38,32 +38,26 @@
                                 <h3 class="text-primary mb-3">
                                     <i class="bi bi-flag me-2"></i>Misi
                                 </h3>
-                                <p class="fw-bold mb-3">Bagi merealisasikan visi, KADA akan menerajui dengan cekap dan berkesan melalui:</p>
+                                <p class="fw-bold mb-3">Bagi merealisasikan visi,Koperasi KADA akan menerajui dengan cekap dan berkesan melalui:</p>
                                 <div class="ms-4">
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item bg-transparent d-flex align-items-center">
-                                            <i class="bi bi-check-circle-fill text-success me-3"></i>
-                                            Pengeluaran padi dan agromakanan utama KADA.
-                                        </li>
+                                        
                                         <li class="list-group-item bg-transparent d-flex align-items-center">
                                             <i class="bi bi-check-circle-fill text-success me-3"></i>
                                             Sistem pentadbiran yang berkualiti, efisyen, berteknologi dan integriti.
                                         </li>
                                         <li class="list-group-item bg-transparent d-flex align-items-center">
                                             <i class="bi bi-check-circle-fill text-success me-3"></i>
-                                            Penrokaan pasaran di dalam dan di luar negara.
+                                            Penerokaan pasaran di dalam dan di luar negara.
                                         </li>
-                                        <li class="list-group-item bg-transparent d-flex align-items-center">
-                                            <i class="bi bi-check-circle-fill text-success me-3"></i>
-                                            Mempertingkatkan keupayaan petani dan usahawan tani.
-                                        </li>
+                                        
                                         <li class="list-group-item bg-transparent d-flex align-items-center">
                                             <i class="bi bi-check-circle-fill text-success me-3"></i>
                                             Pembangunan kegiatan yang mampan.
                                         </li>
                                         <li class="list-group-item bg-transparent d-flex align-items-center">
                                             <i class="bi bi-check-circle-fill text-success me-3"></i>
-                                            Pewujudan persekitaran kerja yang kondusif dan peningkatan tahap kepuasan pekerja sebagai komitmen KADA untuk melahirkan pekerja berkompetensi dan setia.
+                                            Pewujudan persekitaran kerja yang kondusif dan peningkatan tahap kepuasan pekerja sebagai komitmen Koperasi KADA untuk melahirkan pekerja berkompetensi dan setia.
                                         </li>
                                     </ul>
                                 </div>
