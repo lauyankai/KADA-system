@@ -12,27 +12,19 @@
                         <i class="bi bi-person-plus-fill me-2"></i>Pendaftaran Anggota
                     </h1>
                     <!-- Step Indicators -->
-                    <div class="step-indicator mb-5">
+                    <div class="step-indicator">
                         <div class="step active" data-step="1">
-                            <i class="bi bi-person-badge"></i>
-                            <div>Maklumat Pemohon</div>
+                            <div class="step-text">Maklumat Pemohon</div>
                         </div>
                         <div class="step" data-step="2">
-                            <i class="bi bi-briefcase"></i>
-                            <div>Maklumat Pekerjaan</div>
+                            <div class="step-text">Maklumat Pekerjaan</div>
                         </div>
                         <div class="step" data-step="3">
-                            <i class="bi bi-house"></i>
-                            <div>Maklumat Kediaman</div>
+                            <div class="step-text">Maklumat Kediaman</div>
                         </div>
-                        <div class="step" data-step="4">
-                            <i class="bi bi-people"></i>
-                            <div>Maklumat Keluarga</div>
+                        <div class="step" data-step="4">                           
+                            <div class="step-text">Maklumat Keluarga</div>
                         </div>
-                        <!-- <div class="step" data-step="5">
-                            <i class="bi bi-cash-coin"></i>
-                            <div>Yuran dan Sumbangan</div>
-                        </div> -->
                     </div>
                     
                     <form id="membershipForm" action="/guest/store" method="POST" class="row g-3">
@@ -764,59 +756,27 @@
                             </div>
                         </div>
 
-                        <!-- Step 5: Fees & Contributions -->
-                        <!-- <div class="step-content" data-step="5">
-                            <h4 class="mt-3 mb-4 text-success"><i class="bi bi-cash-coin me-2"></i>Yuran dan Sumbangan</h4>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Fee Masuk (RM)</label>
-                                    <input type="number" name="registration_fee" class="form-control" value="50.00" readonly required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Modal Syer (RM)</label>
-                                    <input type="number" name="share_capital" class="form-control" value="300.00" readonly required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Modal Yuran (RM)</label>
-                                    <input type="number" name="fee_capital" class="form-control" step="0.01" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Wang Deposit Anggota (RM)</label>
-                                    <input type="number" name="deposit_funds" class="form-control" step="0.01" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Sumbangan Tabung Kebajikan (Al-Abrar)  (RM)</label>
-                                    <input type="number" name="welfare_fund" class="form-control" step="0.01" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Simpanan Tetap (RM)</label>
-                                    <input type="number" name="fixed_deposit" class="form-control" step="0.01" required>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label fw-bold">Lain-lain Sumbangan</label>
-                                    <textarea name="other_contributions" class="form-control" rows="3"
-                                            placeholder="Sumbangan lain..."></textarea>
-                                </div>
-                            </div>
-                        </div> -->
-
                         <!-- Navigation Buttons -->
                         <div class="step-buttons mt-4 d-flex justify-content-between align-items-center">
-                            <a href="/" class="btn btn-outline-secondary" style="min-width: 200px;">
-                                <i class="bi bi-arrow-left me-2"></i>Kembali ke Halaman Utama
-                            </a>
                             <div>
-                                <button type="button" class="btn btn-secondary prev-step" style="display: none; min-width: 140px;">
-                                    <i class="bi bi-arrow-left me-2"></i>Sebelumnya
+                              <!-- "Sebelumnya" button will be on the left and hidden initially -->
+                             <button type="button" class="btn btn-secondary prev-step" style="display: none; min-width: 140px;" id="prev-button">
+                             <i class="bi bi-arrow-left me-2"></i>Sebelumnya
+                             </button>
+                           </div>
+    
+                                 <div>
+                                     <!-- "Seterusnya" button will be on the right -->
+                                      <button type="button" class="btn btn-gradient next-step" style="min-width: 140px;" id="next-button">
+                                       Seterusnya<i class="bi bi-arrow-right ms-2"></i>
+                                      </button>
+        
+                                      <!-- "Hantar" button is shown on the last page -->
+                                <button type="submit" class="btn btn-gradient submit-form" style="display: none; min-width: 140px;" id="submit-button">
+                                 Hantar<i class="bi bi-check-circle ms-2"></i>
                                 </button>
-                                <button type="button" class="btn btn-gradient next-step" style="min-width: 140px;">
-                                    Seterusnya<i class="bi bi-arrow-right ms-2"></i>
-                                </button>
-                                <button type="submit" class="btn btn-gradient submit-form" style="display: none; min-width: 140px;">
-                                    Hantar<i class="bi bi-check-circle ms-2"></i>
-                                </button>
-                            </div>
-                        </div>
+                                 </div>
+                        </div>                                
                     </form>
                 </div>
             </div>

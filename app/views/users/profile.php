@@ -19,7 +19,7 @@
                             <i class="bi bi-check-circle me-1"></i>Ahli Aktif
                         </span>
                         <div class="mt-4">
-                            <button class="btn btn-danger btn-sm" onclick="confirmResign()">
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#resignModal">
                                 <i class="bi bi-box-arrow-right me-2"></i>Berhenti Menjadi Ahli
                             </button>
                         </div>
@@ -352,27 +352,6 @@
     </div>
 </div>
 
-<script>
-function confirmResign() {
-    if (confirm('Adakah anda pasti untuk berhenti menjadi ahli koperasi?')) {
-        window.location.href = '/users/resign';
-    }
-}
-
-function toggleEdit() {
-    const viewModes = document.querySelectorAll('.view-mode');
-    const editModes = document.querySelectorAll('.edit-mode');
-    
-    viewModes.forEach(view => {
-        view.classList.toggle('d-none');
-    });
-    
-    editModes.forEach(edit => {
-        edit.classList.toggle('d-none');
-    });
-}
-</script>
-
 <style>
 .profile-image {
     width: 120px;
@@ -415,5 +394,51 @@ function toggleEdit() {
     margin-bottom: 0.5rem;
 }
 </style>
+
+<!-- Resign Confirmation Modal -->
+<div class="modal fade" id="resignModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                    Pengesahan Berhenti
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p class="text-center mb-0">Adakah anda pasti untuk berhenti menjadi ahli koperasi?</p>
+                <p class="text-center text-muted small mb-0">Tindakan ini tidak boleh dibatalkan.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Batal
+                </button>
+                <button type="button" class="btn btn-danger" onclick="proceedToResign()">
+                    <i class="bi bi-check-circle me-2"></i>Ya, Teruskan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function proceedToResign() {
+    window.location.href = '/users/resign';
+}
+
+function toggleEdit() {
+    const viewModes = document.querySelectorAll('.view-mode');
+    const editModes = document.querySelectorAll('.edit-mode');
+    
+    viewModes.forEach(view => {
+        view.classList.toggle('d-none');
+    });
+    
+    editModes.forEach(edit => {
+        edit.classList.toggle('d-none');
+    });
+}
+</script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?> 

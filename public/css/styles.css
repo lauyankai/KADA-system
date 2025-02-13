@@ -101,7 +101,6 @@ body {
     top: 50%;
     left: 0;
     right: 0;
-    height: 2px;
     background: #dee2e6;
     transform: translateY(-50%);
     z-index: 0;
@@ -1989,66 +1988,6 @@ select.form-select.is-invalid {
 
 .text-success {
     color: #198754 !important;
-}
-
-/* Step navigation styles */
-.step-content {
-    display: none;
-}
-
-.step-content.active {
-    display: block;
-}
-
-.step-indicator {
-    display: flex;
-    justify-content: space-between;
-    position: relative;
-    margin: 30px 0;
-    padding: 0;
-}
-
-.step {
-    text-align: center;
-    flex: 1;
-    position: relative;
-    padding: 12px;
-}
-
-.step i {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-    color: #6c757d;
-    transition: all 0.3s ease;
-}
-
-.step div {
-    color: #6c757d;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.step.active i, 
-.step.active div {
-    color: #198754;
-}
-
-.step.active i {
-    transform: scale(1.2);
-}
-
-.step.completed {
-    color: #28a745;
-}
-
-.step.completed i {
-    color: #28a745;
-}
-
-.invalid-feedback {
-    display: none;
-    color: #dc3545;
 }
 
 /* Landing Page Styles */

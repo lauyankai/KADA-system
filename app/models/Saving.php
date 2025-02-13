@@ -139,20 +139,20 @@ class Saving extends BaseModel
                         amount, 
                         description,
                         created_at
-            ) VALUES (
+                    ) VALUES (
                         :account_id,
                         'deposit',
                         :amount,
                         'Deposit manual',
                         NOW()
-            )";
-            
+                    )";
+                    
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([
                 ':account_id' => $accountId,
                 ':amount' => $amount
             ]);
-            
+
             $this->getConnection()->commit();
             return true;
 
@@ -452,7 +452,7 @@ class Saving extends BaseModel
         }
     }
 
-    public function processDeposit($data)
+public function processDeposit($data)
     {
         try {
             $this->getConnection()->beginTransaction();
@@ -704,10 +704,10 @@ class Saving extends BaseModel
         try {
             $sql = "SELECT t.*, sa.*, m.name as member_name
                     FROM savings_transactions t
-                    INNER JOIN savings_accounts sa ON t.savings_account_id = sa.id 
-                    INNER JOIN members m ON sa.member_id = m.id
+                INNER JOIN savings_accounts sa ON t.savings_account_id = sa.id
+                INNER JOIN members m ON sa.member_id = m.id
                     WHERE t.reference_no = :reference_no";
-            
+                
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindParam(':reference_no', $referenceNo);
             return $stmt->execute() ? $stmt->fetch(PDO::FETCH_ASSOC) : false;
@@ -791,7 +791,7 @@ class Saving extends BaseModel
             // Debug log
             error_log('Inserting transaction with reference: ' . $data['reference_no']);
             error_log('Transaction parameters: ' . print_r($params, true));
-            
+
             $stmt = $this->getConnection()->prepare($sql);
             $result = $stmt->execute($params);
 
@@ -1025,8 +1025,8 @@ class Saving extends BaseModel
         } catch (\PDOException $e) {
             error_log('Database Error: ' . $e->getMessage());
             throw new \Exception('Gagal mendapatkan senarai sasaran simpanan');
-        }
     }
+}
 
     public function getTransactionHistory($accountId, $limit = 10)
     {
@@ -1075,7 +1075,7 @@ class Saving extends BaseModel
                     AND sa.status = 'active'
                     ORDER BY sa.id ASC
                     LIMIT 1";
-                    
+            
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([':member_id' => $memberId]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1083,7 +1083,7 @@ class Saving extends BaseModel
             if (!$result) {
                 // Check if member has any savings account
                 $checkSql = "SELECT COUNT(*) as count FROM savings_accounts 
-                   WHERE member_id = :member_id";
+                            WHERE member_id = :member_id";
                 $checkStmt = $this->getConnection()->prepare($checkSql);
                 $checkStmt->execute([':member_id' => $memberId]);
                 $count = $checkStmt->fetch(PDO::FETCH_ASSOC)['count'];
@@ -1162,15 +1162,15 @@ class Saving extends BaseModel
                 $accountNumber = 'SAV-' . str_pad($memberId, 6, '0', STR_PAD_LEFT) . '-' . rand(1000, 9999);
                 
                 $insertSql = "INSERT INTO savings_accounts (
-                account_number, 
-                member_id, 
-                current_amount, 
-                status,
+                    account_number,
+                    member_id,
+                    current_amount,
+                    status,
                     created_at,
                     updated_at
-            ) VALUES (
-                :account_number, 
-                :member_id, 
+                ) VALUES (
+                    :account_number,
+                    :member_id,
                     :initial_amount,
                     'active',
                     NOW(),
@@ -1182,19 +1182,19 @@ class Saving extends BaseModel
                 try {
                     $insertStmt = $this->getConnection()->prepare($insertSql);
                     $insertStmt->execute([
-                ':account_number' => $accountNumber,
+                        ':account_number' => $accountNumber,
                         ':member_id' => $memberId,
                         ':initial_amount' => $member['deposit_funds'] ?? 0.00
                     ]);
                     
-            $stmt = $this->getConnection()->prepare($sql);
+                    $stmt = $this->getConnection()->prepare($sql);
                     $stmt->execute([':member_id' => $memberId]);
                     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            $this->getConnection()->commit();
-
+                    
+                    $this->getConnection()->commit();
+                    
                 } catch (\Exception $e) {
-            $this->getConnection()->rollBack();
+                    $this->getConnection()->rollBack();
                     error_log('Failed to create account: ' . $e->getMessage());
                     throw new \Exception('Gagal membuat akaun baru');
                 }
@@ -1211,7 +1211,7 @@ class Saving extends BaseModel
         try {
             $sql = "SELECT * FROM savings_accounts 
                     WHERE member_id = :member_id 
-                    AND account_number = :account_number 
+                    AND account_number = :account_number
                     AND status = 'active'";
                     
             $stmt = $this->getConnection()->prepare($sql);
