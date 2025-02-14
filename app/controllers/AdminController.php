@@ -247,7 +247,7 @@ class AdminController extends BaseController {
                 <td>' . htmlspecialchars($member['gender']) . '</td>
                 <td>' . htmlspecialchars($member['position']) . '</td>
                 <td>RM ' . number_format($member['monthly_salary'], 2) . '</td>
-                <td>' . htmlspecialchars($member['member_type']) . '</td>
+                <td>' . htmlspecialchars($member['status']) . '</td>
             </tr>';
         }
         
