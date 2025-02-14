@@ -46,12 +46,21 @@ function getStatusLabel($status) {
                     </button>
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="#" class="dropdown-item" onclick="handleExport('/admin/export-pdf', 'pdf')">
+                            <form id="exportForm" method="POST" style="display: none;">
+                                <input type="hidden" name="export_type" value="">
+                                <?php
+                                // Add CSRF token if you're using it
+                                if (isset($_SESSION['csrf_token'])) {
+                                    echo '<input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">';
+                                }
+                                ?>
+                            </form>
+                            <a href="#" class="dropdown-item" onclick="return handleExport('/admin/export-pdf')">
                                 <i class="bi bi-file-pdf me-2"></i>PDF
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="dropdown-item" onclick="handleExport('/admin/export-excel', 'excel')">
+                            <a href="#" class="dropdown-item" onclick="return handleExport('/admin/export-excel')">
                                 <i class="bi bi-file-excel me-2"></i>Excel
                             </a>
                         </li>
@@ -299,10 +308,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function handleExport(url, type) {
+function handleExport(url) {
     const form = document.getElementById('exportForm');
-    form.action = url;
-    form.submit();
+    if (form) {
+        // Clear any previous response
+        form.action = url;
+        
+        // Set export type based on URL
+        const exportType = url.includes('pdf') ? 'pdf' : 'excel';
+        form.querySelector('input[name="export_type"]').value = exportType;
+        
+        form.submit();
+        return false;
+    }
     return false;
 }
 </script>
