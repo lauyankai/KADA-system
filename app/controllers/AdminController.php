@@ -199,75 +199,107 @@ class AdminController extends BaseController {
 
     public function exportPDF() {
         try {
-            // Start output buffering
             ob_start();
             
-            // Get members data
             $members = $this->admin->getAllMembers();
             
-            // Require TCPDF directly
             require_once dirname(__DIR__, 2) . '/vendor/tecnickcom/tcpdf/tcpdf.php';
             
-            // Create PDF instance using the base TCPDF class
+            // Create PDF instance with landscape orientation
             $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
             
             // Set document information
             $pdf->SetCreator('KADA System');
             $pdf->SetTitle('Senarai Ahli KADA');
             
-            // Remove header/footer
+            // Remove default header/footer
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
+            
+            // Set margins
+            $pdf->SetMargins(10, 10, 10);
+            
+            // Disable auto page breaks
+            $pdf->SetAutoPageBreak(TRUE, 15);
             
             // Add a page
             $pdf->AddPage();
             
-            // Set font
-            $pdf->SetFont('helvetica', '', 10);
+            // Add logo
+            $logoPath = dirname(__DIR__, 2) . '/public/img/logo-kada.png';
+            if (file_exists($logoPath)) {
+                $pdf->Image($logoPath, 10, 10, 25);
+            }
+            
+            // Add title with spacing after logo
+            $pdf->SetFont('helvetica', 'B', 16);
+            $pdf->SetXY(40, 15);
+            $pdf->Cell(0, 10, 'SENARAI AHLI KADA', 0, 1, 'L');
+            
+            // Set font for table
+            $pdf->SetFont('helvetica', '', 9);
+            
+            // Move to position for table
+            $pdf->SetXY(10, 35);
             
             // Table header
             $header = array('No.', 'Nama', 'No. K/P', 'Jantina', 'Jawatan', 'Gaji', 'Status');
             
             // Calculate column widths (total = 277mm for landscape A4)
-            $widths = array(15, 70, 40, 25, 50, 35, 35);
+            $widths = array(12, 75, 35, 20, 65, 30, 30);
             
             // Colors for header
-            $pdf->SetFillColor(52, 58, 64); // Dark gray
-            $pdf->SetTextColor(255, 255, 255); // White
+            $pdf->SetFillColor(52, 58, 64);
+            $pdf->SetTextColor(255, 255, 255);
             
             // Header row
-            $pdf->SetFont('helvetica', 'B', 10);
-            $x = $pdf->GetX();
-            $y = $pdf->GetY();
+            $pdf->SetFont('helvetica', 'B', 9);
             for($i = 0; $i < count($header); $i++) {
-                $pdf->MultiCell($widths[$i], 10, $header[$i], 1, 'C', true, 0);
+                $pdf->Cell($widths[$i], 8, $header[$i], 1, 0, 'C', true);
             }
             $pdf->Ln();
             
-            // Data rows
-            $pdf->SetTextColor(0, 0, 0); // Black text
-            $pdf->SetFillColor(255, 255, 255); // White background
+            // Reset text color for data
+            $pdf->SetTextColor(0, 0, 0);
             $pdf->SetFont('helvetica', '', 9);
             
             $counter = 1;
             foreach ($members as $member) {
-                // Row data
-                $row = array(
-                    $counter++,
-                    $member['name'],
-                    $member['ic_no'],
-                    $member['gender'],
-                    $member['position'],
-                    'RM ' . number_format($member['monthly_salary'], 2),
-                    $member['status']
-                );
-                
-                // Print row
-                foreach($row as $i => $data) {
-                    $align = ($i == 0) ? 'C' : 'L'; // Center align for number, left align for others
-                    $pdf->MultiCell($widths[$i], 10, $data, 1, $align, false, 0);
+                // Check if we need a new page
+                if ($pdf->GetY() > 180) {
+                    $pdf->AddPage();
+                    // Reprint header
+                    $pdf->SetFillColor(52, 58, 64);
+                    $pdf->SetTextColor(255, 255, 255);
+                    $pdf->SetFont('helvetica', 'B', 9);
+                    for($i = 0; $i < count($header); $i++) {
+                        $pdf->Cell($widths[$i], 8, $header[$i], 1, 0, 'C', true);
+                    }
+                    $pdf->Ln();
+                    $pdf->SetTextColor(0, 0, 0);
+                    $pdf->SetFont('helvetica', '', 9);
                 }
+                
+                $pdf->Cell($widths[0], 7, $counter++, 1, 0, 'C');
+                $pdf->Cell($widths[1], 7, $member['name'], 1, 0, 'L');
+                $pdf->Cell($widths[2], 7, $member['ic_no'], 1, 0, 'L');
+                $pdf->Cell($widths[3], 7, $member['gender'], 1, 0, 'C');
+                $pdf->Cell($widths[4], 7, $member['position'], 1, 0, 'L');
+                $pdf->Cell($widths[5], 7, 'RM ' . number_format($member['monthly_salary'], 2), 1, 0, 'R');
+                $pdf->Cell($widths[6], 7, $member['status'], 1, 0, 'C');
                 $pdf->Ln();
+            }
+            
+            // Get the last page number
+            $lastPage = $pdf->getPage();
+            
+            // For each page, add the generation date at the bottom
+            for($i = 1; $i <= $lastPage; $i++) {
+                $pdf->setPage($i);
+                // Set position at bottom of current page
+                $pdf->SetY(-25);
+                $pdf->SetFont('helvetica', 'I', 8);
+                $pdf->Cell(0, 10, 'Dijana pada: ' . date('d/m/Y H:i:s'), 0, 0, 'R');
             }
             
             // Clear any previous output
