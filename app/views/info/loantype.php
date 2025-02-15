@@ -104,7 +104,6 @@
                     </div>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Had maksimum: RM500.00</li>
-                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar keuntungan: 0%</li>
                     </ul>
                 </div>
             </div>
@@ -122,7 +121,6 @@
                     </div>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Had maksimum: RM1,000.00</li>
-                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar keuntungan: 0%</li>
                         <li class="mb-2"><i class="bi bi-info-circle text-info me-2"></i>80% daripada saham/yuran atau dua penjamin</li>
                     </ul>
                 </div>
@@ -142,7 +140,6 @@
                     <p class="card-text">Pembiayaan pembelajaran anak.</p>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Had maksimum: RM2,000.00</li>
-                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar keuntungan: 0%</li>
                     </ul>
                 </div>
             </div>

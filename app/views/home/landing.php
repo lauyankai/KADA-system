@@ -1,6 +1,5 @@
 <?php 
     $title = 'Welcome to KADA';
-    require_once '../app/views/layouts/header.php';
 ?>
 
 <?php if (isset($_SESSION['success_message'])): ?>
@@ -26,7 +25,7 @@
             <div class="col-lg-6">
                 <span class="hero-badge">Koperasi Kakitangan KADA</span>
                 <h1 class="display-4 fw-bold mb-4">
-                    Platform Digital <span class="text-gradient">Koperasi</span> KADA Kelantan
+                    Platform Digital <span class="text-gradient">Koperasi Kakitangan</span> KADA Kelantan
                 </h1>
                 <p class="lead mb-5">Urus semua urusan koperasi dengan mudah dan selamat melalui platform digital kami.</p>
                 <div class="d-flex gap-3">
@@ -38,9 +37,6 @@
                     <i class="bi bi-search me-2"></i>Semak Status
                 </a>
                 </div>
-            </div>
-            <div class="col-lg-6 position-relative d-none d-lg-block">
-                <img src="/img/hero-illustration.svg" alt="KADA" class="img-fluid">
             </div>
         </div>
     </div>
