@@ -2147,3 +2147,7 @@ select.form-select.is-invalid {
 .bg-light-subtle {
     background-color: #e1f5fe !important;
 }
+
+.gradient-4 {
+    background: linear-gradient(135deg, #20c997, #0dcaf0);
+}

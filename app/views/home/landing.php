@@ -92,43 +92,6 @@
     <?php endif; ?>
 </div>
 
-<div class="quick-links">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-2">
-                <a href="#" class="quick-link-item" data-bs-toggle="modal" data-bs-target="#calculatorModal">
-                    <i class="bi bi-calculator"></i>
-                    <span>Kalkulator</span>
-                </a>
-            </div>
-            <div class="col-md-2">
-                <a href="#" class="quick-link-item">
-                    <i class="bi bi-credit-card"></i>
-                    <span>Pembayaran</span>
-                </a>
-            </div>
-            <div class="col-md-2">
-                <a href="/info/loantype" class="quick-link-item">
-                    <i class="bi bi-person-badge"></i>
-                    <span>Pinjaman</span>
-                </a>
-            </div>
-            <div class="col-md-2">
-                <a href="#" class="quick-link-item">
-                    <i class="bi bi-file-text"></i>
-                    <span>Borang</span>
-                </a>
-            </div>
-            <div class="col-md-2">
-                <a href="#" class="quick-link-item">
-                    <i class="bi bi-percent"></i>
-                    <span>Kadar Yuran</span>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="services-section">
     <div class="container">
         <div class="text-center mb-5">
@@ -136,21 +99,21 @@
             <div class="header-line"></div>
         </div>
         <div class="row g-4">
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="service-card-3d">
                     <div class="card-content">
                         <div class="service-icon gradient-1">
                             <i class="bi bi-person-plus-fill"></i>
                         </div>
-                        <h3>Keahlian Atas Talian</h3>
+                        <h3>Keahlian</h3>
                         <p>Daftar dan urus keahlian anda secara dalam talian dengan mudah dan pantas.</p>
-                        <a href="#" class="service-link">
+                        <a href="/guest/create" class="service-link">
                             Ketahui Lebih Lanjut <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="service-card-3d">
                     <div class="card-content">
                         <div class="service-icon gradient-2">
@@ -164,16 +127,30 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="service-card-3d">
                     <div class="card-content">
                         <div class="service-icon gradient-3">
-                            <i class="bi bi-graph-up"></i>
+                            <i class="bi bi-calculator"></i>
                         </div>
-                        <h3>Pelaburan</h3>
-                        <p>Tingkatkan nilai pelaburan anda dengan portfolio pelaburan yang pelbagai.</p>
+                        <h3>Kalkulator</h3>
+                        <p>Kira anggaran bayaran pinjaman anda dengan kalkulator pinjaman kami.</p>
+                        <a href="#" class="service-link" data-bs-toggle="modal" data-bs-target="#calculatorModal">
+                            Kira Sekarang <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="service-card-3d">
+                    <div class="card-content">
+                        <div class="service-icon gradient-4">
+                            <i class="bi bi-file-text"></i>
+                        </div>
+                        <h3>Borang</h3>
+                        <p>Akses dan muat turun borang-borang yang berkaitan dengan perkhidmatan kami.</p>
                         <a href="#" class="service-link">
-                            Ketahui Lebih Lanjut <i class="bi bi-arrow-right"></i>
+                            Muat Turun <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -291,7 +268,7 @@
                             <input type="number" id="loanDuration" class="form-control" required step="1">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Kadar Keuntungan</label>
+                            <label class="form-label">Kadar Faedah</label>
                             <input type="text" class="form-control" value="4.2% setahun" readonly>
                         </div>
                         <div class="calculated-result p-3 rounded bg-light mb-3" style="display: none;">

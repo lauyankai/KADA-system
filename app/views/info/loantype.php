@@ -25,7 +25,7 @@
                     <p class="card-text">Pembiayaan perniagaan berdasarkan konsep jual beli yang mematuhi prinsip Syariah.</p>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Had maksimum: RM15,000.00</li>
-                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar keuntungan: 4.2% setahun</li>
+                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar Faedah: 4.2% setahun</li>
                     </ul>
                 </div>
             </div>
@@ -44,7 +44,7 @@
                     <p class="card-text">Pembiayaan peribadi yang fleksibel mengikut keperluan anda.</p>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Had maksimum: RM10,000.00</li>
-                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar keuntungan: 4.2% setahun</li>
+                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar Faedah: 4.2% setahun</li>
                     </ul>
                 </div>
             </div>
@@ -63,7 +63,7 @@
                     <p class="card-text">Pembiayaan untuk membaiki dan menyelenggara kenderaan anda.</p>
                     <ul class="list-unstyled">
                         <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Had maksimum: RM2,000.00</li>
-                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar keuntungan: 4.2% setahun</li>
+                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar Faedah: 4.2% setahun</li>
                     </ul>
                 </div>
             </div>
@@ -81,7 +81,7 @@
                     </div>
                     <p class="card-text">Pembiayaan untuk pembayaran cukai jalan dan insuran kenderaan.</p>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar keuntungan: 4.2% setahun</li>
+                        <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i>Kadar Faedah: 4.2% setahun</li>
                         <li class="mb-2"><i class="bi bi-info-circle text-info me-2"></i>Jumlah pembiayaan berdasarkan kos sebenar</li>
                     </ul>
                 </div>
