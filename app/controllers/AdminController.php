@@ -5,9 +5,10 @@ use App\Core\BaseController;
 use App\Core\Database;
 use App\Models\Admin;
 use PDO;
-use TCPDF;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use App\Models\AnnualReport;
 
 class AdminController extends BaseController {
@@ -196,118 +197,223 @@ class AdminController extends BaseController {
     //     }
     // }
 
-    public function exportPdf()
-    {
-        // Use the correct path to TCPDF
-        require_once dirname(dirname(__DIR__)) . '/vendor/tecnickcom/tcpdf/tcpdf.php';
-        
-        // Create new PDF document
-        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        
-        // Set document information
-        $pdf->SetCreator('KADA System');
-        $pdf->SetAuthor('KADA System');
-        $pdf->SetTitle('Senarai Ahli');
-        
-        // Remove default header/footer
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        
-        // Set margins
-        $pdf->SetMargins(15, 15, 15);
-        
-        // Add a page
-        $pdf->AddPage();
-        
-        // Get member data
-        $members = $this->admin->getAllMembers();
-        
-        // Create the HTML content
-        $html = '<h1>Senarai Ahli</h1>';
-        $html .= '<table border="1" cellpadding="4">
-            <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Nama</th>
-                    <th>No. K/P</th>
-                    <th>Jantina</th>
-                    <th>Jawatan</th>
-                    <th>Gaji</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>';
-        
-        $counter = 1;
-        foreach ($members as $member) {
-            $html .= '<tr>
-                <td>' . $counter++ . '</td>
-                <td>' . htmlspecialchars($member['name']) . '</td>
-                <td>' . htmlspecialchars($member['ic_no']) . '</td>
-                <td>' . htmlspecialchars($member['gender']) . '</td>
-                <td>' . htmlspecialchars($member['position']) . '</td>
-                <td>RM ' . number_format($member['monthly_salary'], 2) . '</td>
-                <td>' . htmlspecialchars($member['member_type']) . '</td>
-            </tr>';
+    public function exportPDF() {
+        try {
+            ob_start();
+            
+            $members = $this->admin->getAllMembers();
+            
+            require_once dirname(__DIR__, 2) . '/vendor/tecnickcom/tcpdf/tcpdf.php';
+            
+            // Create PDF instance with landscape orientation
+            $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
+            
+            // Set document information
+            $pdf->SetCreator('KADA System');
+            $pdf->SetTitle('Senarai Ahli KADA');
+            
+            // Remove default header/footer
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+            
+            // Set margins
+            $pdf->SetMargins(10, 10, 10);
+            
+            // Disable auto page breaks
+            $pdf->SetAutoPageBreak(TRUE, 15);
+            
+            // Add a page
+            $pdf->AddPage();
+            
+            // Add logo
+            $logoPath = dirname(__DIR__, 2) . '/public/img/logo-kada.png';
+            if (file_exists($logoPath)) {
+                $pdf->Image($logoPath, 10, 10, 25);
+            }
+            
+            // Add title with spacing after logo
+            $pdf->SetFont('helvetica', 'B', 16);
+            $pdf->SetXY(40, 15);
+            $pdf->Cell(0, 10, 'SENARAI AHLI KADA', 0, 1, 'L');
+            
+            // Set font for table
+            $pdf->SetFont('helvetica', '', 9);
+            
+            // Move to position for table
+            $pdf->SetXY(10, 35);
+            
+            // Table header
+            $header = array('No.', 'Nama', 'No. K/P', 'Jantina', 'Jawatan', 'Gaji', 'Status');
+            
+            // Calculate column widths (total = 277mm for landscape A4)
+            $widths = array(12, 75, 35, 20, 65, 30, 30);
+            
+            // Colors for header
+            $pdf->SetFillColor(52, 58, 64);
+            $pdf->SetTextColor(255, 255, 255);
+            
+            // Header row
+            $pdf->SetFont('helvetica', 'B', 9);
+            for($i = 0; $i < count($header); $i++) {
+                $pdf->Cell($widths[$i], 8, $header[$i], 1, 0, 'C', true);
+            }
+            $pdf->Ln();
+            
+            // Reset text color for data
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetFont('helvetica', '', 9);
+            
+            $counter = 1;
+            foreach ($members as $member) {
+                // Check if we need a new page
+                if ($pdf->GetY() > 180) {
+                    $pdf->AddPage();
+                    // Reprint header
+                    $pdf->SetFillColor(52, 58, 64);
+                    $pdf->SetTextColor(255, 255, 255);
+                    $pdf->SetFont('helvetica', 'B', 9);
+                    for($i = 0; $i < count($header); $i++) {
+                        $pdf->Cell($widths[$i], 8, $header[$i], 1, 0, 'C', true);
+                    }
+                    $pdf->Ln();
+                    $pdf->SetTextColor(0, 0, 0);
+                    $pdf->SetFont('helvetica', '', 9);
+                }
+                
+                $pdf->Cell($widths[0], 7, $counter++, 1, 0, 'C');
+                $pdf->Cell($widths[1], 7, $member['name'], 1, 0, 'L');
+                $pdf->Cell($widths[2], 7, $member['ic_no'], 1, 0, 'L');
+                $pdf->Cell($widths[3], 7, $member['gender'], 1, 0, 'C');
+                $pdf->Cell($widths[4], 7, $member['position'], 1, 0, 'L');
+                $pdf->Cell($widths[5], 7, 'RM ' . number_format($member['monthly_salary'], 2), 1, 0, 'R');
+                $pdf->Cell($widths[6], 7, $member['status'], 1, 0, 'C');
+                $pdf->Ln();
+            }
+            
+            // Get the last page number
+            $lastPage = $pdf->getPage();
+            
+            // For each page, add the generation date at the bottom
+            for($i = 1; $i <= $lastPage; $i++) {
+                $pdf->setPage($i);
+                // Set position at bottom of current page
+                $pdf->SetY(-25);
+                $pdf->SetFont('helvetica', 'I', 8);
+                $pdf->Cell(0, 10, 'Dijana pada: ' . date('d/m/Y H:i:s'), 0, 0, 'R');
+            }
+            
+            // Clear any previous output
+            ob_clean();
+            
+            // Output PDF
+            $pdf->Output('senarai_ahli.pdf', 'D');
+            exit();
+            
+        } catch (\Exception $e) {
+            ob_end_clean();
+            $_SESSION['error'] = "Error generating PDF: " . $e->getMessage();
+            header('Location: /admin/member_list');
+            exit();
         }
-        
-        $html .= '</tbody></table>';
-        
-        // Print text using writeHTMLCell()
-        $pdf->writeHTML($html, true, false, true, false, '');
-        
-        // Close and output PDF document
-        $pdf->Output('senarai_ahli.pdf', 'D');
-        exit();
     }
 
-    public function exportExcel()
-    {
-        require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
-        
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-        
-        // Set headers
-        $sheet->setCellValue('A1', 'No.');
-        $sheet->setCellValue('B1', 'Nama');
-        $sheet->setCellValue('C1', 'No. K/P');
-        $sheet->setCellValue('D1', 'Jantina');
-        $sheet->setCellValue('E1', 'Jawatan');
-        $sheet->setCellValue('F1', 'Gaji');
-        $sheet->setCellValue('G1', 'Status');
-        
-        // Get data
-        $members = $this->admin->getAllMembers();
-        
-        // Fill data
-        $row = 2;
-        foreach ($members as $index => $member) {
-            $sheet->setCellValue('A' . $row, $index + 1);
-            $sheet->setCellValue('B' . $row, $member['name']);
-            $sheet->setCellValue('C' . $row, $member['ic_no']);
-            $sheet->setCellValue('D' . $row, $member['gender']);
-            $sheet->setCellValue('E' . $row, $member['position']);
-            $sheet->setCellValue('F' . $row, 'RM ' . number_format($member['monthly_salary'], 2));
-            $sheet->setCellValue('G' . $row, $member['member_type']);
-            $row++;
+    public function exportExcel() {
+        try {
+            // Start output buffering
+            ob_start();
+            
+            // Require the autoloader
+            require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
+            
+            // Get members data
+            $members = $this->admin->getAllMembers();
+            
+            // Create new Spreadsheet object with full namespace reference
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            
+            // Set document properties
+            $spreadsheet->getProperties()
+                ->setCreator('KADA System')
+                ->setTitle('Senarai Ahli KADA');
+            
+            // Set headers
+            $headers = ['No.', 'Nama', 'No. K/P', 'Jantina', 'Jawatan', 'Gaji', 'Status'];
+            $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+            
+            // Style for headers
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => 'FFFFFF'],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '343A40'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ];
+            
+            // Set column widths
+            $sheet->getColumnDimension('A')->setWidth(8);  // No.
+            $sheet->getColumnDimension('B')->setWidth(35); // Nama
+            $sheet->getColumnDimension('C')->setWidth(20); // No. K/P
+            $sheet->getColumnDimension('D')->setWidth(15); // Jantina
+            $sheet->getColumnDimension('E')->setWidth(25); // Jawatan
+            $sheet->getColumnDimension('F')->setWidth(15); // Gaji
+            $sheet->getColumnDimension('G')->setWidth(15); // Status
+            
+            // Add headers
+            foreach ($headers as $index => $header) {
+                $sheet->setCellValue($columns[$index] . '1', $header);
+            }
+            
+            // Style the header row
+            $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
+            
+            // Add data
+            $row = 2;
+            $counter = 1;
+            foreach ($members as $member) {
+                $sheet->setCellValue('A' . $row, $counter++);
+                $sheet->setCellValue('B' . $row, $member['name']);
+                $sheet->setCellValue('C' . $row, $member['ic_no']);
+                $sheet->setCellValue('D' . $row, $member['gender']);
+                $sheet->setCellValue('E' . $row, $member['position']);
+                $sheet->setCellValue('F' . $row, 'RM ' . number_format($member['monthly_salary'], 2));
+                $sheet->setCellValue('G' . $row, $member['status']);
+                
+                // Center align the number and status columns
+                $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('G' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                
+                $row++;
+            }
+            
+            // Create Excel file
+            $writer = new Xlsx($spreadsheet);
+            
+            // Clear any previous output
+            ob_clean();
+            
+            // Set headers for download
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="senarai_ahli.xlsx"');
+            header('Cache-Control: max-age=0');
+            
+            // Save to PHP output
+            $writer->save('php://output');
+            exit();
+            
+        } catch (\Exception $e) {
+            ob_end_clean();
+            $_SESSION['error'] = "Error generating Excel file: " . $e->getMessage();
+            header('Location: /admin/member_list');
+            exit();
         }
-        
-        // Auto size columns
-        foreach(range('A','G') as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
-        }
-        
-        // Create writer and output file
-        $writer = new Xlsx($spreadsheet);
-        
-        // Set headers for download
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="senarai_ahli.xlsx"');
-        header('Cache-Control: max-age=0');
-        
-        $writer->save('php://output');
-        exit();
     }
 
     public function updateStatus()

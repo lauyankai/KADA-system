@@ -46,12 +46,15 @@ function getStatusLabel($status) {
                     </button>
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="#" class="dropdown-item" onclick="handleExport('/admin/export-pdf', 'pdf')">
+                            <form id="exportForm" method="POST" style="display: none;">
+                                <input type="hidden" name="export_type" value="">
+                            </form>
+                            <a href="/admin/export-pdf" class="dropdown-item">
                                 <i class="bi bi-file-pdf me-2"></i>PDF
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="dropdown-item" onclick="handleExport('/admin/export-excel', 'excel')">
+                            <a href="/admin/export-excel" class="dropdown-item">
                                 <i class="bi bi-file-excel me-2"></i>Excel
                             </a>
                         </li>
@@ -298,13 +301,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Dropdown(dropdownToggleEl);
     });
 });
-
-function handleExport(url, type) {
-    const form = document.getElementById('exportForm');
-    form.action = url;
-    form.submit();
-    return false;
-}
 </script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>
