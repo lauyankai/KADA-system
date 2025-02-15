@@ -4,13 +4,6 @@
 ?>
 <link rel="stylesheet" href="/css/director.css">
 <div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1">Dashboard Pengarah</h2>
-            <p class="text-muted mb-0">Selamat datang, <?= htmlspecialchars($_SESSION['director_name']) ?></p>
-        </div>
-    </div>
-
     <div class="row g-4 mb-4">
         <!-- Total Members -->
         <div class="col-xl-3 col-md-6">
