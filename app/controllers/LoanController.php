@@ -134,24 +134,38 @@ class LoanController extends BaseController
 
     public function showDetails($id)
     {
-        if (!isset($_SESSION['member_id'])) {
-            $_SESSION['error'] = 'Sila log masuk untuk melihat maklumat';
-            header('Location: /auth/login');
+        try {
+            if (!isset($_SESSION['member_id'])) {
+                throw new \Exception('Sila log masuk untuk mengakses');
+            }
+
+            // Add debug logging
+            error_log('Looking for loan with ID: ' . $id);
+            
+            $loan = $this->loan->find($id);
+            
+            // Debug the loan data
+            error_log('Loan data found: ' . print_r($loan, true));
+
+            if (!$loan) {
+                throw new \Exception('Maklumat pembiayaan tidak dijumpai');
+            }
+
+            // Verify the loan belongs to the logged-in member
+            if ($loan['member_id'] != $_SESSION['member_id']) {
+                throw new \Exception('Anda tidak mempunyai akses kepada maklumat ini');
+            }
+
+            $this->view('users/loans/details', [
+                'loan' => $loan
+            ]);
+
+        } catch (\Exception $e) {
+            error_log('Error in showDetails: ' . $e->getMessage());
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: /users/loans');
             exit;
         }
-
-        $loan = $this->loan->find($id);
-        if (!$loan || $loan['user_id'] != $_SESSION['member_id']) {
-            $_SESSION['error'] = 'Maklumat pembiayaan tidak dijumpai';
-            header('Location: /loans/status');
-            exit;
-        }
-
-        $schedule = $this->loan->getPaymentSchedule($id);
-        $this->view('loans/details', [
-            'loan' => $loan,
-            'schedule' => $schedule
-        ]);
     }
 
     public function listLoans()
