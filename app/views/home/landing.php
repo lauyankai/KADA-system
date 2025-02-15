@@ -113,9 +113,9 @@
                         <div class="service-icon gradient-2">
                             <i class="bi bi-cash-coin"></i>
                         </div>
-                        <h3>Pinjaman</h3>
-                        <p>Mohon pinjaman dengan kadar faedah yang kompetitif dan proses kelulusan yang cepat.</p>
-                        <a href="/info/loantype" class="service-link">
+                        <h3>Simpanan</h3>
+                        <p>Simpan wang anda dengan kadar faedah yang menarik dan akses simpanan bila-bila masa.</p>
+                        <a href="/users" class="service-link">
                             Ketahui Lebih Lanjut <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
@@ -128,8 +128,8 @@
                             <i class="bi bi-currency-exchange"></i>
                         </div>
                         <h3>Pembiayaan</h3>
-                        <p>Dapatkan pembiayaan untuk keperluan anda dengan terma yang fleksibel.</p>
-                        <a href="/users" class="service-link">
+                        <p>Mohon pinjaman dengan kadar faedah yang kompetitif dan proses kelulusan yang cepat.</p>
+                        <a href="/info/loantype" class="service-link">
                             Ketahui Lebih Lanjut <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
