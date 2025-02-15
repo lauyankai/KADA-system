@@ -230,6 +230,82 @@ class Loan extends BaseModel
             throw new \Exception('Gagal mendapatkan senarai penyata');
         }
     }
+
+    public function find($id)
+    {
+        try {
+            error_log('Finding loan with ID: ' . $id);
+
+            // First check in the loans table
+            $sql = "SELECT l.*, 
+                    m.name as member_name, 
+                    m.ic_no as member_ic,
+                    m.member_id as member_no,
+                    m.mobile_phone as member_phone,
+                    m.home_address as member_address,
+                    'approved' as loan_status
+                    FROM loans l
+                    JOIN members m ON l.member_id = m.id
+                    WHERE l.id = :id";
+
+            error_log('Checking loans table with query: ' . $sql);
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $loan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            error_log('Result from loans table: ' . ($loan ? 'Found' : 'Not found'));
+
+            if ($loan) {
+                error_log('Found loan in loans table');
+                // Get loan payments for approved loans
+                $sql = "SELECT * FROM loan_payments 
+                        WHERE loan_id = :loan_id 
+                        ORDER BY payment_date DESC";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->execute([':loan_id' => $id]);
+                $loan['transactions'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                // Calculate remaining amount
+                $totalPaid = $this->getTotalPaidAmount($id);
+                $loan['remaining_amount'] = $loan['amount'] - $totalPaid;
+                
+                return $loan;
+            }
+
+            // If not found in loans table, check pendingloans table
+            $sql = "SELECT pl.*, 
+                    m.name as member_name, 
+                    m.ic_no as member_ic,
+                    m.member_id as member_no,
+                    m.mobile_phone as member_phone,
+                    m.home_address as member_address,
+                    pl.status as loan_status
+                    FROM pendingloans pl
+                    JOIN members m ON pl.member_id = m.id
+                    WHERE pl.id = :id";
+
+            error_log('Checking pendingloans table with query: ' . $sql);
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $loan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            error_log('Result from pendingloans table: ' . ($loan ? 'Found' : 'Not found'));
+
+            if ($loan) {
+                error_log('Found loan in pendingloans table');
+                $loan['transactions'] = []; // Empty array for pending loans
+                $loan['remaining_amount'] = $loan['amount']; // Full amount for pending loans
+                return $loan;
+            }
+
+            error_log('No loan found in either table');
+            return null;
+            
+        } catch (\PDOException $e) {
+            error_log('Database Error in find: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan maklumat pembiayaan');
+        }
+    }
 }
 
 

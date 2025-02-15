@@ -99,9 +99,6 @@
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
                                     <small class="text-muted">
-                                        RM <?= number_format($goal['current_amount'] ?? 0, 2) ?>
-                                    </small>
-                                    <small class="text-muted">
                                         <?= number_format($goal['progress'], 1) ?>%
                                     </small>
                                 </div>

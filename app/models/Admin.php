@@ -167,30 +167,27 @@ class Admin extends BaseModel
 
             // Insert into members table
             $sql = "INSERT INTO members (
-                member_id, name, ic_no, gender, religion, race, marital_status, email,
+                name, ic_no, gender, religion, race, marital_status, email,
+                mobile_phone,
                 position, grade, monthly_salary,
                 home_address, home_postcode, home_state,
                 office_address, office_postcode,
                 office_phone, home_phone, fax,
                 family_relationship, family_name, family_ic,
-                password,
-                status,
-                created_at
+                member_id, status
             ) VALUES (
-                :member_id, :name, :ic_no, :gender, :religion, :race, :marital_status, :email,
+                :name, :ic_no, :gender, :religion, :race, :marital_status, :email,
+                :mobile_phone,
                 :position, :grade, :monthly_salary,
                 :home_address, :home_postcode, :home_state,
                 :office_address, :office_postcode,
                 :office_phone, :home_phone, :fax,
                 :family_relationship, :family_name, :family_ic,
-                NULL,
-                'Active',
-                NOW()
+                :member_id, 'Active'
             )";
 
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute([
-                ':member_id' => $memberId,
                 ':name' => $memberData['name'],
                 ':ic_no' => $memberData['ic_no'],
                 ':gender' => $memberData['gender'],
@@ -198,6 +195,7 @@ class Admin extends BaseModel
                 ':race' => $memberData['race'],
                 ':marital_status' => $memberData['marital_status'],
                 ':email' => $memberData['email'],
+                ':mobile_phone' => $memberData['mobile_phone'],
                 ':position' => $memberData['position'],
                 ':grade' => $memberData['grade'],
                 ':monthly_salary' => $memberData['monthly_salary'],
@@ -212,6 +210,7 @@ class Admin extends BaseModel
                 ':family_relationship' => $memberData['family_relationship'],
                 ':family_name' => $memberData['family_name'],
                 ':family_ic' => $memberData['family_ic'],
+                ':member_id' => $memberId
             ]);
 
             // Get the new member's ID
@@ -1053,6 +1052,57 @@ class Admin extends BaseModel
         } catch (\PDOException $e) {
             error_log('Error updating director: ' . $e->getMessage());
             return false;
+        }
+    }
+
+    private function moveToRejected($id, $remarks = '')
+    {
+        try {
+            // First get the pending member data
+            $sql = "SELECT * FROM pendingmember WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $pendingData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$pendingData) {
+                throw new \Exception('Member data not found');
+            }
+
+            // Insert into rejectedmember table
+            $sql = "INSERT INTO rejectedmember (
+                name, ic_no, gender, religion, race, marital_status, email,
+                mobile_phone, position, grade, monthly_salary,
+                home_address, home_postcode, home_state,
+                office_address, office_postcode,
+                office_phone, home_phone, fax,
+                family_relationship, family_name, family_ic,
+                reference_no, status, remarks
+            ) SELECT 
+                name, ic_no, gender, religion, race, marital_status, email,
+                mobile_phone, position, grade, monthly_salary,
+                home_address, home_postcode, home_state,
+                office_address, office_postcode,
+                office_phone, home_phone, fax,
+                family_relationship, family_name, family_ic,
+                reference_no, 'Rejected', :remarks
+            FROM pendingmember 
+            WHERE id = :id";
+
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([
+                ':id' => $id,
+                ':remarks' => $remarks
+            ]);
+
+            // Delete from pendingmember
+            $sql = "DELETE FROM pendingmember WHERE id = :id";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute([':id' => $id]);
+
+            return true;
+        } catch (\PDOException $e) {
+            error_log('Database Error in moveToRejected: ' . $e->getMessage());
+            throw new \Exception('Failed to reject member');
         }
     }
 }
