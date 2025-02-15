@@ -31,7 +31,7 @@ class Guest extends BaseModel
 
             $sql = "INSERT INTO pendingmember (
                 name, ic_no, gender, religion, race, marital_status, email,
-                position, grade, monthly_salary,
+                mobile_phone, position, grade, monthly_salary,
                 home_address, home_postcode, home_state,
                 office_address, office_postcode,
                 office_phone, home_phone, fax,
@@ -39,7 +39,7 @@ class Guest extends BaseModel
                 reference_no, status
             ) VALUES (
                 :name, :ic_no, :gender, :religion, :race, :marital_status, :email,
-                :position, :grade, :monthly_salary,
+                :mobile_phone, :position, :grade, :monthly_salary,
                 :home_address, :home_postcode, :home_state,
                 :office_address, :office_postcode,
                 :office_phone, :home_phone, :fax,
@@ -57,6 +57,7 @@ class Guest extends BaseModel
                 ':race' => $data['race'],
                 ':marital_status' => $data['marital_status'],
                 ':email' => $data['email'],
+                ':mobile_phone' => $data['mobile_phone'],
                 ':position' => $data['position'],
                 ':grade' => $data['grade'],
                 ':monthly_salary' => $data['monthly_salary'],

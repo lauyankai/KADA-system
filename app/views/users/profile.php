@@ -3,6 +3,9 @@
     require_once '../app/views/layouts/header.php';
 ?>
 
+<!-- Add this temporarily for debugging -->
+<?php error_log('Member data: ' . print_r($member, true)); ?>
+
 <div class="container-fluid mt-4 mb-4">
     <div class="row g-4">
         <!-- Profile Overview Card -->
@@ -44,7 +47,12 @@
                             </div>
                             <div class="col-6">
                                 <label class="text-muted small d-block">No. Tel (Bimbit)</label>
-                                <p class="mb-0"><?= htmlspecialchars($member->mobile_phone ?? '') ?></p>
+                                <p class="mb-0">
+                                    <?php 
+                                    error_log('Mobile phone: ' . ($member->mobile_phone ?? 'null'));
+                                    echo htmlspecialchars($member->mobile_phone ?? ''); 
+                                    ?>
+                                </p>
                             </div>
                             <div class="col-6">
                                 <label class="text-muted small d-block">No. Tel (Rumah)</label>
@@ -91,19 +99,56 @@
                                 <div class="row g-4">
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Jantina</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->gender ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $gender = [
+                                                'Male' => 'Lelaki',
+                                                'Female' => 'Perempuan'
+                                            ];
+                                            echo htmlspecialchars($gender[$member->gender] ?? $member->gender);
+                                            ?>
+                                        </p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Agama</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->religion ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $religion = [
+                                                'Islam' => 'Islam',
+                                                'Buddha' => 'Buddha',
+                                                'Hindu' => 'Hindu',
+                                                'Christian' => 'Kristian',
+                                                'Others-Religion' => 'Lain-lain'
+                                            ];
+                                            echo htmlspecialchars($religion[$member->religion] ?? $member->religion);
+                                            ?>
+                                        </p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Bangsa</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->race ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $race = [
+                                                'Malay' => 'Melayu',
+                                                'Chinese' => 'Cina',
+                                                'Indian' => 'India',
+                                                'Others-Race' => 'Lain-lain'
+                                            ];
+                                            echo htmlspecialchars($race[$member->race] ?? $member->race);
+                                            ?>
+                                        </p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Status Perkahwinan</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->marital_status ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $maritalStatus = [
+                                                'Single' => 'Bujang',
+                                                'Married' => 'Berkahwin'
+                                            ];
+                                            echo htmlspecialchars($maritalStatus[$member->marital_status] ?? $member->marital_status);
+                                            ?>
+                                        </p>
                                     </div>
                                     <div class="col-12">
                                         <label class="text-muted small d-block">Alamat Rumah</label>
@@ -199,50 +244,101 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Gred</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->grade ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $grade = [
+                                                'N1' => 'N1 - Pembantu Tadbir',
+                                                'N19' => 'N19 - Pembantu Tadbir',
+                                                'N22' => 'N22 - Pembantu Tadbir Kanan',
+                                                'N26' => 'N26 - Pembantu Tadbir Tingkatan Kanan',
+                                                'N28' => 'N28 - Pembantu Tadbir Tingkatan Tertinggi',
+                                                'N29' => 'N29 - Pembantu Tadbir Khas',
+                                                'N32' => 'N32 - Pembantu Tadbir Utama',
+                                                'N36' => 'N36 - Pembantu Tadbir Tertinggi',
+                                                'N40' => 'N40 - Pembantu Tadbir Atasan',
+                                                'N44' => 'N44 - Pembantu Tadbir Kanan Atasan',
+                                                'N48' => 'N48 - Pembantu Tadbir Tertinggi Atasan',
+                                                'N52' => 'N52 - Pembantu Tadbir Utama Atasan',
+                                                'N54' => 'N54 - Pembantu Tadbir Khas Atasan',
+                                                'F29' => 'F29 - Pegawai Kewangan',
+                                                'F32' => 'F32 - Pegawai Kewangan Kanan',
+                                                'F36' => 'F36 - Pegawai Kewangan Tingkatan Kanan',
+                                                'F40' => 'F40 - Pegawai Kewangan Tingkatan Tertinggi',
+                                                'F44' => 'F44 - Pegawai Kewangan Khas',
+                                                'F48' => 'F48 - Pegawai Kewangan Utama',
+                                                'F52' => 'F52 - Pegawai Kewangan Tertinggi',
+                                                'F54' => 'F54 - Pegawai Kewangan Atasan'
+                                            ];
+                                            echo htmlspecialchars($grade[$member->grade] ?? $member->grade);
+                                            ?>
+                                        </p>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="text-muted small d-block">Gaji Bulanan</label>
-                                        <p class="mb-0">RM <?= number_format($member->monthly_salary ?? 0, 2) ?></p>
+                                        <label class="text-muted small d-block">Status Pekerjaan</label>
+                                        <p class="mb-0">
+                                            <?php
+                                            $employmentStatus = [
+                                                'Permanent' => 'Tetap',
+                                                'Contract' => 'Kontrak',
+                                                'Temporary' => 'Sementara'
+                                            ];
+                                            $status = $member->employment_status ?? 'Permanent'; // Default to Permanent if null
+                                            echo htmlspecialchars($employmentStatus[$status] ?? $status);
+                                            ?>
+                                        </p>
                                     </div>
-                                    <div class="col-6">
-                                        <label class="text-muted small d-block">No. Tel (Pejabat)</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->office_phone ?? '') ?></p>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">Gaji Bulanan (RM)</label>
+                                        <p class="mb-0"><?= number_format($member->monthly_salary ?? 0, 2) ?></p>
                                     </div>
                                     <div class="col-12">
                                         <label class="text-muted small d-block">Alamat Pejabat</label>
                                         <p class="mb-1"><?= htmlspecialchars($member->office_address ?? '') ?></p>
                                         <p class="mb-0">
-                                            <?= htmlspecialchars($member->office_postcode ?? '') ?>, 
+                                            <?= htmlspecialchars($member->office_postcode ?? '') ?>
                                             <?= htmlspecialchars($member->office_state ?? '') ?>
                                         </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">No. Tel Pejabat</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->office_phone ?? '') ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-muted small d-block">No. Faks</label>
+                                        <p class="mb-0"><?= htmlspecialchars($member->fax ?? '') ?></p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Edit Mode (Initially Hidden) -->
+                            <!-- Edit Mode -->
                             <form class="edit-mode d-none" action="/users/profile/update" method="POST">
                                 <input type="hidden" name="section" value="employment">
                                 <div class="row g-4">
                                     <div class="col-md-6">
                                         <label class="form-label">Jawatan</label>
-                                        <input type="text" name="position" class="form-control" value="<?= htmlspecialchars($member->position ?? '') ?>">
+                                        <input type="text" name="position" class="form-control" value="<?= htmlspecialchars($member->position) ?>" required>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Gred</label>
-                                        <input type="text" name="grade" class="form-control" value="<?= htmlspecialchars($member->grade ?? '') ?>">
+                                        <select name="grade" class="form-select" required>
+                                            <option value="">Pilih Gred</option>
+                                            <?php foreach ($grade as $key => $value): ?>
+                                                <option value="<?= $key ?>" <?= $member->grade == $key ? 'selected' : '' ?>><?= $value ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Status Pekerjaan</label>
+                                        <select name="employment_status" class="form-select" required>
+                                            <option value="">Pilih Status</option>
+                                            <option value="Permanent" <?= ($member->employment_status ?? 'Permanent') == 'Permanent' ? 'selected' : '' ?>>Tetap</option>
+                                            <option value="Contract" <?= ($member->employment_status ?? 'Permanent') == 'Contract' ? 'selected' : '' ?>>Kontrak</option>
+                                            <option value="Temporary" <?= ($member->employment_status ?? 'Permanent') == 'Temporary' ? 'selected' : '' ?>>Sementara</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Gaji Bulanan (RM)</label>
-                                        <input type="number" name="monthly_salary" class="form-control" value="<?= htmlspecialchars($member->monthly_salary ?? '') ?>" step="0.01">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">No. Tel (Pejabat)</label>
-                                        <input type="text" name="office_phone" class="form-control" 
-                                               value="<?= htmlspecialchars($member->office_phone ?? '') ?>" 
-                                               pattern="^01[0-9]-[0-9]{7,8}$" 
-                                               placeholder="01x-xxxxxxx">
-                                        <div class="form-text">Format: 01x-xxxxxxx</div>
+                                        <input type="number" name="monthly_salary" class="form-control" value="<?= $member->monthly_salary ?>" step="0.01" required>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label">Alamat Pejabat</label>
@@ -311,7 +407,22 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="text-muted small d-block">Hubungan</label>
-                                        <p class="mb-0"><?= htmlspecialchars($member->family_relationship ?? '') ?></p>
+                                        <p class="mb-0">
+                                            <?php
+                                            $relationships = [
+                                                'Spouse' => 'Pasangan',
+                                                'Husband' => 'Suami',
+                                                'Wife' => 'Isteri',
+                                                'Child' => 'Anak',
+                                                'Father' => 'Bapa',
+                                                'Mother' => 'Ibu',
+                                                'Sibling' => 'Adik-beradik',
+                                                'Brother' => 'Abang/Adik Lelaki',
+                                                'Sister' => 'Kakak/Adik Perempuan'
+                                            ];
+                                            echo htmlspecialchars($relationships[$member->family_relationship] ?? $member->family_relationship);
+                                            ?>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -331,13 +442,16 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Hubungan</label>
                                         <select name="family_relationship" class="form-select" required>
-                                            <?php
-                                            $relationships = ['Ibu', 'Bapa', 'Suami', 'Isteri', 'Anak', 'Adik-beradik'];
-                                            foreach ($relationships as $rel) {
-                                                $selected = ($member->family_relationship == $rel) ? 'selected' : '';
-                                                echo "<option value=\"$rel\" $selected>$rel</option>";
-                                            }
-                                            ?>
+                                            <option value="">Pilih Hubungan</option>
+                                            <option value="Spouse" <?= $member->family_relationship == 'Spouse' ? 'selected' : '' ?>>Pasangan</option>
+                                            <option value="Husband" <?= $member->family_relationship == 'Husband' ? 'selected' : '' ?>>Suami</option>
+                                            <option value="Wife" <?= $member->family_relationship == 'Wife' ? 'selected' : '' ?>>Isteri</option>
+                                            <option value="Child" <?= $member->family_relationship == 'Child' ? 'selected' : '' ?>>Anak</option>
+                                            <option value="Father" <?= $member->family_relationship == 'Father' ? 'selected' : '' ?>>Bapa</option>
+                                            <option value="Mother" <?= $member->family_relationship == 'Mother' ? 'selected' : '' ?>>Ibu</option>
+                                            <option value="Sibling" <?= $member->family_relationship == 'Sibling' ? 'selected' : '' ?>>Adik-beradik</option>
+                                            <option value="Brother" <?= $member->family_relationship == 'Brother' ? 'selected' : '' ?>>Abang/Adik Lelaki</option>
+                                            <option value="Sister" <?= $member->family_relationship == 'Sister' ? 'selected' : '' ?>>Kakak/Adik Perempuan</option>
                                         </select>
                                     </div>
                                 </div>
